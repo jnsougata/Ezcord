@@ -1,5 +1,5 @@
 import os
-from src.droid.Driod import Bot
+from src.droid.client import Bot
 from src.slash.ext import Slash, Builder
 
 app = 874663148374880287
@@ -16,7 +16,7 @@ scmd.add_bool_option(name='double', description='if you want to double', require
 scmd.add_choices(0, name='one', value = 1)
 scmd.add_choices(1, name='two', value = 'twice')
 
-slash = Slash(
+slash_1 = Slash(
     scmd = scmd.json,
     application_id = app,
     guild_id = test
@@ -28,7 +28,7 @@ bot = Bot(
     token = os.getenv('DISCORD_TOKEN'),
     commands = commands,
     prefix = '-',
-    add_slash = [slash]
+    add_slash = [slash_1]
 )
 
 bot.start()

@@ -1,9 +1,6 @@
 import aiohttp
 
 
-
-
-
 class Interaction:
 
     def __init__(
@@ -25,7 +22,7 @@ class Interaction:
         return f'{self.__dict__}'
 
 
-    async def postReply(
+    async def post(
             self,
             body: dict,
             auth: dict,

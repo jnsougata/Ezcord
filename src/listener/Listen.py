@@ -1,6 +1,6 @@
 import aiohttp
-from src.utils.Entity import Context
-from src.slash.SlashEvent import SlashContext
+from src.utils.entity import Context
+from src.slash.slashevent import SlashContext
 
 
 
@@ -50,8 +50,8 @@ class Listener:
 
             if EVENT == 'INTERACTION_CREATE':
                 action = SlashContext(RAW)
-                body = await action.buildBody()
-                await action.postCallback(self.session, body)
+                body = await action.parse()
+                await action.callback(self.session, body)
 
             if EVENT == 'MESSAGE_CREATE':
                 ctx = Context(RAW)

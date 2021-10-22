@@ -1,6 +1,6 @@
 #import json
 import asynctube
-from src.utils.Interaction import Interaction
+from src.utils.interaction import Interaction
 
 
 class SlashContext(Interaction):
@@ -10,14 +10,14 @@ class SlashContext(Interaction):
 
 
 
-    async def postCallback(self, session, body:dict):
+    async def callback(self, session, body:dict):
         if self.slash:
             url = f'https://discord.com/api/v9/interactions/{self.id}/{self.token}/callback'
             body = body
             await session.post(url = url, json = body)
 
 
-    async def buildBody(self):
+    async def parse(self):
 
         if self.slash:
             data = self.data

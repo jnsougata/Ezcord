@@ -3,8 +3,8 @@ import json
 import asyncio
 import aiohttp
 import websockets
-from src.utils.Entity import Context
-from src.slash.SlashEvent import SlashContext
+from src.utils.entity import Context
+from src.slash.slashevent import SlashContext
 from src.events.MESSAGE_CREATE import MessageContext
 
 
@@ -95,8 +95,8 @@ class Socket:
 
                     async with aiohttp.ClientSession() as session:
 
-                        body = await action.buildBody()
-                        await action.postCallback(session, body)
+                        body = await action.parse()
+                        await action.callback(session, body)
 
 
                 elif event == 'MESSAGE_CREATE':
