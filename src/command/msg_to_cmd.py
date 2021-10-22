@@ -40,9 +40,12 @@ class Parser:
                 cmd = args[0].replace(self.prefix, '')
                 for item in self.bucket:
                     if item.__name__ == cmd:
-                        command = CommandParser(self.message, item)
-                        value = await command.execute(self.ctx)
-                        if value:
-                            return {'content': str(value)}
+                        try:
+                            command = CommandParser(self.message, item)
+                            value = await command.execute(self.ctx)
+                            if value:
+                                return {'content': str(value)}
+                        except:
+                            return None
                 else:
                     return {'content': 'Command not found'}

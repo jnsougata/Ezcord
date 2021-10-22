@@ -73,11 +73,12 @@ class Listener:
                     )
                     body = await PARSER.process_message
 
-                    await PARSER.post(
-                        auth = self.auth_header,
-                        body = body,
-                        session = self.session
-                    )
+                    if body:
+                        await PARSER.post(
+                            auth = self.auth_header,
+                            body = body,
+                            session = self.session
+                        )
 
         # RECEIVED HELLO
         elif CODE == 10:

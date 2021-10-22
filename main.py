@@ -7,8 +7,8 @@ app = 874663148374880287
 test = 877399405056102431
 
 
-async def zen(ctx:Context, phrase:str):
-    return f'{phrase} Are you talking about my boss?'
+async def echo(ctx:Context, phrase:str):
+    return f'{ctx.author.mention} **{phrase.upper()}**'
 
 
 scmd = Builder()
@@ -25,7 +25,7 @@ slash_1 = Slash(
     guild_id = test
 )
 
-commands = [zen]
+commands = [echo]
 
 bot = Bot(
     token = os.getenv('DISCORD_TOKEN'),
