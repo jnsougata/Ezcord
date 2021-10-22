@@ -6,10 +6,12 @@ from src.listener.Listen import Listener
 
 
 
-class Socket:
+class Websocket:
     def __init__(
             self,
             secret: str,
+            prefix:str,
+            bucket: list,
     ):
         self.ws = None
         self.session = None
@@ -17,6 +19,8 @@ class Socket:
         self.start_time = 0
         self.ack_time = 0
         self.interval = 0
+        self.bucket = bucket
+        self.prefix = prefix
 
 
 
@@ -66,6 +70,7 @@ class Socket:
                     socket = self.ws,
                     secret = self.secret,
                     session = self.session,
+                    bucket = self.bucket
                 )
                 await listener.run()
                 await self.send_heartbeat(data)

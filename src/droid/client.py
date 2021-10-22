@@ -1,7 +1,7 @@
 import asyncio
 import aiohttp
-from src.slash.ext import Slash
-from src.aiosocket.AioSocket import Socket
+from src.slash.slashext import Slash
+from src.socket.websocket import Websocket
 
 
 class Bot:
@@ -39,6 +39,10 @@ class Bot:
             new_loop = asyncio.new_event_loop()
             new_loop.run_until_complete(self.register())
 
-        client = Socket(self.token)
+        ws = Websocket(
+            secret = self.token,
+            prefix = self.prefix,
+            bucket = self.bucket
+        )
         loop = asyncio.new_event_loop()
-        loop.run_until_complete(client.connect())
+        loop.run_until_complete(ws.connect())

@@ -4,8 +4,8 @@ import asyncio
 import aiohttp
 import websockets
 from src.utils.entity import Context
-from src.slash.slashevent import SlashContext
-from src.events.MESSAGE_CREATE import MessageContext
+from src.slash.slashev import SlashContext
+from src.events.MESSAGE_CREATE import Parser
 
 
 
@@ -105,7 +105,7 @@ class Socket:
                     raw = load['d']
                     ctx = Context(raw)
 
-                    x = MessageContext(
+                    x = Parser(
                         ctx = ctx,
                         prefix = self.prefix,
                         bucket = self.bucket,
@@ -118,7 +118,7 @@ class Socket:
                     if value:
                         async with aiohttp.ClientSession() as session:
 
-                            await x.postReply(
+                            await x.post(
                                 Id = ctx.channel_id,
                                 session = session,
                                 auth = auth,

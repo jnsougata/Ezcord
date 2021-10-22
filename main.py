@@ -1,12 +1,15 @@
 import os
 from src.droid.client import Bot
-from src.slash.ext import Slash, Builder
+from src.utils.entity import Context
+from src.slash.slashext import Slash, Builder
 
 app = 874663148374880287
 test = 877399405056102431
 
-async def zen(ctx):
-    return 'Are you talking about my boss?'
+
+async def zen(ctx:Context, phrase:str):
+    return f'{phrase} Are you talking about my boss?'
+
 
 scmd = Builder()
 scmd.command(name='shit', description='this is a shit command')

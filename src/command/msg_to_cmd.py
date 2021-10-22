@@ -1,9 +1,12 @@
-class MessageContext:
+from src.utils.entity import Context
+from src.command.parser import CommandParser
+
+
+class Parser:
 
     def __init__(
             self,
-            ctx,
-            message,
+            ctx: Context,
             prefix,
             bucket,
             secret
@@ -12,19 +15,18 @@ class MessageContext:
         self.token = secret
         self.prefix = prefix
         self.bucket = bucket
-        self.message = message
+        self.message = ctx.message
 
 
-    @classmethod
-    async def postReply(
-            cls,
-            Id: str,
+
+    async def post(
+            self,
             body:dict,
             auth: dict,
             session
     ):
         await session.post(
-            f'https://discord.com/api/v9/channels/{Id}/messages',
+            f'https://discord.com/api/v9/channels/{self.ctx.channel_id}/messages',
             data = body,
             headers = auth
         )
@@ -34,11 +36,12 @@ class MessageContext:
     async def process_message(self):
         if self.message:
             if self.message.startswith(self.prefix):
-                cmd = self.message.replace(self.prefix, '')
+                args = self.message.split(' ')
+                cmd = args[0].replace(self.prefix, '')
                 for item in self.bucket:
                     if item.__name__ == cmd:
-                        print('CMD_INVOKED')
-                        value = await item(self.ctx)
+                        command = CommandParser(self.message, item)
+                        value = await command.execute(self.ctx)
                         if value:
                             return {'content': str(value)}
                 else:

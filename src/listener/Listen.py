@@ -1,6 +1,7 @@
 import aiohttp
 from src.utils.entity import Context
-from src.slash.slashevent import SlashContext
+from src.command.msg_to_cmd import Parser
+from src.slash.slashev import SlashContext
 
 
 
@@ -11,7 +12,8 @@ class Listener:
             secret: str,
             response: dict,
             session: aiohttp.ClientSession,
-            socket: aiohttp.ClientWebSocketResponse
+            socket: aiohttp.ClientWebSocketResponse,
+            bucket: list,
     ):
         self.data = response
         self.session = session
@@ -20,6 +22,7 @@ class Listener:
         self.start_time = 0
         self.ack_time = 0
         self.secret = secret
+        self.bucket = bucket
 
 
     @property
@@ -61,6 +64,20 @@ class Listener:
                             content=f"Hi...{ctx.author.mention}, this is an automate messgae!",
                             channel_id=ctx.channel_id
                         )
+
+                    PARSER = Parser(
+                        ctx = ctx,
+                        prefix = '-',
+                        secret = self.secret,
+                        bucket = self.bucket
+                    )
+                    body = await PARSER.process_message
+
+                    await PARSER.post(
+                        auth = self.auth_header,
+                        body = body,
+                        session = self.session
+                    )
 
         # RECEIVED HELLO
         elif CODE == 10:
