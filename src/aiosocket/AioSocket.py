@@ -38,14 +38,11 @@ class Socket:
         )
 
 
-
-
     async def getGateway(self):
         URL = "https://discordapp.com/api/gateway"
         response = await self.session.get(URL)
         TEMP = await response.json()
         return TEMP['url']
-
 
 
     async def connect(self):
