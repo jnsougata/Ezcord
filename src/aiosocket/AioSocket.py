@@ -3,7 +3,6 @@ import json
 import aiohttp
 import asyncio
 from src.utils.Entity import Context
-from src.slash.SlashHandler import Slash
 from src.slash.SlashEvent import SlashContext
 
 
