@@ -1,7 +1,7 @@
 import asyncio
 import aiohttp
+from src.slash.ext import Slash
 from src.aiosocket.AioSocket import Socket
-from src.slash.SlashHandler import Slash
 
 
 class Bot:
@@ -10,7 +10,7 @@ class Bot:
             token: str,
             prefix: str,
             commands: list,
-            add_slash: Slash,
+            add_slash: list[Slash] = None,
     ):
 
         self.token = token
@@ -25,17 +25,19 @@ class Bot:
 
     async def register(self):
         async with aiohttp.ClientSession() as session:
-            resp = await session.post(
-                f'https://discord.com/api/v9/applications/{self.slash.app_id}/guilds/{self.slash.guild_id}/commands',
-                json = self.slash.json,
-                headers = self.slash_auth_header
-            )
-            print(await resp.json())
+            for item in self.slash:
+                resp = await session.post(
+                    f'https://discord.com/api/v9/applications/{item.app_id}/guilds/{item.guild_id}/commands',
+                    json = item.json,
+                    headers = self.slash_auth_header
+                )
+                print(await resp.json())
 
 
     def start(self):
-        new_loop = asyncio.new_event_loop()
-        new_loop.run_until_complete(self.register())
+        if self.slash:
+            new_loop = asyncio.new_event_loop()
+            new_loop.run_until_complete(self.register())
 
         client = Socket(self.token)
         loop = asyncio.new_event_loop()
