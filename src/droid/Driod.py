@@ -32,6 +32,7 @@ class Bot:
             )
             print(await resp.json())
 
+
     def start(self):
         new_loop = asyncio.new_event_loop()
         new_loop.run_until_complete(self.register())
