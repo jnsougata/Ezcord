@@ -13,7 +13,7 @@ scmd.command(name='shit', description='this is a shit command')
 scmd.add_int_option(name='number', description='any number', required=True)
 scmd.add_str_option(name='username', description='your username', required=True)
 scmd.add_bool_option(name='double', description='if you want to double', required=False)
-scmd.add_choices(0, name='one', value = '1')
+scmd.add_choices(0, name='one', value = 1)
 scmd.add_choices(1, name='two', value = 'twice')
 
 slash = Slash(

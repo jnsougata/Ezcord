@@ -1,5 +1,3 @@
-import types
-
 
 class Slash:
     def __init__(
@@ -20,11 +18,22 @@ class Builder:
 
     def __init__(self):
         self.json = None
-        self._types = {
-            3: 1,
-            4: 'a',
-            5: True,
-        }
+
+    def ismatched(self, index:int, value):
+
+        TARGET = self.json["options"][index]['type']
+
+        if TARGET == 4 and (type(value) is int):
+            return True
+        elif TARGET == 3 and isinstance(value, str):
+            return True
+        elif TARGET == 5 and (type(value) is bool):
+            return True
+        else:
+            return None
+
+
+
 
 
     def command(self,name:str, description:str):
@@ -71,12 +80,17 @@ class Builder:
 
     def add_choices(self, index:int, name:str, value):
 
-        self.json["options"][index]["choices"].append(
-            {
-                "name": name,
-                "value": value
-            }
-        )
+        if self.ismatched(index = index, value = value):
+
+            self.json["options"][index]["choices"].append(
+                {
+                    "name": name,
+                    "value": value
+                }
+            )
+        else:
+            print(index)
+            raise ValueError("Type of value of choice must be same as the type of option that it belongs to")
 
 
 
