@@ -1,6 +1,4 @@
-import time
 import aiohttp
-import asyncio
 from src.utils.Entity import Context
 from src.slash.SlashEvent import SlashContext
 
@@ -18,7 +16,6 @@ class Listener:
         self.data = response
         self.session = session
         self.auth_header = {"Authorization": f"Bot {secret}"}
-        self.interval = None
         self.ws = socket
         self.start_time = 0
         self.ack_time = 0
@@ -26,7 +23,7 @@ class Listener:
 
 
     @property
-    def op(self):
+    async def op(self):
         return int(self.data['op'])
 
 
@@ -37,29 +34,18 @@ class Listener:
             headers = self.auth_header
         )
 
-    async def heartBeat(self, interval):
-        while True:
-            await asyncio.sleep(interval / 1000)
-            await self.ws.send_json(
-                {
-                    "op": 1,
-                    "d": None
-                }
-            )
-            self.start_time = time.time() * 1000
-
 
     async def run(self):
-        CODE = self.op
+        CODE = await self.op
         DATA = self.data
 
         # RECEIVED DISPATCH
         if CODE == 0:
-            print(f'[ {DATA["t"]} ]')
-            RAW = DATA['d']
-            print(RAW)
-
             EVENT = DATA['t']
+            print(f'[ {EVENT} ]')
+            RAW = DATA['d']
+            print(DATA)
+
             # CHECKING EVENT TYPE
 
             if EVENT == 'INTERACTION_CREATE':
@@ -77,13 +63,7 @@ class Listener:
                         )
 
         # RECEIVED HELLO
-        if CODE == 10:
-            self.interval = DATA['d']['heartbeat_interval']
-
-            # SENDING HEART BEAT
-            asyncio.ensure_future(
-                self.heartBeat(self.interval)
-            )
+        elif CODE == 10:
 
             # SENDING IDENTIFICATION PAYLOAD
             await self.ws.send_json(
@@ -104,9 +84,10 @@ class Listener:
             )
 
         # HEART BEAT ACK
-        if CODE == 11:
-            self.ack_time = time.time() * 1000
-            print(f'[ Latency: {self.ack_time - self.start_time}ms ]')
+        elif CODE == 11:
+            EVENT = DATA['t']
+            print(f'[ {EVENT} ]')
+            print(DATA)
 
-
-
+        else:
+            print(DATA)
