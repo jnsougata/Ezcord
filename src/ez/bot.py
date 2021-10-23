@@ -45,7 +45,6 @@ class Bot:
             )
 
 
-
     def start(self):
 
         if self.slash and self.guild_id and self.app_id:

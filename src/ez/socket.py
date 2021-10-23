@@ -16,15 +16,19 @@ class Receiver:
             session: aiohttp.ClientSession,
             socket: aiohttp.ClientWebSocketResponse,
             bucket: list,
+            prefix:str
     ):
-        self.data = response
-        self.session = session
-        self.auth_header = {"Authorization": f"Bot {secret}"}
         self.ws = socket
-        self.start_time = 0
         self.ack_time = 0
+        self.start_time = 0
         self.secret = secret
         self.bucket = bucket
+        self.prefix = prefix
+        self.data = response
+        self.session = session
+        self.auth_header = {
+            "Authorization": f"Bot {secret}"
+        }
 
 
     @property
@@ -32,7 +36,7 @@ class Receiver:
         return int(self.data['op'])
 
 
-    async def send_message(self, content:str, channel_id: int):
+    async def send_(self, content:str, channel_id: int):
         await self.session.post(
             f'https://discord.com/api/v9/channels/{channel_id}/messages',
             data = {"content": content},
@@ -58,28 +62,25 @@ class Receiver:
                 await slash.callback(self.session)
 
             if EVENT == 'MESSAGE_CREATE':
-                ctx = Tweak(RAW)
+                ctx = Tweak(
+                    response = RAW,
+                    session = self.session,
+                    secret = self.secret
+                )
                 if ctx.author.id != 874663148374880287:
                     if ctx.message.lower() == 'hi':
-                        await self.send_message(
+                        await self.send_(
                             content=f"Hi...{ctx.author.mention}, this is an automate messgae!",
                             channel_id=ctx.channel_id
                         )
 
                     PARSER = Executor(
                         ctx = ctx,
-                        prefix = '-',
-                        secret = self.secret,
-                        bucket = self.bucket
+                        prefix = self.prefix,
+                        bucket = self.bucket,
                     )
-                    body = await PARSER.process_message
+                    await PARSER.process_message
 
-                    if body:
-                        await PARSER.post(
-                            auth = self.auth_header,
-                            body = body,
-                            session = self.session
-                        )
 
         # RECEIVED HELLO
         elif CODE == 10:
@@ -177,7 +178,8 @@ class Websocket:
                     socket = self.ws,
                     secret = self.secret,
                     session = self.session,
-                    bucket = self.bucket
+                    bucket = self.bucket,
+                    prefix = self.prefix
                 )
                 await listener.run()
                 await self.send_heartbeat(data)

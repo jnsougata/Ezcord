@@ -9,7 +9,8 @@ TOK = os.getenv('DISCORD_TOKEN')
 
 
 async def echo(ctx:Tweak, phrase:str):
-    return f'{ctx.author.mention} **{phrase.upper()}**'
+    await ctx.send(f'{ctx.author.mention} **{phrase.upper()}**')
+
 
 
 slash_one = MakeSlash()
@@ -26,7 +27,7 @@ slash_commands = [slash_one]
 
 bot = Bot(
     token = TOK,
-    prefix = '!',
+    prefix = '>>',
     app_id = APP,
     guild_id = TEST,
     commands = commands,
