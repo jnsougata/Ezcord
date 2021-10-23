@@ -1,1 +1,1 @@
-# discord.ez
+# ezcord
