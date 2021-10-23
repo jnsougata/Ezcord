@@ -1,37 +1,37 @@
 import os
-from src.droid.client import Bot
-from src.utils.entity import Context
-from src.slash.slashext import Slash, Builder
+from src.ez.bot import Bot
+from src.ez.map import Tweak
+from src.ez.slash import MakeSlash
 
-app = 874663148374880287
-test = 877399405056102431
+APP = 874663148374880287
+TEST = 877399405056102431
+TOK = os.getenv('DISCORD_TOKEN')
 
 
-async def echo(ctx:Context, phrase:str):
+async def echo(ctx:Tweak, phrase:str):
     return f'{ctx.author.mention} **{phrase.upper()}**'
 
 
-scmd = Builder()
-scmd.command(name='shit', description='this is a shit command')
-scmd.add_int_option(name='number', description='any number', required=True)
-scmd.add_str_option(name='username', description='your username', required=True)
-scmd.add_bool_option(name='double', description='if you want to double', required=False)
-scmd.add_choices(0, name='one', value = 1)
-scmd.add_choices(1, name='two', value = 'twice')
-
-slash_1 = Slash(
-    scmd = scmd.json,
-    application_id = app,
-    guild_id = test
-)
+slash_one = MakeSlash()
+slash_one.command(name='shit', description='this is a shit command')
+slash_one.add_int_option(name='number', description='any number', required=True)
+slash_one.add_str_option(name='username', description='your username', required=True)
+slash_one.add_bool_option(name='double', description='if you want to double', required=False)
+slash_one.add_choices(0, name='one', value = 1)
+slash_one.add_choices(1, name='two', value ='twice')
 
 commands = [echo]
+slash_commands = [slash_one]
+
 
 bot = Bot(
-    token = os.getenv('DISCORD_TOKEN'),
-    commands = commands,
+    token = TOK,
     prefix = '-',
-    add_slash = [slash_1]
+    app_id = APP,
+    guild_id = TEST,
+    commands = commands,
+    slash_commands = slash_commands,
+
 )
 
 bot.start()

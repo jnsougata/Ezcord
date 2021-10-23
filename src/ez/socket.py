@@ -1,11 +1,13 @@
+import json
+import time
+import asyncio
 import aiohttp
-from src.utils.entity import Context
-from src.command.msg_to_cmd import Parser
-from src.slash.slashev import SlashContext
+from src.ez.map import Tweak
+from src.ez.cmd import Executor
+from src.ez.slash import SlashReply
 
 
-
-class Listener:
+class Receiver:
 
     def __init__(
             self,
@@ -52,12 +54,11 @@ class Listener:
             # CHECKING EVENT TYPE
 
             if EVENT == 'INTERACTION_CREATE':
-                action = SlashContext(RAW)
-                body = await action.parse()
-                await action.callback(self.session, body)
+                slash = SlashReply(RAW)
+                await slash.callback(self.session)
 
             if EVENT == 'MESSAGE_CREATE':
-                ctx = Context(RAW)
+                ctx = Tweak(RAW)
                 if ctx.author.id != 874663148374880287:
                     if ctx.message.lower() == 'hi':
                         await self.send_message(
@@ -65,7 +66,7 @@ class Listener:
                             channel_id=ctx.channel_id
                         )
 
-                    PARSER = Parser(
+                    PARSER = Executor(
                         ctx = ctx,
                         prefix = '-',
                         secret = self.secret,
@@ -109,3 +110,83 @@ class Listener:
 
         else:
             print(DATA)
+
+
+
+class Websocket:
+    def __init__(
+            self,
+            secret: str,
+            prefix:str,
+            bucket: list,
+    ):
+        self.ws = None
+        self.session = None
+        self.secret = secret
+        self.start_time = 0
+        self.ack_time = 0
+        self.interval = 0
+        self.bucket = bucket
+        self.prefix = prefix
+
+
+
+    async def getGateway(self):
+        URL = "https://discordapp.com/api/gateway"
+        response = await self.session.get(URL)
+        TEMP = await response.json()
+        return TEMP['url']
+
+
+    async def send_heartbeat(self, data: dict):
+        if data["op"] == 10:
+            self.interval = data['d']['heartbeat_interval']
+            asyncio.ensure_future(
+                self.heartBeat(self.interval)
+            )
+
+
+    async def heartbeat_ack(self, data: dict):
+        if data['op'] == 11:
+            self.ack_time = time.time() * 1000
+            print(f'[ Latency: {self.ack_time - self.start_time}ms ]')
+
+
+    async def heartBeat(self, interval):
+        while True:
+            await asyncio.sleep(interval / 1000)
+            self.start_time = time.time() * 1000
+            await self.ws.send_json(
+                {
+                    "op": 1,
+                    "d": None
+                }
+            )
+
+
+    async def handler(self, url):
+        async with self.session.ws_connect(
+                f"{url}?v=9&encoding=json") as ws:
+
+            async for msg in ws:
+                self.ws = ws
+                data = json.loads(msg.data)
+
+                listener = Receiver(
+                    response = data,
+                    socket = self.ws,
+                    secret = self.secret,
+                    session = self.session,
+                    bucket = self.bucket
+                )
+                await listener.run()
+                await self.send_heartbeat(data)
+                await self.heartbeat_ack(data)
+
+
+    async def connect(self):
+        async with aiohttp.ClientSession() as session:
+            self.session = session
+            gateway = await self.getGateway()
+            await self.handler(gateway)
+

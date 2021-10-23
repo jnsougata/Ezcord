@@ -1,6 +1,7 @@
 import aiohttp
 
 
+
 class Interaction:
 
     def __init__(
@@ -38,5 +39,3 @@ class Interaction:
     @property
     def slash(self):
         return int(self.data['type']) == 1
-
-

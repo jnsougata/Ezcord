@@ -1,12 +1,39 @@
-from src.utils.entity import Context
-from src.command.parser import CommandParser
+import inspect
 
 
-class Parser:
+
+class _Parser:
+    def __init__(self, string:str, func):
+        self.string = string
+        self.func = func
+
+
+
+    def arg_parser(self):
+        raw = self.string.split(' ')
+        args = [arg for arg in raw if arg != '']
+        args.remove(args[0])
+        return args
+
+
+    def valid_list(self):
+        i = inspect.getfullargspec(self.func)
+        l = len(i.args)
+        param = self.arg_parser()
+        return param[:l - 1]
+
+
+    async def execute(self, context):
+        args = self.valid_list()
+        args.insert(0, context)
+        return await self.func(*args)
+
+
+class Executor:
 
     def __init__(
             self,
-            ctx: Context,
+            ctx,
             prefix,
             bucket,
             secret
@@ -41,7 +68,7 @@ class Parser:
                 for item in self.bucket:
                     if item.__name__ == cmd:
                         try:
-                            command = CommandParser(self.message, item)
+                            command = _Parser(self.message, item)
                             value = await command.execute(self.ctx)
                             if value:
                                 return {'content': str(value)}
