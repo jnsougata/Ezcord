@@ -26,7 +26,7 @@ slash_commands = [slash_one]
 
 bot = Bot(
     token = TOK,
-    prefix = '-',
+    prefix = '!',
     app_id = APP,
     guild_id = TEST,
     commands = commands,
