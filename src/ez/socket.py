@@ -4,6 +4,7 @@ import asyncio
 import aiohttp
 from src.ez.map import Tweak
 from src.ez.cmd import Executor
+from src.ez.stacking import Stack
 from src.ez.slash import SlashReply
 
 
@@ -16,7 +17,8 @@ class Receiver:
             session: aiohttp.ClientSession,
             socket: aiohttp.ClientWebSocketResponse,
             bucket: list,
-            prefix:str
+            prefix: str,
+            intents: int,
     ):
         self.ws = socket
         self.ack_time = 0
@@ -29,6 +31,7 @@ class Receiver:
         self.auth_header = {
             "Authorization": f"Bot {secret}"
         }
+        self.intents = intents
 
 
     @property
@@ -51,17 +54,26 @@ class Receiver:
         # RECEIVED DISPATCH
         if CODE == 0:
             EVENT = DATA['t']
-            print(f'[ {EVENT} ]')
             RAW = DATA['d']
-            print(DATA)
+            cache = Stack(DATA)
 
             # CHECKING EVENT TYPE
+            if EVENT == 'READY':
+                await cache.ready()
 
-            if EVENT == 'INTERACTION_CREATE':
+            elif EVENT == 'GUILD_CREATE':
+                await cache.guild()
+                await Stack.members(
+                    auth_header = self.auth_header,
+                    guild_id = DATA['d']['id'],
+                    session = self.session
+                )
+
+            elif EVENT == 'INTERACTION_CREATE':
                 slash = SlashReply(RAW)
                 await slash.callback(self.session)
 
-            if EVENT == 'MESSAGE_CREATE':
+            elif EVENT == 'MESSAGE_CREATE':
                 ctx = Tweak(
                     response = RAW,
                     session = self.session,
@@ -70,7 +82,7 @@ class Receiver:
                 if ctx.author.id != 874663148374880287:
                     if ctx.message.lower() == 'hi':
                         await self.send_(
-                            content=f"Hi...{ctx.author.mention}, this is an automate messgae!",
+                            content=f"Hi {ctx.author.mention}",
                             channel_id=ctx.channel_id
                         )
 
@@ -81,9 +93,13 @@ class Receiver:
                     )
                     await PARSER.process_message
 
+            else:
+                print(f'[ {EVENT} ]\n{DATA}')
+
 
         # RECEIVED HELLO
         elif CODE == 10:
+            await Stack(DATA).hello()
 
             # SENDING IDENTIFICATION PAYLOAD
             await self.ws.send_json(
@@ -91,7 +107,7 @@ class Receiver:
                     "op": 2,
                     "d": {
                         "token": self.secret,
-                        "intents": 513,
+                        "intents": self.intents,
                         "properties": {
                             '$os': "ios",
                             '$browser': 'Discord iOS',
@@ -120,6 +136,7 @@ class Websocket:
             secret: str,
             prefix:str,
             bucket: list,
+            intents: int
     ):
         self.ws = None
         self.session = None
@@ -129,6 +146,7 @@ class Websocket:
         self.interval = 0
         self.bucket = bucket
         self.prefix = prefix
+        self.intents = intents
 
 
 
@@ -151,6 +169,7 @@ class Websocket:
         if data['op'] == 11:
             self.ack_time = time.time() * 1000
             print(f'[ Latency: {self.ack_time - self.start_time}ms ]')
+            await Stack.latency(self.ack_time - self.start_time)
 
 
     async def heartBeat(self, interval):
@@ -179,7 +198,8 @@ class Websocket:
                     secret = self.secret,
                     session = self.session,
                     bucket = self.bucket,
-                    prefix = self.prefix
+                    prefix = self.prefix,
+                    intents = self.intents
                 )
                 await listener.run()
                 await self.send_heartbeat(data)

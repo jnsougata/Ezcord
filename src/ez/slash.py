@@ -143,16 +143,23 @@ class SlashReply(Interaction):
                 return body
 
             else:
+                emo = '<:warn:891339009765302302>'
                 body = {
                     'type': 4,
                     'data': {
                         "embeds": [
                             {
-                                'title': 'In Progress',
+                                'title': f'{emo} In Progress {emo}',
                                 'description':
-                                    '**GitHub** [Link]'
-                                    '(https://github.com/jnsougata/ezcord)'
-                                    '\n**Dev**: Zen#8080'
+                                    f'**GitHub** [Link]'
+                                    f'(https://github.com/jnsougata/ezcord)'
+                                    f'\n**Dev**: Zen#8080'
+                                    f'\n-----------'
+                                    f'\n**Slash Info:**'
+                                    f'\n**Name:** {self.data["name"]}'
+                                    f'\n**Type:** {self.type}'
+                                    f'\n**Version:** {self.version}'
+                                    f'\n**Id:** `{self.data["id"]}`'
                             }
                         ]
                     }

@@ -1,0 +1,11 @@
+{
+  "d": {
+    "_trace": [
+      "[\"gateway-prd-main-2fk1\",{\"micros\":0.0}]"
+    ],
+    "heartbeat_interval": 41250
+  },
+  "op": 10,
+  "s": null,
+  "t": null
+}

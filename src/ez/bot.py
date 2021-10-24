@@ -1,5 +1,6 @@
 import asyncio
 import aiohttp
+from src.ez.stacking import Stack
 from src.ez.slash import MakeSlash
 from src.ez.socket import Websocket
 
@@ -26,6 +27,7 @@ class Bot:
             "Authorization": f"Bot {token}",
             "content-type": "application/json"
         }
+        self.intents = None
 
 
     async def register(self):
@@ -38,7 +40,9 @@ class Bot:
                         json = item.json,
                         headers = self.slash_auth
                     )
-                    print(await resp.json())
+                    js = await resp.json()
+                    await Stack(js).slash()
+                print("[ Slash Commands Registered ]")
         else:
             raise ValueError(
                 "Application Id and Test Guild Id is mandatory to register slash command"
@@ -51,10 +55,13 @@ class Bot:
             new_loop = asyncio.new_event_loop()
             new_loop.run_until_complete(self.register())
 
+        intents = self.intents or 513
+
         ws = Websocket(
             secret = self.secret,
             prefix = self.prefix,
-            bucket = self.bucket
+            bucket = self.bucket,
+            intents = intents
         )
         loop = asyncio.new_event_loop()
         loop.run_until_complete(ws.connect())

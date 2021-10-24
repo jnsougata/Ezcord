@@ -1,0 +1,90 @@
+{
+    "834662394068336670": {
+        "207200839910162443": {
+            "avatar": null,
+            "deaf": false,
+            "is_pending": false,
+            "joined_at": "2021-08-17T12:37:41.092000+00:00",
+            "mute": false,
+            "nick": null,
+            "pending": false,
+            "premium_since": null,
+            "roles": [
+                "838441883721924729"
+            ],
+            "user": {
+                "avatar": "d31bd65418c05d99f6a6eb3cc1bcc2a6",
+                "discriminator": "2903",
+                "id": "207200839910162443",
+                "public_flags": 128,
+                "username": "planta"
+            }
+        }
+    },
+    "877399405056102431": {
+        "190875175460405249": {
+            "avatar": null,
+            "deaf": false,
+            "is_pending": false,
+            "joined_at": "2021-08-29T15:41:11.673000+00:00",
+            "mute": false,
+            "nick": null,
+            "pending": false,
+            "premium_since": null,
+            "roles": [
+                "878562385038807090"
+            ],
+            "user": {
+                "avatar": "a_f82ea63a5eae29d2cc5a10aaf7ec3bad",
+                "discriminator": "0521",
+                "id": "190875175460405249",
+                "public_flags": 128,
+                "username": "niku"
+            }
+        }
+    },
+    "885562455424643104": {
+        "369208607126061057": {
+            "avatar": null,
+            "deaf": true,
+            "is_pending": false,
+            "joined_at": "2021-09-09T16:39:31.653000+00:00",
+            "mute": false,
+            "nick": "0/0 \ud83d\udd07",
+            "pending": false,
+            "premium_since": null,
+            "roles": [
+                "885562455424643105",
+                "885565094648487938"
+            ],
+            "user": {
+                "avatar": "28f5d039716e33cf4b059a8c9426bbf6",
+                "bot": true,
+                "discriminator": "6493",
+                "id": "369208607126061057",
+                "public_flags": 65536,
+                "username": "24/7 \ud83d\udd0a"
+            }
+        }
+    },
+    "899930155361919028": {
+        "516649677001719819": {
+            "avatar": null,
+            "deaf": false,
+            "is_pending": false,
+            "joined_at": "2021-10-19T08:01:08.974000+00:00",
+            "mute": false,
+            "nick": "ABC",
+            "pending": false,
+            "premium_since": null,
+            "roles": [],
+            "user": {
+                "avatar": "7554b3a3e774519038312796e5cfcbc3",
+                "discriminator": "8080",
+                "id": "516649677001719819",
+                "public_flags": 256,
+                "username": "Zen"
+            }
+        }
+    }
+}

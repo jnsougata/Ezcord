@@ -34,6 +34,7 @@ bot = Bot(
     slash_commands = slash_commands,
 
 )
+bot.intents = 32511
 
 bot.start()
 

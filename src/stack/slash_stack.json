@@ -1,0 +1,44 @@
+{
+  "901153149363036241": {
+    "application_id": "874663148374880287",
+    "default_member_permissions": null,
+    "default_permission": true,
+    "description": "this is a shit command",
+    "guild_id": "877399405056102431",
+    "id": "901153149363036241",
+    "name": "shit",
+    "options": [
+      {
+        "choices": [
+          {
+            "name": "one",
+            "value": 1
+          }
+        ],
+        "description": "any number",
+        "name": "number",
+        "required": true,
+        "type": 4
+      },
+      {
+        "choices": [
+          {
+            "name": "two",
+            "value": "twice"
+          }
+        ],
+        "description": "your username",
+        "name": "username",
+        "required": true,
+        "type": 3
+      },
+      {
+        "description": "if you want to double",
+        "name": "double",
+        "type": 5
+      }
+    ],
+    "type": 1,
+    "version": "901623293931556905"
+  }
+}
