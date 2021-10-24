@@ -80,19 +80,13 @@ class Receiver:
                     session = self.session,
                     secret = self.secret
                 )
-                if ctx.author.id != 874663148374880287:
-                    if ctx.message.lower() == 'hi':
-                        await self.send_(
-                            content=f"Hi {ctx.author.mention}",
-                            channel_id=ctx.channel_id
-                        )
 
-                    PARSER = Executor(
-                        ctx = ctx,
-                        prefix = self.prefix,
-                        bucket = self.bucket,
-                    )
-                    await PARSER.process_message
+                PARSER = Executor(
+                    ctx = ctx,
+                    prefix = self.prefix,
+                    bucket = self.bucket,
+                )
+                await PARSER.process_message
 
             else:
                 print(f'[ {EVENT} ]\n{DATA}')
@@ -123,7 +117,6 @@ class Receiver:
         # HEART BEAT ACK
         elif CODE == 11:
             print(f'[ HEARTBEAT ACK ]')
-
 
         else:
             print(DATA)

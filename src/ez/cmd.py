@@ -1,5 +1,5 @@
 import inspect
-
+from src.ez.map import Map
 
 
 class _Parser:
@@ -33,9 +33,9 @@ class Executor:
 
     def __init__(
             self,
-            ctx,
-            prefix,
-            bucket,
+            ctx: Map,
+            prefix: str,
+            bucket: list,
     ):
         self.ctx = ctx
         self.prefix = prefix
@@ -44,7 +44,7 @@ class Executor:
 
     @property
     async def process_message(self):
-        message = self.ctx.message
+        message = self.ctx.content
         if message:
             if message.startswith(self.prefix):
                 args = message.split(' ')

@@ -57,7 +57,7 @@ class Stack:
         temp = dict()
         for item in member_list:
             USER_ID = item['user']['id']
-            temp[str(USER_ID)] = {str(USER_ID): item}
+            temp[str(USER_ID)] = item
         with open(PATH, 'w') as f:
             js[str(guild_id)] = temp
             json.dump(obj = js,fp = f,indent = 2,sort_keys = True)

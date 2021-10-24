@@ -11,6 +11,11 @@ TOK = os.getenv('DISCORD_TOKEN')
 async def echo(ctx:Map, phrase:str):
     await ctx.send(f'{ctx.author.mention} **{phrase.upper()}**')
 
+async def info(ctx:Map):
+
+    inf = [ctx.author, ctx.guild.name, ctx.guild.boost_level]
+
+    await ctx.send(f'{inf}')
 
 
 slash_one = MakeSlash()
@@ -21,7 +26,7 @@ slash_one.add_bool_option(name='double', description='if you want to double', re
 slash_one.add_choices(0, name='one', value = 1)
 slash_one.add_choices(1, name='two', value ='twice')
 
-commands = [echo]
+commands = [echo, info]
 slash_commands = [slash_one]
 
 
