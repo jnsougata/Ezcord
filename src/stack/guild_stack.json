@@ -467,7 +467,7 @@
                 },
                 {
                     "id": "899864601057976330",
-                    "last_message_id": "901741343351648257",
+                    "last_message_id": "901829883993391235",
                     "name": "\ud83d\udcdc\u4e28activity-log",
                     "nsfw": false,
                     "parent_id": "862242554484883467",
@@ -993,7 +993,7 @@
                         "bot": true,
                         "discriminator": "0220",
                         "id": "874663148374880287",
-                        "username": "R. Zen"
+                        "username": "Ezcord"
                     }
                 }
             ],
@@ -1122,16 +1122,16 @@
             "voice_states": []
         },
         "op": 0,
-        "s": 3,
+        "s": 2,
         "t": "GUILD_CREATE"
     },
     "877399405056102431": {
         "d": {
             "afk_channel_id": null,
             "afk_timeout": 300,
-            "application_command_count": 12,
+            "application_command_count": 13,
             "application_command_counts": {
-                "1": 12,
+                "1": 13,
                 "2": 0,
                 "3": 0
             },
@@ -1250,7 +1250,7 @@
                 },
                 {
                     "id": "880847496920834108",
-                    "last_message_id": "901811477537775676",
+                    "last_message_id": "901847611991019670",
                     "name": "development",
                     "nsfw": false,
                     "parent_id": "877399405056102432",
@@ -1344,7 +1344,7 @@
                 },
                 {
                     "id": "890536045454721085",
-                    "last_message_id": "901600843776798790",
+                    "last_message_id": "901824448267706378",
                     "name": "help",
                     "nsfw": false,
                     "parent_id": "877399405056102432",
@@ -1356,7 +1356,7 @@
                 },
                 {
                     "id": "890537445702123520",
-                    "last_message_id": "901549190348431411",
+                    "last_message_id": "901840536632184863",
                     "last_pin_timestamp": "2021-09-25T11:45:04+00:00",
                     "name": "playground",
                     "nsfw": false,
@@ -1390,7 +1390,7 @@
                 },
                 {
                     "id": "891019581974511667",
-                    "last_message_id": "901787007112589332",
+                    "last_message_id": "901840513307664424",
                     "last_pin_timestamp": "2021-09-28T08:08:03+00:00",
                     "name": "general",
                     "nsfw": false,
@@ -1577,6 +1577,18 @@
                     "parent_id": "900242737260007474",
                     "permission_overwrites": [],
                     "position": 19,
+                    "rate_limit_per_user": 0,
+                    "topic": null,
+                    "type": 0
+                },
+                {
+                    "id": "901837759025664080",
+                    "last_message_id": null,
+                    "name": "xyz",
+                    "nsfw": false,
+                    "parent_id": null,
+                    "permission_overwrites": [],
+                    "position": 20,
                     "rate_limit_per_user": 0,
                     "topic": null,
                     "type": 0
@@ -2048,7 +2060,7 @@
             ],
             "guild_hashes": {
                 "channels": {
-                    "hash": "ygPZiJ+QuWA",
+                    "hash": "OqTeKypk8WU",
                     "omitted": false
                 },
                 "metadata": {
@@ -2082,8 +2094,8 @@
                     "pending": false,
                     "premium_since": null,
                     "roles": [
-                        "891012498264850472",
-                        "880681870663229520"
+                        "880681870663229520",
+                        "891012498264850472"
                     ],
                     "user": {
                         "avatar": "0eb710f22c15096d2977eebbdc9dca3d",
@@ -2091,7 +2103,7 @@
                         "discriminator": "0220",
                         "id": "874663148374880287",
                         "public_flags": 0,
-                        "username": "R. Zen"
+                        "username": "Ezcord"
                     }
                 }
             ],
@@ -2253,7 +2265,7 @@
             "voice_states": []
         },
         "op": 0,
-        "s": 2,
+        "s": 3,
         "t": "GUILD_CREATE"
     },
     "885562455424643104": {
@@ -2849,7 +2861,7 @@
                         "bot": true,
                         "discriminator": "0220",
                         "id": "874663148374880287",
-                        "username": "R. Zen"
+                        "username": "Ezcord"
                     }
                 }
             ],
@@ -3110,7 +3122,7 @@
                     "self_deaf": true,
                     "self_mute": false,
                     "self_video": false,
-                    "session_id": "aadc4918b7483071240130076644476c",
+                    "session_id": "a740506824cc5c19c520bf9b3aeddb05",
                     "suppress": false,
                     "user_id": "369208607126061057"
                 }
@@ -3266,7 +3278,7 @@
                         "bot": true,
                         "discriminator": "0220",
                         "id": "874663148374880287",
-                        "username": "R. Zen"
+                        "username": "Ezcord"
                     }
                 }
             ],

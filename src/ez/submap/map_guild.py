@@ -140,7 +140,13 @@ class Guild:
         ls = self.__data["channels"]
         for item in ls:
             if item['id'] == str(id):
-                return item
+                return Channel(item)
+
+    def pull_role(self, id: int):
+        ls = self.__data["roles"]
+        for item in ls:
+            if item['id'] == str(id):
+                return Role(item)
 
 
     def pull_member(self, id:int):
@@ -148,3 +154,4 @@ class Guild:
             userId = id,
             guildId = self.id
         )
+

@@ -162,7 +162,6 @@ class Role:
 
 
 
-
 class Channel:
 
     def __init__(self, cached: dict):
@@ -177,16 +176,18 @@ class Channel:
             13: 'stage'
         }
 
+    @property
+    def mention(self):
+        return f'<#{self.id}>'
 
     @property
     def type(self):
-        int_ = self.__data.get(type)
-        if int_:
-            return self.__types.get(int_)
+        key = self.__data.get('type')
+        return self.__types.get(key)
 
     @property
     def id(self):
-        return self.__data.get('id')
+        return int(self.__data.get('id'))
 
     @property
     def name(self):

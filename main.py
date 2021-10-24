@@ -19,6 +19,15 @@ async def info(ctx:Map, id:int):
         f'\n{inf.mention}'
     )
 
+async def pull(ctx:Map, id:int):
+    inf = ctx.guild.pull_channel(int(id))
+    await ctx.send(
+        f'**OBJECTS:**'
+        f'\n{inf.mention}'
+        f'\n**Type:** `{inf.type}`'
+    )
+
+
 
 slash_one = MakeSlash()
 slash_one.command(name='shit', description='this is a shit command')
@@ -28,7 +37,7 @@ slash_one.add_bool_option(name='double', description='if you want to double', re
 slash_one.add_choices(0, name='one', value = 1)
 slash_one.add_choices(1, name='two', value ='twice')
 
-commands = [echo, info]
+commands = [echo, info, pull]
 slash_commands = [slash_one]
 
 
