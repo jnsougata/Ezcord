@@ -1,6 +1,6 @@
 import json
 from src.ez.submap.map_member import Member
-from src.ez.submap.map_extras import Channel, GuildFeatures
+from src.ez.submap.map_extras import Channel, GuildFeatures, Role
 
 class Guild:
 
@@ -19,52 +19,53 @@ class Guild:
 
     @property
     def name(self):
-        return self.__data.get("name", None)
+        return self.__data.get("name")
 
     @property
     def mfa_level(self):
-        return self.__data.get("mfa_level", None)
+        return self.__data.get("mfa_level")
 
     @property
     def large(self):
-        return self.__data.get("large", None)
+        return self.__data.get("large")
 
 
     @property
     def nfsw(self):
-        return self.__data.get("nfsw", None)
+        return self.__data.get("nfsw")
 
     @property #convert to member object
     def owner(self):
-        return self.__data.get("owner_id", None)
+        id = self.__data.get("owner_id")
+        return Member(userId = id, guildId = self.id)
 
     @property
     def language(self):
-        return self.__data.get("preferred_locale", None)
+        return self.__data.get("preferred_locale")
 
     @property
     def boosts(self):
-        return self.__data.get("premium_subscription_count", None)
+        return self.__data.get("premium_subscription_count")
 
     @property
     def boost_level(self):
-        return self.__data.get("premium_tier", None)
+        return self.__data.get("premium_tier")
 
     @property
     def member_count(self):
-        return self.__data.get("member_count", None)
+        return self.__data.get("member_count")
 
     @property
     def max_allowed_members(self):
-        return self.__data.get("max_members", None)
+        return self.__data.get("max_members")
 
     @property
     def region(self):
-        return self.__data.get("region", None)
+        return self.__data.get("region")
 
     @property
     def roles(self):
-        return None
+        return [Role(data) for data in self.__data.get('roles')]
 
     @property
     def channels(self):
@@ -72,7 +73,9 @@ class Guild:
 
     @property
     def members(self):
-        return None
+        cached = json.load(open('src/stack/member_stack.json','r'))
+        member_ids = list(cached[str(self.id)])
+        return [Member(userId = Id, guildId = self.id) for Id in member_ids]
 
     @property
     def rules_channel(self):
@@ -114,27 +117,26 @@ class Guild:
 
     @property
     def slash_count(self):
-        return self.__data.get("application_command_count", None)
+        return self.__data.get("application_command_count")
 
     @property
     def emojis(self): # convert to asset
-        return self.__data.get("emojis", None)
+        return self.__data.get("emojis")
 
     @property
     def content_filter(self): # convert object
-        return self.__data.get("explicit_content_filter", None)
-
+        return self.__data.get("explicit_content_filter")
 
     @property
     def alert_level(self):
-        return self.__data.get("default_message_notifications", None)
+        return self.__data.get("default_message_notifications")
 
     @property
     def description(self):
-        return self.__data.get("description", None)
+        return self.__data.get("description")
 
 
-    def pull_channel(self, id:int): #return object
+    def pull_channel(self, id:int):
         ls = self.__data["channels"]
         for item in ls:
             if item['id'] == str(id):

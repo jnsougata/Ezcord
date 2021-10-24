@@ -1,4 +1,5 @@
 class GuildFeatures:
+
     def __init__(self, features: list):
         self.__features = features
 
@@ -36,18 +37,6 @@ class GuildFeatures:
         return "INVITE_SPLASH" in self.__features
 
     @property
-    def SCREENING_ENABLED(self):
-        return "MEMBER_VERIFICATION_GATE_ENABLED" in self.__features
-
-    @property
-    def MONETIZED(self):
-        return "MONETIZATION_ENABLED" in self.__features
-
-    @property
-    def MORE_STICKERS(self):
-        return "MORE_STICKERS" in self.__features
-
-    @property
     def NEWS(self):
         return "NEWS" in self.__features
 
@@ -68,18 +57,6 @@ class GuildFeatures:
         return "ROLE_ICONS" in self.__features
 
     @property
-    def SEVEN_DAY_THREAD_ARCHIVE(self):
-        return "SEVEN_DAY_THREAD_ARCHIVE" in self.__features
-
-    @property
-    def THREE_DAY_THREAD_ARCHIVE(self):
-        return "THREE_DAY_THREAD_ARCHIVE" in self.__features
-
-    @property
-    def TICKETED_EVENTS_ENABLED(self):
-        return "TICKETED_EVENTS_ENABLED" in self.__features
-
-    @property
     def VANITY_URL(self):
         return "VANITY_URL" in self.__features
 
@@ -95,17 +72,99 @@ class GuildFeatures:
     def WELCOME_SCREEN_ENABLED(self):
         return "WELCOME_SCREEN_ENABLED" in self.__features
 
+    @property
+    def MORE_STICKERS(self):
+        return "MORE_STICKERS" in self.__features
+
+    @property
+    def MONETIZED(self):
+        return "MONETIZATION_ENABLED" in self.__features
+
+    @property
+    def SEVEN_DAY_THREAD_ARCHIVE(self):
+        return "SEVEN_DAY_THREAD_ARCHIVE" in self.__features
+
+    @property
+    def THREE_DAY_THREAD_ARCHIVE(self):
+        return "THREE_DAY_THREAD_ARCHIVE" in self.__features
+
+    @property
+    def TICKETED_EVENTS_ENABLED(self):
+        return "TICKETED_EVENTS_ENABLED" in self.__features
+
+    @property
+    def SCREENING_ENABLED(self):
+        return "MEMBER_VERIFICATION_GATE_ENABLED" in self.__features
 
 
 
+class Role:
+    def __init__(self, cached: dict):
+        self.__data = cached
 
+    @property
+    def name(self):
+        return self.__data.get('name')
 
+    @property
+    def id(self):
+        return self.__data.get('id')
 
+    @property
+    def color(self):
+        return self.__data.get('color')
+
+    @property
+    def hoisted(self):
+        return self.__data.get('hoist')
+
+    @property
+    def managed(self):
+        return self.__data.get('managed')
+
+    @property
+    def mentionable(self):
+        return self.__data.get('mentionable')
+
+    @property
+    def permissions(self):
+        return self.__data.get("permissions")
+
+    @property
+    def position(self):
+        return self.__data.get('position')
+
+    @property
+    def bot_id(self):
+        tags = self.__data.get('tags')
+        if tags:
+            return tags.get('bot_id')
+
+    @property
+    def integration_id(self):
+        tags = self.__data.get('tags')
+        if tags:
+            return tags.get('integration_id')
+
+    @property
+    def booster(self):
+        tags = self.__data.get('tags')
+        if tags:
+            return tags.get('premium_subscriber')
+
+    @property
+    def emoji(self):
+        return self.__data.get('unicode_emoji')
+
+    @property
+    def icon(self): #convert asset
+        return self.__data.get('icon')
 
 
 
 
 class Channel:
+
     def __init__(self, cached: dict):
         self.__data = cached
         self.__types = {

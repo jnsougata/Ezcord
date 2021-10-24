@@ -11,11 +11,13 @@ TOK = os.getenv('DISCORD_TOKEN')
 async def echo(ctx:Map, phrase:str):
     await ctx.send(f'{ctx.author.mention} **{phrase.upper()}**')
 
-async def info(ctx:Map):
-
-    inf = [ctx.author, ctx.guild.name, ctx.guild.boost_level]
-
-    await ctx.send(f'{inf}')
+async def info(ctx:Map, id:int):
+    inf = ctx.guild.pull_member(int(id))
+    await ctx.send(
+        f'**OBJECTS:**'
+        f'\n**{inf}**'
+        f'\n{inf.mention}'
+    )
 
 
 slash_one = MakeSlash()
@@ -39,7 +41,7 @@ bot = Bot(
     slash_commands = slash_commands,
 
 )
-bot.intents = 32511
+bot.intents = 1791
 
 bot.start()
 

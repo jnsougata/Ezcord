@@ -1122,7 +1122,7 @@
             "voice_states": []
         },
         "op": 0,
-        "s": 2,
+        "s": 3,
         "t": "GUILD_CREATE"
     },
     "877399405056102431": {
@@ -1250,7 +1250,7 @@
                 },
                 {
                     "id": "880847496920834108",
-                    "last_message_id": "901754867087982603",
+                    "last_message_id": "901811477537775676",
                     "name": "development",
                     "nsfw": false,
                     "parent_id": "877399405056102432",
@@ -1390,7 +1390,7 @@
                 },
                 {
                     "id": "891019581974511667",
-                    "last_message_id": "901739416047976488",
+                    "last_message_id": "901787007112589332",
                     "last_pin_timestamp": "2021-09-28T08:08:03+00:00",
                     "name": "general",
                     "nsfw": false,
@@ -2253,7 +2253,7 @@
             "voice_states": []
         },
         "op": 0,
-        "s": 5,
+        "s": 2,
         "t": "GUILD_CREATE"
     },
     "885562455424643104": {
@@ -3110,14 +3110,14 @@
                     "self_deaf": true,
                     "self_mute": false,
                     "self_video": false,
-                    "session_id": "fee4ef58cbb0db6019aca47e28847e6d",
+                    "session_id": "aadc4918b7483071240130076644476c",
                     "suppress": false,
                     "user_id": "369208607126061057"
                 }
             ]
         },
         "op": 0,
-        "s": 3,
+        "s": 4,
         "t": "GUILD_CREATE"
     },
     "899930155361919028": {
@@ -3193,7 +3193,7 @@
                 },
                 {
                     "id": "899982845005684796",
-                    "last_message_id": "901713101823565884",
+                    "last_message_id": "901809899795783710",
                     "name": "test",
                     "nsfw": false,
                     "parent_id": "899930155361919029",
@@ -3339,7 +3339,7 @@
             "voice_states": []
         },
         "op": 0,
-        "s": 4,
+        "s": 5,
         "t": "GUILD_CREATE"
     }
 }
