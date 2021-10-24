@@ -1,13 +1,16 @@
 from aiohttp import ClientSession
+from src.ez.submap.map_guild import Guild
+from src.ez.submap.map_author import Author
 
 
-class Tweak:
+
+class Map:
 
     def __init__(
             self,
+            secret: str,
             response: dict,
-            session: ClientSession,
-            secret:str
+            session: ClientSession
     ):
         self.__session = session
         self.__secret = secret
@@ -32,7 +35,9 @@ class Tweak:
         self.attachments = response.get('attachments', None)
         self.guild_id = response.get('guild_id', None)
 
-
+    @property
+    def guild(self):
+        return Guild(self.guild_id)
 
     async def send(self, text: str):
         await self.__session.post(
@@ -41,37 +46,3 @@ class Tweak:
             headers = {"Authorization": f"Bot {self.__secret}"}
         )
         return text
-
-
-
-
-class Author:
-
-    def __init__(self, raw: dict):
-        self._data = raw
-
-    def __repr__(self):
-        return f'{self.name}#{self.discriminator}'
-
-    @property
-    def id(self):
-        return int(self._data['id'])
-
-    @property
-    def name(self):
-        return self._data['username']
-
-    @property
-    def discriminator(self):
-        return int(self._data['discriminator'])
-
-    @property
-    def mention(self):
-        return f"<@{self.id}>"
-
-
-
-class Member:
-
-    def __init__(self, raw: dict):
-        self._data = raw

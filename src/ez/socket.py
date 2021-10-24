@@ -2,7 +2,7 @@ import json
 import time
 import asyncio
 import aiohttp
-from src.ez.map import Tweak
+from src.ez.map import Map
 from src.ez.cmd import Executor
 from src.ez.stacking import Stack
 from src.ez.slash import SlashReply
@@ -75,7 +75,7 @@ class Receiver:
                 await slash.callback(self.session)
 
             elif EVENT == 'MESSAGE_CREATE':
-                ctx = Tweak(
+                ctx = Map(
                     response = RAW,
                     session = self.session,
                     secret = self.secret

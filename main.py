@@ -1,6 +1,6 @@
 import os
 from src.ez.bot import Bot
-from src.ez.map import Tweak
+from src.ez.map import Map
 from src.ez.slash import MakeSlash
 
 APP = 874663148374880287
@@ -8,7 +8,7 @@ TEST = 877399405056102431
 TOK = os.getenv('DISCORD_TOKEN')
 
 
-async def echo(ctx:Tweak, phrase:str):
+async def echo(ctx:Map, phrase:str):
     await ctx.send(f'{ctx.author.mention} **{phrase.upper()}**')
 
 
