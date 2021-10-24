@@ -45,18 +45,20 @@ class Stack:
 
     @staticmethod
     async def members(session:ClientSession, auth_header:dict, guild_id:int):
-        endpoint = f'/guilds/{guild_id}/members'
+        endpoint = f'/guilds/{guild_id}/members?limit=100'
         PATH = "src/stack/member_stack.json"
         resp = await session.get(
             'https://discord.com/api/v9/' + endpoint,
             headers = auth_header
         )
-        data = json.load(open(PATH, 'r'))
+
         member_list = await resp.json()
-        print(len(member_list))
+        js = json.load(open(PATH, 'r'))
+        temp = dict()
         for item in member_list:
             USER_ID = item['user']['id']
-            data[str(guild_id)] = {str(USER_ID):  item}
-            with open(PATH, 'w') as f:
-                json.dump(obj=data, fp=f, indent=4, sort_keys=True)
+            temp[str(USER_ID)] = {str(USER_ID): item}
+        with open(PATH, 'w') as f:
+            js[str(guild_id)] = temp
+            json.dump(obj = js,fp = f,indent = 2,sort_keys = True)
 

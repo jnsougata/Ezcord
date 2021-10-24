@@ -467,7 +467,7 @@
                 },
                 {
                     "id": "899864601057976330",
-                    "last_message_id": "901582013981655140",
+                    "last_message_id": "901651501091524628",
                     "name": "\ud83d\udcdc\u4e28activity-log",
                     "nsfw": false,
                     "parent_id": "862242554484883467",
@@ -1390,7 +1390,7 @@
                 },
                 {
                     "id": "891019581974511667",
-                    "last_message_id": "901601441439952948",
+                    "last_message_id": "901677460872130610",
                     "last_pin_timestamp": "2021-09-28T08:08:03+00:00",
                     "name": "general",
                     "nsfw": false,
@@ -3110,7 +3110,7 @@
                     "self_deaf": true,
                     "self_mute": false,
                     "self_video": false,
-                    "session_id": "d6abcbb90af0f328fe4a9276049f2aa1",
+                    "session_id": "fee4ef58cbb0db6019aca47e28847e6d",
                     "suppress": false,
                     "user_id": "369208607126061057"
                 }
@@ -3193,7 +3193,7 @@
                 },
                 {
                     "id": "899982845005684796",
-                    "last_message_id": "901618943406526524",
+                    "last_message_id": "901684238305341440",
                     "name": "test",
                     "nsfw": false,
                     "parent_id": "899930155361919029",

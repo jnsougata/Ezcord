@@ -56,6 +56,7 @@ class Receiver:
             EVENT = DATA['t']
             RAW = DATA['d']
             cache = Stack(DATA)
+            print(f'[ {EVENT} ]')
 
             # CHECKING EVENT TYPE
             if EVENT == 'READY':
@@ -121,9 +122,8 @@ class Receiver:
 
         # HEART BEAT ACK
         elif CODE == 11:
-            EVENT = DATA['t']
-            print(f'[ {EVENT} ]')
-            print(DATA)
+            print(f'[ HEARTBEAT ACK ]')
+
 
         else:
             print(DATA)
