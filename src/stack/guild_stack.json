@@ -467,7 +467,7 @@
                 },
                 {
                     "id": "899864601057976330",
-                    "last_message_id": "901829883993391235",
+                    "last_message_id": "901946763882164265",
                     "name": "\ud83d\udcdc\u4e28activity-log",
                     "nsfw": false,
                     "parent_id": "862242554484883467",
@@ -1129,9 +1129,9 @@
         "d": {
             "afk_channel_id": null,
             "afk_timeout": 300,
-            "application_command_count": 13,
+            "application_command_count": 15,
             "application_command_counts": {
-                "1": 13,
+                "1": 15,
                 "2": 0,
                 "3": 0
             },
@@ -1250,7 +1250,7 @@
                 },
                 {
                     "id": "880847496920834108",
-                    "last_message_id": "901847611991019670",
+                    "last_message_id": "901978450515095593",
                     "name": "development",
                     "nsfw": false,
                     "parent_id": "877399405056102432",
@@ -1307,7 +1307,7 @@
                 },
                 {
                     "id": "886872499038601266",
-                    "last_message_id": "900784188150665277",
+                    "last_message_id": "901848762534723654",
                     "name": "m-learning",
                     "nsfw": false,
                     "parent_id": "880486227122462821",
@@ -1356,7 +1356,7 @@
                 },
                 {
                     "id": "890537445702123520",
-                    "last_message_id": "901840536632184863",
+                    "last_message_id": "901923075304615936",
                     "last_pin_timestamp": "2021-09-25T11:45:04+00:00",
                     "name": "playground",
                     "nsfw": false,
@@ -2301,7 +2301,7 @@
                 },
                 {
                     "id": "885562887802880030",
-                    "last_message_id": "901239385654186067",
+                    "last_message_id": "901945280553967638",
                     "last_pin_timestamp": "2021-09-15T13:10:23+00:00",
                     "name": "chat",
                     "nsfw": true,
@@ -3122,7 +3122,7 @@
                     "self_deaf": true,
                     "self_mute": false,
                     "self_video": false,
-                    "session_id": "a740506824cc5c19c520bf9b3aeddb05",
+                    "session_id": "310b1232a34a735977388d6bd505f4fb",
                     "suppress": false,
                     "user_id": "369208607126061057"
                 }
@@ -3205,7 +3205,7 @@
                 },
                 {
                     "id": "899982845005684796",
-                    "last_message_id": "901809899795783710",
+                    "last_message_id": "901957215701848064",
                     "name": "test",
                     "nsfw": false,
                     "parent_id": "899930155361919029",

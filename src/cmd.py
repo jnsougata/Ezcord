@@ -1,5 +1,5 @@
 import inspect
-from src.ez.map import Map
+from src.map import Map
 
 
 class _Parser:

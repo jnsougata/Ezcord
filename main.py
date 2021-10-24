@@ -1,7 +1,5 @@
 import os
-from src.ez.bot import Bot
-from src.ez.map import Map
-from src.ez.slash import MakeSlash
+from src.__init__ import *
 
 APP = 874663148374880287
 TEST = 877399405056102431
@@ -48,9 +46,10 @@ bot = Bot(
     guild_id = TEST,
     commands = commands,
     slash_commands = slash_commands,
+    intents = Intents.members
 
 )
-bot.intents = 1791
+
 
 bot.start()
 

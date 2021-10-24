@@ -1,5 +1,5 @@
 import asynctube
-from src.ez.inxn import Interaction
+from src.interaction import Interaction
 
 
 

@@ -1,8 +1,11 @@
 import asyncio
 import aiohttp
-from src.ez.stacking import Stack
-from src.ez.slash import MakeSlash
-from src.ez.socket import Websocket
+
+from src.stacking import Stack
+from src.intents import Intents
+from src.slash import MakeSlash
+from src.socket import Websocket
+
 
 
 class Bot:
@@ -11,6 +14,7 @@ class Bot:
             token: str,
             prefix: str,
             commands: list,
+            intents: int,
             app_id: int = None,
             guild_id: int = None,
             slash_commands: list[MakeSlash] = None,
@@ -27,7 +31,7 @@ class Bot:
             "Authorization": f"Bot {token}",
             "content-type": "application/json"
         }
-        self.intents = None
+        self.intents = intents
 
 
     async def register(self):
@@ -55,13 +59,13 @@ class Bot:
             new_loop = asyncio.new_event_loop()
             new_loop.run_until_complete(self.register())
 
-        intents = self.intents or 513
 
         ws = Websocket(
             secret = self.secret,
             prefix = self.prefix,
             bucket = self.bucket,
-            intents = intents
+            intents = self.intents
         )
         loop = asyncio.new_event_loop()
         loop.run_until_complete(ws.connect())
+

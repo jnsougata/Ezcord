@@ -2,10 +2,10 @@ import json
 import time
 import asyncio
 import aiohttp
-from src.ez.map import Map
-from src.ez.cmd import Executor
-from src.ez.stacking import Stack
-from src.ez.slash import SlashReply
+from src.map import Map
+from src.cmd import Executor
+from src.stacking import Stack
+from src.slash import SlashReply
 
 
 class Receiver:
