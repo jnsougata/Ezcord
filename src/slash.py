@@ -1,3 +1,5 @@
+import json
+
 import asynctube
 from src.interaction import Interaction
 
@@ -138,6 +140,16 @@ class SlashReply(Interaction):
                     'type': 4,
                     'data': {
                         "content": video.url
+                    }
+                }
+                return body
+
+            elif cmd == 'latency':
+                hello = json.load(open("src/stack/hello_stack.json"))
+                body = {
+                    'type': 4,
+                    'data': {
+                        "content": f'**{round(hello.get("l"))} ms**'
                     }
                 }
                 return body
