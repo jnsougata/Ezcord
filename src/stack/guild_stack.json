@@ -1444,7 +1444,7 @@
       }
     },
     "op": 0,
-    "s": 2,
+    "s": 4,
     "t": "GUILD_CREATE"
   },
   "877399405056102431": {
@@ -1712,7 +1712,7 @@
         },
         {
           "id": "891019581974511667",
-          "last_message_id": "901990016752967770",
+          "last_message_id": "902050397588443176",
           "last_pin_timestamp": "2021-09-28T08:08:03+00:00",
           "name": "general",
           "nsfw": false,
@@ -2424,7 +2424,6 @@
             "bot": true,
             "discriminator": "0220",
             "id": "874663148374880287",
-            "public_flags": 0,
             "username": "Ezcord"
           }
         }
@@ -3143,7 +3142,7 @@
         },
         {
           "id": "885699990041800774",
-          "last_message_id": "902028902761914369",
+          "last_message_id": "902045652710744105",
           "name": "status",
           "nsfw": false,
           "parent_id": null,
@@ -4191,7 +4190,7 @@
       }
     },
     "op": 0,
-    "s": 4,
+    "s": 5,
     "t": "GUILD_CREATE"
   },
   "899930155361919028": {
@@ -4475,7 +4474,7 @@
       }
     },
     "op": 0,
-    "s": 5,
+    "s": 6,
     "t": "GUILD_CREATE"
   }
 }

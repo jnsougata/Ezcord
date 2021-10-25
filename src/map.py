@@ -13,12 +13,12 @@ class Map:
         self.__session = session
         self.__secret = secret
         self.__resp = payload
-        self.__nonce = payload.get('nonce', None)
-        self.__id = payload.get('id', None)
-        self.__flags = payload.get('flags', None)
+        self.__nonce = payload.get('nonce')
+        self.__id = payload.get('id')
+        self.__flags = payload.get('flags')
         self.__user_id = payload['author']['id']
-        self.__guild_id = payload.get('guild_id', None)
-        self.__channel_id = payload.get('channel_id', None)
+        self.__guild_id = payload.get('guild_id')
+        self.__channel_id = payload.get('channel_id')
 
 
     @property
@@ -56,8 +56,7 @@ class Map:
     @property
     def author(self):
         return _CachedMember(
-            userId = self.__user_id,
-            guildId = self.__guild_id
+            _CachedGuild(int(self.__guild_id))._external['m'][str(self.__user_id)]
         )
 
     @property
@@ -109,7 +108,11 @@ class _CachedGuild:
             open('src/stack/guild_stack.json', 'r')
         )
         self.__id = Id
-        self.__data: dict = cached[str(Id)]['d']
+        self.__external: dict = cached[str(Id)]
+        self.__d_payload: dict = cached[str(Id)]['d']
+        self.__m_payload: dict = cached[str(Id)]['m']
+
+
 
 
 
@@ -119,152 +122,159 @@ class _CachedGuild:
 
     @property
     def name(self):
-        return self.__data.get("name")
+        return self.__d_payload.get("name")
 
     @property
     def mfa_level(self):
-        return self.__data.get("mfa_level")
+        return self.__d_payload.get("mfa_level")
 
     @property
     def large(self):
-        return self.__data.get("large")
+        return self.__d_payload.get("large")
 
 
     @property
     def nfsw(self):
-        return self.__data.get("nfsw")
+        return self.__d_payload.get("nfsw")
 
-    @property #convert to member object
+    @property
     def owner(self):
-        id = self.__data.get("owner_id")
-        return _CachedMember(userId = id, guildId = self.id)
+        id = self.__d_payload.get("owner_id")
+        return _CachedMember(self.__m_payload[str(id)])
 
     @property
     def language(self):
-        return self.__data.get("preferred_locale")
+        return self.__d_payload.get("preferred_locale")
 
     @property
     def boosts(self):
-        return self.__data.get("premium_subscription_count")
+        return self.__d_payload.get("premium_subscription_count")
 
     @property
     def boost_level(self):
-        return self.__data.get("premium_tier")
+        return self.__d_payload.get("premium_tier")
 
     @property
     def member_count(self):
-        return self.__data.get("member_count")
+        return self.__d_payload.get("member_count")
 
     @property
     def max_allowed_members(self):
-        return self.__data.get("max_members")
+        return self.__d_payload.get("max_members")
 
     @property
     def region(self):
-        return self.__data.get("region")
+        return self.__d_payload.get("region")
 
     @property
     def roles(self):
-        return [_CachedRole(data) for data in self.__data.get('roles')]
+        return [_CachedRole(data) for data in self.__d_payload.get('roles')]
 
     @property
     def channels(self):
-        return [Channel(data) for data in self.__data.get('channels')]
+        return [Channel(data) for data in self.__d_payload.get('channels')]
 
     @property
     def members(self):
-        cached = json.load(open('src/stack/member_stack.json','r'))
-        member_ids = list(cached[str(self.id)])
-        return [_CachedMember(userId = Id, guildId = self.id) for Id in member_ids]
+        member_ids = list(self.__m_payload)
+        return [_CachedMember(self.__m_payload[str(Id)]) for Id in member_ids]
 
     @property
     def rules_channel(self):
-        id = self.__data.get("rules_channel_id")
-        for item in self.__data["channels"]:
+        id = self.__d_payload.get("rules_channel_id")
+        for item in self.__d_payload["channels"]:
             if item['id'] == id:
                 return Channel(item)
 
     @property
     def sys_channel(self):
-        id = self.__data.get("system_channel_id")
-        for item in self.__data["channels"]:
+        id = self.__d_payload.get("system_channel_id")
+        for item in self.__d_payload["channels"]:
             if item['id'] == id:
                 return Channel(item)
 
     @property
     def vanity_code(self):
-        return self.__data.get("vanity_url_code")
+        return self.__d_payload.get("vanity_url_code")
 
     @property
     def verification_level(self):
-        return self.__data.get("verification_level")
+        return self.__d_payload.get("verification_level")
 
     @property
     def nsfw_level(self):
-        return self.__data.get("nsfw_level")
+        return self.__d_payload.get("nsfw_level")
 
     @property
     def icon(self): # convert to asset
-        return self.__data.get("icon")
+        return self.__d_payload.get("icon")
 
     @property
     def banner(self): # convert to asset
-        return self.__data.get("banner")
+        return self.__d_payload.get("banner")
 
     @property
     def features(self):
-        return GuildFlags(self.__data.get("features"))
+        return _GuildFlags(self.__d_payload.get("features"))
 
     @property
     def slash_count(self):
-        return self.__data.get("application_command_count")
+        return self.__d_payload.get(
+            "application_command_count"
+        )
 
     @property
     def emojis(self): # convert to asset
-        return self.__data.get("emojis")
+        return self.__d_payload.get("emojis")
 
     @property
     def content_filter(self): # convert object
-        return self.__data.get("explicit_content_filter")
+        return self.__d_payload.get(
+            "explicit_content_filter"
+        )
 
     @property
     def alert_level(self):
-        return self.__data.get("default_message_notifications")
+        return self.__d_payload.get(
+            "default_message_notifications"
+        )
 
     @property
     def description(self):
-        return self.__data.get("description")
+        return self.__d_payload.get("description")
 
 
     def pull_channel(self, id:int):
-        ls = self.__data["channels"]
+        ls = self.__d_payload["channels"]
         for item in ls:
             if item['id'] == str(id):
                 return Channel(item)
 
+
     def pull_role(self, id: int):
-        ls = self.__data["roles"]
+        ls = self.__d_payload["roles"]
         for item in ls:
             if item['id'] == str(id):
                 return _CachedRole(item)
 
 
     def pull_member(self, id:int):
-        return _CachedMember(
-            userId = id,
-            guildId = self.id
-        )
+        return _CachedMember(self.__m_payload[str(id)])
+
+    @property
+    def _external(self):
+        return self.__external
 
 
 # HELPER SUB MAPS
-class GuildFlags:
+class _GuildFlags:
 
     def __init__(self, flags: list):
         self.__features = flags
 
 
     def __repr__(self):
-        return f'<GuildFlags {self.ALL}>'
+        return f'<_GuildFlags {self.ALL}>'
 
 
     @property
@@ -367,7 +377,7 @@ class _CachedRole:
 
 
     def __repr__(self):
-        return f'<_CachedRole Object [{self.name}, {self.id}]>'
+        return f'<Role Object [{self.name}, {self.id}]>'
 
 
     @property
@@ -507,15 +517,14 @@ class Channel:
 # CORE MEMBER MAP
 class _CachedMember:
 
-    def __init__(self, guildId: int):
-        cached = json.load(open('src/stack/member_stack.json', 'r'))
-        self.__data: dict = cached[str(guildId)][str(userId)]
-
-
+    def __init__(self, payload: dict):
+        self.__data: dict = payload
 
 
     def __repr__(self):
         return f'{self.name}#{self.discriminator}'
+
+
 
     @property
     def id(self):
