@@ -9,6 +9,7 @@ class Stack:
     async def hello(self):
         PATH = "src/stack/hello_stack.json"
         with open(PATH, 'w') as f:
+            self.__data['l'] = 0
             json.dump(obj=self.__data, fp=f, indent=2, sort_keys=True)
 
 
@@ -23,9 +24,11 @@ class Stack:
 
     @staticmethod
     async def latency(value):
-        PATH = "src/stack/latency_stack.json"
+        PATH = "src/stack/hello_stack.json"
+        js = json.load(open(PATH, 'r'))
         with open(PATH, 'w') as f:
-            json.dump(obj={'latency': value}, fp=f, indent=2, sort_keys=True)
+            js['l'] = value
+            json.dump(obj=js, fp=f, indent=2, sort_keys=True)
 
 
     async def ready(self):
@@ -45,8 +48,8 @@ class Stack:
 
     @staticmethod
     async def members(session:ClientSession, auth_header:dict, guild_id:int):
-        endpoint = f'/guilds/{guild_id}/members?limit=100'
-        PATH = "src/stack/member_stack.json"
+        endpoint = f'/guilds/{guild_id}/members?limit=1000'
+        PATH = "src/stack/guild_stack.json"
         resp = await session.get(
             'https://discord.com/api/v9/' + endpoint,
             headers = auth_header
@@ -59,6 +62,6 @@ class Stack:
             USER_ID = item['user']['id']
             temp[str(USER_ID)] = item
         with open(PATH, 'w') as f:
-            js[str(guild_id)] = temp
-            json.dump(obj = js,fp = f,indent = 2,sort_keys = True)
+            js[str(guild_id)]["m"] = temp
+            json.dump(obj = js,fp = f,indent = 2, sort_keys = True)
 

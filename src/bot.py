@@ -2,7 +2,6 @@ import asyncio
 import aiohttp
 
 from src.stacking import Stack
-from src.intents import Intents
 from src.slash import MakeSlash
 from src.socket import Websocket
 
@@ -46,7 +45,7 @@ class Bot:
                     )
                     js = await resp.json()
                     await Stack(js).slash()
-                print("[ Slash Commands Registered ]")
+                print("[ SLASH REGD ]")
         else:
             raise ValueError(
                 "Application Id and Test Guild Id is mandatory to register slash command"

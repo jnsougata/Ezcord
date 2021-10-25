@@ -6,8 +6,12 @@ TEST = 877399405056102431
 TOK = os.getenv('DISCORD_TOKEN')
 
 
+
+
+
 async def echo(ctx:Map, phrase:str):
     await ctx.send(f'{ctx.author.mention} **{phrase.upper()}**')
+
 
 async def info(ctx:Map, id:int):
     inf = ctx.guild.pull_member(int(id))
@@ -16,6 +20,7 @@ async def info(ctx:Map, id:int):
         f'\n**{inf}**'
         f'\n{inf.mention}'
     )
+
 
 async def pull(ctx:Map, id:int):
     inf = ctx.guild.pull_channel(int(id))

@@ -76,7 +76,7 @@ class Receiver:
 
             elif EVENT == 'MESSAGE_CREATE':
                 ctx = Map(
-                    response = RAW,
+                    payload= RAW,
                     session = self.session,
                     secret = self.secret
                 )
@@ -94,6 +94,8 @@ class Receiver:
 
         # RECEIVED HELLO
         elif CODE == 10:
+
+            #CACHING HELLO
             await Stack(DATA).hello()
 
             # SENDING IDENTIFICATION PAYLOAD
@@ -116,7 +118,7 @@ class Receiver:
 
         # HEART BEAT ACK
         elif CODE == 11:
-            print(f'[ HEARTBEAT ACK ]')
+            pass
 
         else:
             print(DATA)
@@ -161,7 +163,7 @@ class Websocket:
     async def heartbeat_ack(self, data: dict):
         if data['op'] == 11:
             self.ack_time = time.time() * 1000
-            print(f'[ Latency: {self.ack_time - self.start_time}ms ]')
+            print(f'[ {self.ack_time - self.start_time} MS ]')
             await Stack.latency(self.ack_time - self.start_time)
 
 
