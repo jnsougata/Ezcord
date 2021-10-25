@@ -22,15 +22,6 @@ class Stack:
             json.dump(obj=data, fp=f, indent=4, sort_keys=True)
 
 
-    @staticmethod
-    async def latency(value):
-        PATH = "src/stack/hello_stack.json"
-        js = json.load(open(PATH, 'r'))
-        with open(PATH, 'w') as f:
-            js['l'] = value
-            json.dump(obj=js, fp=f, indent=2, sort_keys=True)
-
-
     async def ready(self):
         PATH = "src/stack/ready_stack.json"
         with open(PATH, 'w') as f:

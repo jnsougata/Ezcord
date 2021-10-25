@@ -467,7 +467,7 @@
         },
         {
           "id": "899864601057976330",
-          "last_message_id": "901946763882164265",
+          "last_message_id": "902110721054220299",
           "name": "\ud83d\udcdc\u4e28activity-log",
           "nsfw": false,
           "parent_id": "862242554484883467",
@@ -1444,16 +1444,16 @@
       }
     },
     "op": 0,
-    "s": 4,
+    "s": 2,
     "t": "GUILD_CREATE"
   },
   "877399405056102431": {
     "d": {
       "afk_channel_id": null,
       "afk_timeout": 300,
-      "application_command_count": 15,
+      "application_command_count": 16,
       "application_command_counts": {
-        "1": 15,
+        "1": 16,
         "2": 0,
         "3": 0
       },
@@ -1572,7 +1572,7 @@
         },
         {
           "id": "880847496920834108",
-          "last_message_id": "901980957651898388",
+          "last_message_id": "902111655054409728",
           "name": "development",
           "nsfw": false,
           "parent_id": "877399405056102432",
@@ -1678,7 +1678,7 @@
         },
         {
           "id": "890537445702123520",
-          "last_message_id": "901923075304615936",
+          "last_message_id": "902105423790874694",
           "last_pin_timestamp": "2021-09-25T11:45:04+00:00",
           "name": "playground",
           "nsfw": false,
@@ -1712,7 +1712,7 @@
         },
         {
           "id": "891019581974511667",
-          "last_message_id": "902050397588443176",
+          "last_message_id": "902067801680937000",
           "last_pin_timestamp": "2021-09-28T08:08:03+00:00",
           "name": "general",
           "nsfw": false,
@@ -1756,7 +1756,7 @@
         },
         {
           "id": "891934715819458570",
-          "last_message_id": "899885234533830666",
+          "last_message_id": "902098808429744128",
           "name": "fake-alerts",
           "nsfw": false,
           "parent_id": "891019165295595590",
@@ -2424,6 +2424,7 @@
             "bot": true,
             "discriminator": "0220",
             "id": "874663148374880287",
+            "public_flags": 0,
             "username": "Ezcord"
           }
         }
@@ -2712,7 +2713,7 @@
         "is_pending": false,
         "joined_at": "2021-08-31T15:48:14.123000+00:00",
         "mute": false,
-        "nick": "Sleepy",
+        "nick": "Waffel",
         "pending": false,
         "premium_since": null,
         "roles": [
@@ -3494,6 +3495,7 @@
             "bot": true,
             "discriminator": "0220",
             "id": "874663148374880287",
+            "public_flags": 0,
             "username": "Ezcord"
           }
         }
@@ -3755,7 +3757,7 @@
           "self_deaf": true,
           "self_mute": false,
           "self_video": false,
-          "session_id": "7c170ae41633b9dd491d1da49446ea08",
+          "session_id": "85388a4ed368bb2253c528c8b1837359",
           "suppress": false,
           "user_id": "369208607126061057"
         }
@@ -4159,7 +4161,7 @@
           "885562455424643107"
         ],
         "user": {
-          "avatar": "89fd1aaad61585a1b6697b02ddf838a0",
+          "avatar": "1edd129985aa01b592553033a32f1a29",
           "bot": true,
           "discriminator": "0524",
           "id": "880773755301933098",
@@ -4190,7 +4192,7 @@
       }
     },
     "op": 0,
-    "s": 5,
+    "s": 4,
     "t": "GUILD_CREATE"
   },
   "899930155361919028": {
@@ -4339,6 +4341,7 @@
             "bot": true,
             "discriminator": "0220",
             "id": "874663148374880287",
+            "public_flags": 0,
             "username": "Ezcord"
           }
         }
@@ -4474,7 +4477,7 @@
       }
     },
     "op": 0,
-    "s": 6,
+    "s": 5,
     "t": "GUILD_CREATE"
   }
 }

@@ -51,7 +51,7 @@ bot = Bot(
     guild_id = TEST,
     commands = commands,
     slash_commands = slash_commands,
-    intents = Intents.members
+    intents = Intents.all
 
 )
 

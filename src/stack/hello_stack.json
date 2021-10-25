@@ -1,11 +1,11 @@
 {
   "d": {
     "_trace": [
-      "[\"gateway-prd-main-zl23\",{\"micros\":0.0}]"
+      "[\"gateway-prd-main-1nq9\",{\"micros\":0.0}]"
     ],
     "heartbeat_interval": 41250
   },
-  "l": 314.059814453125,
+  "l": 0,
   "op": 10,
   "s": null,
   "t": null

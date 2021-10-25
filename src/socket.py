@@ -5,20 +5,20 @@ import aiohttp
 from src.map import Map
 from src.cmd import Executor
 from src.stacking import Stack
-from src.slash import SlashReply
+from src.slash import _ParseSlash
 
 
-class Receiver:
+class EventManager:
 
     def __init__(
             self,
             secret: str,
             response: dict,
-            session: aiohttp.ClientSession,
-            socket: aiohttp.ClientWebSocketResponse,
             bucket: list,
             prefix: str,
             intents: int,
+            session: aiohttp.ClientSession,
+            socket: aiohttp.ClientWebSocketResponse,
     ):
         self.ws = socket
         self.ack_time = 0
@@ -56,7 +56,7 @@ class Receiver:
             EVENT = DATA['t']
             RAW = DATA['d']
             cache = Stack(DATA)
-            print(f'[ {EVENT} ]')
+            print(f'[ {EVENT} ] [ SEQ {DATA["s"]} ]')
 
             # CHECKING EVENT TYPE
             if EVENT == 'READY':
@@ -71,7 +71,7 @@ class Receiver:
                 )
 
             elif EVENT == 'INTERACTION_CREATE':
-                slash = SlashReply(RAW)
+                slash = _ParseSlash(RAW)
                 await slash.callback(self.session)
 
             elif EVENT == 'MESSAGE_CREATE':
@@ -81,12 +81,12 @@ class Receiver:
                     secret = self.secret
                 )
 
-                PARSER = Executor(
+                parse = Executor(
                     ctx = ctx,
                     prefix = self.prefix,
                     bucket = self.bucket,
                 )
-                await PARSER.process_message
+                await parse.process_message
 
             else:
                 print(f'[ {EVENT} ]\n{DATA}')
@@ -97,24 +97,6 @@ class Receiver:
 
             #CACHING HELLO
             await Stack(DATA).hello()
-
-            # SENDING IDENTIFICATION PAYLOAD
-            await self.ws.send_json(
-                {
-                    "op": 2,
-                    "d": {
-                        "token": self.secret,
-                        "intents": self.intents,
-                        "properties": {
-                            '$os': "ios",
-                            '$browser': 'Discord iOS',
-                            '$device': 'discord.py',
-                            '$referrer': '',
-                            '$referring_domain': ''
-                        }
-                    }
-                }
-            )
 
         # HEART BEAT ACK
         elif CODE == 11:
@@ -133,43 +115,50 @@ class Websocket:
             bucket: list,
             intents: int
     ):
+        self.seq = 0
+        self.latency = 0
+        self.ack_time = 0
+        self.frequency = 0
+        self.start_time = 0
+
         self.ws = None
+        self.raw = None
         self.session = None
         self.secret = secret
-        self.start_time = 0
-        self.ack_time = 0
-        self.interval = 0
         self.bucket = bucket
         self.prefix = prefix
+        self.session_id = None
         self.intents = intents
 
 
 
-    async def getGateway(self):
+    async def get_gateway_url(self):
         URL = "https://discordapp.com/api/gateway"
         response = await self.session.get(URL)
-        TEMP = await response.json()
-        return TEMP['url']
+        js = await response.json()
+        return js['url']
 
 
-    async def send_heartbeat(self, data: dict):
-        if data["op"] == 10:
-            self.interval = data['d']['heartbeat_interval']
+    async def keep_alive(self):
+        data = self.raw
+        if data['op'] == 10:
+            self.frequency = data['d']['heartbeat_interval'] / 1000
             asyncio.ensure_future(
-                self.heartBeat(self.interval)
+                self.heartbeat_send()
             )
 
 
-    async def heartbeat_ack(self, data: dict):
+    async def heartbeat_ack(self):
+        data = self.raw
         if data['op'] == 11:
             self.ack_time = time.time() * 1000
-            print(f'[ {self.ack_time - self.start_time} MS ]')
-            await Stack.latency(self.ack_time - self.start_time)
+            ping_time = self.ack_time - self.start_time
+            self.latency = ping_time
+            print(f'[ PING {round(ping_time)}MS ]')
 
-
-    async def heartBeat(self, interval):
+    async def heartbeat_send(self):
         while True:
-            await asyncio.sleep(interval / 1000)
+            await asyncio.sleep(self.frequency)
             self.start_time = time.time() * 1000
             await self.ws.send_json(
                 {
@@ -178,17 +167,53 @@ class Websocket:
                 }
             )
 
+    async def set_session_id(self):
+        raw = self.raw
+        if raw['op'] == 0 and raw['t'] == 'READY':
+            self.session_id = raw['d']['session_id']
+            print(f'[ SESSION ID: {self.session_id} ]')
 
-    async def handler(self, url):
+    async def identify(self):
+        raw = self.raw
+        if raw['op'] == 10:
+            await self.ws.send_json(
+                {
+                    "op": 2,
+                    "d": {
+                        "token": self.secret,
+                        "intents": self.intents,
+                        "properties": {
+                            '$os': "ios",
+                            '$browser': 'Discord iOS',
+                            '$device': 'Easycord',
+                            '$referrer': '',
+                            '$referring_domain': ''
+                        }
+                    }
+                }
+            )
+
+    async def update_sequence(self):
+        seq = self.raw['s']
+        if seq:
+            self.seq = seq
+
+    async def gateway_listener(self, url: str):
         async with self.session.ws_connect(
                 f"{url}?v=9&encoding=json") as ws:
 
             async for msg in ws:
                 self.ws = ws
-                data = json.loads(msg.data)
+                raw = json.loads(msg.data)
+                self.raw = raw
 
-                listener = Receiver(
-                    response = data,
+                await self.set_session_id()
+                await self.identify()
+                await self.update_sequence()
+                await self.reconnect()
+
+                insp = EventManager(
+                    response = raw,
                     socket = self.ws,
                     secret = self.secret,
                     session = self.session,
@@ -196,14 +221,30 @@ class Websocket:
                     prefix = self.prefix,
                     intents = self.intents
                 )
-                await listener.run()
-                await self.send_heartbeat(data)
-                await self.heartbeat_ack(data)
+                await insp.run()
+
+                await self.keep_alive()
+                await self.heartbeat_ack()
 
 
     async def connect(self):
         async with aiohttp.ClientSession() as session:
             self.session = session
-            gateway = await self.getGateway()
-            await self.handler(gateway)
+            uri = await self.get_gateway_url()
+            await self.gateway_listener(uri)
+
+    async def reconnect(self):
+        if self.raw['op'] == 7:
+            await self.ws.send_json(
+                {
+                    "op": 6,
+                    "d": {
+                        "token": self.secret,
+                        "session_id": self.session_id,
+                        "seq": self.seq
+                    }
+                }
+            )
+
+
 

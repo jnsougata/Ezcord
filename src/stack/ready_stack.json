@@ -1,7 +1,7 @@
 {
   "d": {
     "_trace": [
-      "[\"gateway-prd-main-zl23\",{\"micros\":105401,\"calls\":[\"discord-sessions-blue-prd-2-32\",{\"micros\":104722,\"calls\":[\"start_session\",{\"micros\":56501,\"calls\":[\"api-prd-main-4wmj\",{\"micros\":53408,\"calls\":[\"get_user\",{\"micros\":24024},\"add_authorized_ip\",{\"micros\":1534},\"get_guilds\",{\"micros\":4706},\"coros_wait\",{\"micros\":2}]}]},\"guilds_connect\",{\"micros\":3,\"calls\":[]},\"presence_connect\",{\"micros\":0,\"calls\":[]}]}]}]"
+      "[\"gateway-prd-main-1nq9\",{\"micros\":157232,\"calls\":[\"discord-sessions-blue-prd-2-100\",{\"micros\":156472,\"calls\":[\"start_session\",{\"micros\":88046,\"calls\":[\"api-prd-main-fx47\",{\"micros\":43570,\"calls\":[\"get_user\",{\"micros\":3800},\"add_authorized_ip\",{\"micros\":3949},\"get_guilds\",{\"micros\":7673},\"coros_wait\",{\"micros\":1}]}]},\"guilds_connect\",{\"micros\":2,\"calls\":[]},\"presence_connect\",{\"micros\":4841,\"calls\":[]}]}]}]"
     ],
     "application": {
       "flags": 303104,
@@ -36,7 +36,7 @@
     "presences": [],
     "private_channels": [],
     "relationships": [],
-    "session_id": "dfb849e52095daf17ef23fe9533dbd02",
+    "session_id": "ef861e7ea393ab9854498d1452b06b49",
     "user": {
       "avatar": "0eb710f22c15096d2977eebbdc9dca3d",
       "bot": true,

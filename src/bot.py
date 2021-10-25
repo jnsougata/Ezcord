@@ -1,6 +1,5 @@
 import asyncio
 import aiohttp
-
 from src.stacking import Stack
 from src.slash import MakeSlash
 from src.socket import Websocket
@@ -34,7 +33,6 @@ class Bot:
 
 
     async def register(self):
-
         if self.guild_id and self.app_id:
             async with aiohttp.ClientSession() as session:
                 for item in self.slash:
@@ -59,12 +57,12 @@ class Bot:
             new_loop.run_until_complete(self.register())
 
 
-        ws = Websocket(
+        socket = Websocket(
             secret = self.secret,
             prefix = self.prefix,
             bucket = self.bucket,
             intents = self.intents
         )
         loop = asyncio.new_event_loop()
-        loop.run_until_complete(ws.connect())
+        loop.run_until_complete(socket.connect())
 

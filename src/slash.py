@@ -84,7 +84,7 @@ class MakeSlash:
 
 
 
-class SlashReply(Interaction):
+class _ParseSlash(Interaction):
 
     def __init__(self, response: dict):
         super().__init__(response)
