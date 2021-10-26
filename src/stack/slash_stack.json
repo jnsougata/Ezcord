@@ -39,6 +39,99 @@
       }
     ],
     "type": 1,
-    "version": "902122121101185054"
+    "version": "902481835467087893"
+  },
+  "902481837149024318": {
+    "application_id": "874663148374880287",
+    "default_member_permissions": null,
+    "default_permission": true,
+    "description": "this is a new slash command",
+    "guild_id": "877399405056102431",
+    "id": "902481837149024318",
+    "name": "new",
+    "type": 1,
+    "version": "902481837149024319"
+  },
+  "902483636933230603": {
+    "application_id": "874663148374880287",
+    "default_member_permissions": null,
+    "default_permission": true,
+    "description": "please rate me out of 5",
+    "guild_id": "877399405056102431",
+    "id": "902483636933230603",
+    "name": "rate",
+    "options": [
+      {
+        "choices": [
+          {
+            "name": "\u2605",
+            "value": 1
+          },
+          {
+            "name": "\u2605\u2605",
+            "value": 2
+          },
+          {
+            "name": "\u2605\u2605\u2605",
+            "value": 3
+          },
+          {
+            "name": "\u2605\u2605\u2605\u2605",
+            "value": 4
+          },
+          {
+            "name": "\u2605\u2605\u2605\u2605\u2605",
+            "value": 5
+          }
+        ],
+        "description": "choose ratings",
+        "name": "ratings",
+        "required": true,
+        "type": 4
+      },
+      {
+        "description": "choose ratings",
+        "name": "feedback",
+        "type": 3
+      }
+    ],
+    "type": 1,
+    "version": "902656870152540160"
+  },
+  "902617378117017641": {
+    "application_id": "874663148374880287",
+    "default_member_permissions": null,
+    "default_permission": true,
+    "description": "do not care about rate limit",
+    "guild_id": "877399405056102431",
+    "id": "902617378117017641",
+    "name": "ratelimit",
+    "type": 1,
+    "version": "902619879704784906"
+  },
+  "902645930816340028": {
+    "application_id": "874663148374880287",
+    "default_member_permissions": null,
+    "default_permission": true,
+    "description": "bans a member",
+    "guild_id": "877399405056102431",
+    "id": "902645930816340028",
+    "name": "ban",
+    "options": [
+      {
+        "description": "this user will be banned!",
+        "name": "user",
+        "required": true,
+        "type": 6
+      },
+      {
+        "description": "reason why the user get banned",
+        "name": "reason",
+        "required": true,
+        "type": 3
+      }
+    ],
+    "type": 1,
+    "version": "902656871738007615"
   }
 }

@@ -8,15 +8,15 @@ class Interaction:
             self,
             response: dict
     ):
-        self.version = response.get('version', None)
-        self.type = response.get('type', None)
-        self.token = response.get('token', None)
-        self.member = response.get('member', None)
-        self.id = response.get('id', None)
-        self.guild_id = response.get('guild_id', None)
-        self.data = response.get('data', None)
-        self.channel_id = response.get('channel_id', None)
-        self.application_id = response.get('application_id', None)
+        self.version = response.get('version')
+        self.type = response.get('type')
+        self.token = response.get('token')
+        self.member = response.get('member')
+        self.id = response.get('id')
+        self.guild_id = response.get('guild_id')
+        self.data = response.get('data')
+        self.channel_id = response.get('channel_id')
+        self.application_id = response.get('application_id')
 
 
     def __repr__(self):

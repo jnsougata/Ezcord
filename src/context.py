@@ -2,7 +2,7 @@ import json
 from aiohttp import ClientSession
 
 
-class Map:
+class Context:
 
     def __init__(
             self,
@@ -214,7 +214,7 @@ class _CachedGuild:
         return self.__d_payload.get("banner")
 
     @property
-    def features(self):
+    def flags(self):
         return _GuildFlags(self.__d_payload.get("features"))
 
     @property

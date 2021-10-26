@@ -1,39 +1,13 @@
 import inspect
-from src.map import Map
+from src.context import Context, _CachedGuild
 
-
-class _Parser:
-    def __init__(self, string:str, func):
-        self.string = string
-        self.func = func
-
-
-
-    def arg_parser(self):
-        raw = self.string.split(' ')
-        args = [arg for arg in raw if arg != '']
-        args.remove(args[0])
-        return args
-
-
-    def valid_list(self):
-        i = inspect.getfullargspec(self.func)
-        l = len(i.args)
-        param = self.arg_parser()
-        return param[:l - 1]
-
-
-    async def execute(self, context):
-        args = self.valid_list()
-        args.insert(0, context)
-        return await self.func(*args)
 
 
 class Executor:
 
     def __init__(
             self,
-            ctx: Map,
+            ctx: Context,
             prefix: str,
             bucket: list,
     ):
@@ -47,14 +21,27 @@ class Executor:
         message = self.ctx.content
         if message:
             if message.startswith(self.prefix):
-                args = message.split(' ')
-                cmd = args[0].replace(self.prefix, '')
+                string = message
+                args = string.split(' ')
+                cmd = args[0].replace(self.prefix,'')
+                args.remove(args[0])
+                args = [i for i in args if i != '']
                 for item in self.bucket:
                     if item.__name__ == cmd:
-                        try:
-                            command = _Parser(message, item)
-                            await command.execute(self.ctx)
-                        except TypeError:
-                            return None
+                        classes = [int, str, float, _CachedGuild, Context]
+                        i = inspect.signature(item)
+                        params = i.parameters
+                        types = [str(params.get(key).annotation) for key in params]
+                        types.remove(types[0])
+                        final = []
+                        for i in range(len(types)):
+                            for x in classes:
+                                if x.__name__ in types[i]:
+                                    try:
+                                        final.append(x(args[i]))
+                                    except IndexError:
+                                        return "Params missing"
+                        val = await item.__call__(self.ctx, *final)
+                        return val
                 else:
                     pass

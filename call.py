@@ -1,5 +1,5 @@
 import re
-from src.map import _CachedGuild
+from src.context import _CachedGuild
 
 
 

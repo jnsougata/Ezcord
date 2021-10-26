@@ -22,6 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 from src.bot import Bot
-from src.map import Map
+from src.context import Context
 from src.intents import Intents
-from src.slash import MakeSlash
+from src.slash_ import Slash
