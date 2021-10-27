@@ -2,9 +2,9 @@ import json
 import time
 import asyncio
 import aiohttp
-from src.context import Context
 from src.cmd import Executor
 from src.stacking import Stack
+from src.context import Context
 from src.slash_ import _ParseSlash
 
 
@@ -129,18 +129,24 @@ class Websocket:
         self.__ws = None
         self.__raw = None
         self.__uri = None
-        self.ping = 0
+        self.__ping = 0
         self.__ack_time = 0
-        self.__frequency = 0
         self.__start_time = 0
         self.__session = None
         self.__session_id = None
         self.raw_received = None
 
+        # caching
+        self.users = {}
+        self.guilds = {}
+        self.__hello = None
+        self.__ready = None
+        self.__slash_data = {}
+
         # starters
         self.prefix = prefix
-        self.__secret = secret
         self.app_id = app_id
+        self.__secret = secret
         self.intents = intents
         self.commands = commands
         self.guild_id = guild_id
@@ -154,11 +160,11 @@ class Websocket:
         return js['url']
 
     async def __keep_alive(self):
-        data = self.__raw
-        if data['op'] == 10:
-            self.__frequency = data['d']['heartbeat_interval'] / 1000
+        if self.__raw['op'] == 10:
+            data = self.__hello
+            sleep = data['heartbeat_interval'] / 1000
             asyncio.ensure_future(
-                self.__heartbeat_send()
+                self.__heartbeat_send(sleep)
             )
 
     async def __heartbeat_ack(self):
@@ -166,12 +172,11 @@ class Websocket:
         if data['op'] == 11:
             self.__ack_time = time.time() * 1000
             ping_time = self.__ack_time - self.__start_time
-            self.ping = ping_time
             print(f'[ PING {round(ping_time)}MS ]')
 
-    async def __heartbeat_send(self):
+    async def __heartbeat_send(self, interval):
         while True:
-            await asyncio.sleep(self.__frequency)
+            await asyncio.sleep(interval)
             self.__start_time = time.time() * 1000
             await self.__ws.send_json({"op": 1, "d": None})
 
@@ -215,26 +220,17 @@ class Websocket:
                 raw = json.loads(msg.data)
                 self.__raw = raw
 
+                await self.__cache_hello()
+                await self.__keep_alive()
+                await self.__cache_ready()
                 await self.__identify()
+                await self.__cache_guild()
                 await self.__req_members()
-                await self.__reconnect()
+                await self.__cache_members()
                 await self.__update_ssn()
                 await self.__update_seq()
-
-                await EventManager(
-                    socket = self.__ws,
-                    raw_response = raw,
-                    add_id = self.app_id,
-                    prefix = self.prefix,
-                    secret = self.__secret,
-                    session = self.__session,
-                    intents = self.intents,
-                    c_bucket = self.commands,
-
-                ).run()
-
-                await self.__keep_alive()
                 await self.__heartbeat_ack()
+                await self.__reconnect()
 
     async def connect(self):
         async with aiohttp.ClientSession() as session:
@@ -266,8 +262,10 @@ class Websocket:
                     headers = {"Authorization": f"Bot {self.__secret}"}
                 )
                 js = await resp.json()
-                await Stack(js).slash()
-            print("[ SLASH REGD ]")
+                CMD_ID = js['id']
+                self.__slash_data[str(CMD_ID)] = js
+            print("[ CACHING SLASH COMMANDS ]")
+
         else:
             raise ValueError(
                 "Application Id and Test Guild Id is mandatory to register slash command"
@@ -275,17 +273,59 @@ class Websocket:
 
     async def __req_members(self):
         raw = self.__raw
-        if raw['op'] == 10:
-            rs = json.load(open("src/stack/ready_stack.json", "r"))
-            guilds = [item['id'] for item in rs['d']['guilds']]
-            for item in guilds:
-                payload = {
-                    "op": 8,
-                    "d": {
-                        "guild_id": item,
-                        "query": "",
-                        "limit": 0
-                    }
+        if raw['t'] == 'GUILD_CREATE':
+            payload = {
+                "op": 8,
+                "d": {
+                    "guild_id": int(raw['d']['id']),
+                    "query": "",
+                    "limit": 0
                 }
-                await self.__ws.send_json(payload)
+            }
+            await self.__ws.send_json(payload)
 
+    # caching functions
+    async def __cache_hello(self):
+        if self.__raw['op'] == 10:
+            self.__hello = self.__raw['d']
+            print('[ CACHING HELLO ]')
+
+    async def __cache_ready(self):
+        if self.__raw['t'] == 'READY':
+            self.__ready = self.__raw['d']
+            print('[ CACHING READY ]')
+
+    async def __cache_guild(self):
+        data = self.__raw
+        if data['t'] == 'GUILD_CREATE':
+            guild_id = data['d']['id']
+            self.guilds[str(guild_id)] = data['d']
+            print(f'[ CACHING GUILD {guild_id} ]')
+
+    async def __cache_members(self):
+        data = self.__raw
+        if data['t'] == 'GUILD_MEMBERS_CHUNK':
+            guild_id = data['d']['guild_id']
+            temp = dict()
+            for member in data['d']['members']:
+                user_id = member['user']['id']
+                temp[str(user_id)] = member
+            self.guilds[str(guild_id)]['m'] = temp
+            print(f'[ CACHING MEMBER FOR GUILD {guild_id} ]')
+
+    # message command handler
+
+    async def __message_command(self):
+        if self.__raw['t'] == 'MESSAGE_CREATE':
+            ctx = Context(
+                payload=self.__raw['d'],
+                session=self.session,
+                secret=self.secret
+            )
+
+            parse = Executor(
+                ctx=ctx,
+                prefix=self.prefix,
+                bucket=self.cmds,
+            )
+            await parse.process_message
