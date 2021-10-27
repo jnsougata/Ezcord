@@ -4,15 +4,19 @@ from functools import wraps
 def slash_command(fn):
     if asyncio.iscoroutinefunction(fn):
         @wraps(fn)
-        async def wrapper():
-            return await fn()
+        async def wrapper(*args):
+            return await fn(*args)
         return wrapper
 
 
 
-@slash_command
-async def main():
-    return {1: 'x'}
+
+async def main(ctx:str,*, arg:list):
+    return {ctx: arg}
 
 
-print(asyncio.run(main()))
+ls = 'a'
+kw = {'arg':[]}
+a = asyncio.run(main.__call__(*ls,**kw))
+
+print(a)

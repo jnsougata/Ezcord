@@ -90,7 +90,6 @@ class EventManager:
 
             elif EVENT == 'GUILD_MEMBERS_CHUNK':
                 await cache.members()
-                print(list(DATA['d']))
 
             else:
                 print(DATA)
@@ -113,7 +112,7 @@ class EventManager:
 
 class Websocket:
 
-    BASE = base = 'https://discord.com/api/v9'
+    __BASE  = 'https://discord.com/api/v9'
 
     def __init__(
             self,
@@ -126,21 +125,21 @@ class Websocket:
             slash_cmds: list,
     ):
         # runtime
-        self.seq = 0
-        self.ws = None
-        self.raw = None
-        self.uri = None
+        self.__seq = 0
+        self.__ws = None
+        self.__raw = None
+        self.__uri = None
         self.ping = 0
-        self.ack_time = 0
-        self.frequency = 0
-        self.start_time = 0
-        self.session = None
-        self.session_id = None
+        self.__ack_time = 0
+        self.__frequency = 0
+        self.__start_time = 0
+        self.__session = None
+        self.__session_id = None
         self.raw_received = None
 
         # starters
         self.prefix = prefix
-        self.secret = secret
+        self.__secret = secret
         self.app_id = app_id
         self.intents = intents
         self.commands = commands
@@ -148,48 +147,48 @@ class Websocket:
         self.slash_cmds = slash_cmds
 
 
-    async def get_gateway(self):
+    async def __get_gateway(self):
         URL = "https://discordapp.com/api/gateway"
-        response = await self.session.get(URL)
+        response = await self.__session.get(URL)
         js = await response.json()
         return js['url']
 
-    async def keep_alive(self):
-        data = self.raw
+    async def __keep_alive(self):
+        data = self.__raw
         if data['op'] == 10:
-            self.frequency = data['d']['heartbeat_interval'] / 1000
+            self.__frequency = data['d']['heartbeat_interval'] / 1000
             asyncio.ensure_future(
-                self.heartbeat_send()
+                self.__heartbeat_send()
             )
 
-    async def heartbeat_ack(self):
-        data = self.raw
+    async def __heartbeat_ack(self):
+        data = self.__raw
         if data['op'] == 11:
-            self.ack_time = time.time() * 1000
-            ping_time = self.ack_time - self.start_time
+            self.__ack_time = time.time() * 1000
+            ping_time = self.__ack_time - self.__start_time
             self.ping = ping_time
             print(f'[ PING {round(ping_time)}MS ]')
 
-    async def heartbeat_send(self):
+    async def __heartbeat_send(self):
         while True:
-            await asyncio.sleep(self.frequency)
-            self.start_time = time.time() * 1000
-            await self.ws.send_json({"op": 1, "d": None})
+            await asyncio.sleep(self.__frequency)
+            self.__start_time = time.time() * 1000
+            await self.__ws.send_json({"op": 1, "d": None})
 
-    async def update_ssn(self):
-        raw = self.raw
+    async def __update_ssn(self):
+        raw = self.__raw
         if raw['op'] == 0 and raw['t'] == 'READY':
-            self.session_id = raw['d']['session_id']
-            print(f'[ SESSION ID: {self.session_id} ]')
+            self.__session_id = raw['d']['session_id']
+            print(f'[ SESSION ID: {self.__session_id} ]')
 
-    async def identify(self):
-        raw = self.raw
+    async def __identify(self):
+        raw = self.__raw
         if raw['op'] == 10:
-            await self.ws.send_json(
+            await self.__ws.send_json(
                 {
                     "op": 2,
                     "d": {
-                        "token": self.secret,
+                        "token": self.__secret,
                         "intents": self.intents,
                         "properties": {
                             '$os': "ios",
@@ -202,69 +201,69 @@ class Websocket:
                 }
             )
 
-    async def update_seq(self):
-        seq = self.raw['s']
+    async def __update_seq(self):
+        seq = self.__raw['s']
         if seq:
-            self.seq = seq
+            self.__seq = seq
 
-    async def start_listener(self):
-        async with self.session.ws_connect(
-                f"{self.uri}?v=9&encoding=json") as ws:
+    async def __start_listener(self):
+        async with self.__session.ws_connect(
+                f"{self.__uri}?v=9&encoding=json") as ws:
 
             async for msg in ws:
-                self.ws = ws
+                self.__ws = ws
                 raw = json.loads(msg.data)
-                self.raw = raw
+                self.__raw = raw
 
-                await self.identify()
-                await self.req_members()
-                await self.reconnect()
-                await self.update_ssn()
-                await self.update_seq()
+                await self.__identify()
+                await self.__req_members()
+                await self.__reconnect()
+                await self.__update_ssn()
+                await self.__update_seq()
 
                 await EventManager(
-                    socket = self.ws,
+                    socket = self.__ws,
                     raw_response = raw,
                     add_id = self.app_id,
                     prefix = self.prefix,
-                    secret = self.secret,
-                    session = self.session,
+                    secret = self.__secret,
+                    session = self.__session,
                     intents = self.intents,
                     c_bucket = self.commands,
 
                 ).run()
 
-                await self.keep_alive()
-                await self.heartbeat_ack()
+                await self.__keep_alive()
+                await self.__heartbeat_ack()
 
     async def connect(self):
         async with aiohttp.ClientSession() as session:
-            self.session = session
-            self.uri = await self.get_gateway()
-            await self.slash_register()
-            await self.start_listener()
+            self.__session = session
+            self.__uri = await self.__get_gateway()
+            await self.__slash_register()
+            await self.__start_listener()
 
-    async def reconnect(self):
-        if self.raw['op'] == 7:
-            await self.ws.send_json(
+    async def __reconnect(self):
+        if self.__raw['op'] == 7:
+            await self.__ws.send_json(
                 {
                     "op": 6,
                     "d": {
-                        "token": self.secret,
-                        "session_id": self.session_id,
-                        "seq": self.seq
+                        "token": self.__secret,
+                        "session_id": self.__session_id,
+                        "seq": self.__seq
                     }
                 }
             )
 
-    async def slash_register(self):
+    async def __slash_register(self):
         if self.guild_id and self.app_id:
             for item in self.slash_cmds:
-                resp = await self.session.post(
-                    f'{self.BASE}/applications/{self.app_id}'
+                resp = await self.__session.post(
+                    f'{self.__BASE}/applications/{self.app_id}'
                     f'/guilds/{self.guild_id}/commands',
                     json = await item.__call__(),
-                    headers = {"Authorization": f"Bot {self.secret}"}
+                    headers = {"Authorization": f"Bot {self.__secret}"}
                 )
                 js = await resp.json()
                 await Stack(js).slash()
@@ -274,10 +273,9 @@ class Websocket:
                 "Application Id and Test Guild Id is mandatory to register slash command"
             )
 
-    async def req_members(self):
-        raw = self.raw
+    async def __req_members(self):
+        raw = self.__raw
         if raw['op'] == 10:
-
             rs = json.load(open("src/stack/ready_stack.json", "r"))
             guilds = [item['id'] for item in rs['d']['guilds']]
             for item in guilds:
@@ -289,5 +287,5 @@ class Websocket:
                         "limit": 0
                     }
                 }
-                await self.ws.send_json(payload)
+                await self.__ws.send_json(payload)
 

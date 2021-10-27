@@ -8,7 +8,7 @@ TOK = os.getenv('DISCORD_TOKEN')
 
 bot = Bot(
     token = TOK,
-    prefix = '>>',
+    prefix = 'e!',
     app_id = APP,
     guild_id = TEST,
     intents = Intents.members,
@@ -45,6 +45,7 @@ async def slash_one():
     return slash.json
 
 
+
 @bot.slash_command
 async def slash_two():
     slash = Slash(
@@ -68,11 +69,25 @@ async def slash_two():
 
 
 @bot.command
-async def ping(ctx:Context):
-    await ctx.send(text=f'{await bot.latency}ms!')
+async def region(ctx:Context):
+    await ctx.send(text=f'**{ctx.guild.region}**')
 
 
+@bot.command
+async def info(ctx:Context):
+    guild = ctx.guild
+    text = f"**name**: {guild.name}" \
+           f"\n**id**: {guild.id}" \
+           f"\n**member count**: {guild.member_count}" \
+           f"\n**slash commands**: {guild.slash_count}" \
+           f"\n**total boosts**: {guild.boost_level}" \
+           f"\n**banner hash**: {guild.banner}" \
+           f"\n**content filter**: {guild.content_filter}" \
+           f"\n**alert level**: {guild.alert_level}" \
+           f"\n**animated**: {guild.flags.ANIMATED}" \
+           f"\n**icon hash**: {guild.icon}"
 
+    await ctx.send(text = text)
 
 
 

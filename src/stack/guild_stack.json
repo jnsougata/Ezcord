@@ -467,7 +467,7 @@
         },
         {
           "id": "899864601057976330",
-          "last_message_id": "902593163900891137",
+          "last_message_id": "902869836076568609",
           "name": "\ud83d\udcdc\u4e28activity-log",
           "nsfw": false,
           "parent_id": "862242554484883467",
@@ -1610,7 +1610,7 @@
         },
         {
           "id": "880847496920834108",
-          "last_message_id": "902621113102782474",
+          "last_message_id": "902909604151848960",
           "name": "development",
           "nsfw": false,
           "parent_id": "877399405056102432",
@@ -1716,7 +1716,7 @@
         },
         {
           "id": "890537445702123520",
-          "last_message_id": "902623090872315904",
+          "last_message_id": "902801653034516501",
           "last_pin_timestamp": "2021-09-25T11:45:04+00:00",
           "name": "playground",
           "nsfw": false,
@@ -1750,7 +1750,7 @@
         },
         {
           "id": "891019581974511667",
-          "last_message_id": "902646508317466716",
+          "last_message_id": "902930629145014334",
           "last_pin_timestamp": "2021-09-28T08:08:03+00:00",
           "name": "general",
           "nsfw": false,
@@ -1794,7 +1794,7 @@
         },
         {
           "id": "891934715819458570",
-          "last_message_id": "902455802315567115",
+          "last_message_id": "902912599816011786",
           "name": "fake-alerts",
           "nsfw": false,
           "parent_id": "891019165295595590",
@@ -1955,7 +1955,7 @@
         },
         {
           "id": "902228383138734150",
-          "last_message_id": "902651685984419861",
+          "last_message_id": "902834871402119208",
           "name": "nitro-spam",
           "nsfw": false,
           "parent_id": "877399405056102432",
@@ -1967,7 +1967,7 @@
         },
         {
           "id": "902228501120290866",
-          "last_message_id": "902307923676504084",
+          "last_message_id": "902891814665748480",
           "name": "bot-testing",
           "nsfw": false,
           "parent_id": "877399405056102432",
@@ -3925,7 +3925,7 @@
           "self_deaf": true,
           "self_mute": false,
           "self_video": false,
-          "session_id": "9dcd2079f24260b761f5d1fede714fff",
+          "session_id": "a0b11776dcc84e65dd0ab8014ed515ea",
           "suppress": false,
           "user_id": "369208607126061057"
         }
@@ -4452,7 +4452,7 @@
         },
         {
           "id": "899982845005684796",
-          "last_message_id": "902566632889647104",
+          "last_message_id": "902930315293638696",
           "name": "test",
           "nsfw": false,
           "parent_id": "899930155361919029",
@@ -4662,7 +4662,7 @@
       }
     },
     "op": 0,
-    "s": 6,
+    "s": 7,
     "t": "GUILD_CREATE"
   }
 }

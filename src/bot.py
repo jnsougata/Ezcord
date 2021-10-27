@@ -6,7 +6,6 @@ from src.stacking import Stack
 from src.socket import Websocket
 
 
-
 class Bot(Websocket):
     def __init__(
             self,
@@ -16,9 +15,10 @@ class Bot(Websocket):
             app_id: int = None,
             guild_id: int = None,
     ):
-        self.secret = token
+
         self.app_id = app_id
         self.prefix = prefix
+        self.__secret = token
         self.intents = intents
         self.guild_id = guild_id
         self.__slash_cmds = []
@@ -33,7 +33,6 @@ class Bot(Websocket):
             guild_id=guild_id,
             slash_cmds=self.__slash_cmds,
             commands=self.__normal_commands
-
         )
 
 
