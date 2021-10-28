@@ -58,8 +58,7 @@ class Context:
     @property
     def author(self):
         return Member(
-            Id=self.__user_id,
-            payload=self.__guild_data[str(self.__guild_id)]['members']
+            payload=self.__guild_data[str(self.__guild_id)]['members'][str(self.__user_id)]
         )
 
     @property
@@ -79,15 +78,15 @@ class Context:
 
     @property
     def content(self):
-        return self.__resp.get('content', None)
+        return self.__resp.get('content')
 
     @property
     def edited_at(self):
-        return self.__resp.get('edited_timestamp', None)
+        return self.__resp.get('edited_timestamp')
 
     @property
     def attachments(self):
-        return self.__resp.get('attachments', None)
+        return self.__resp.get('attachments')
 
     @property
     def channel(self):
@@ -95,7 +94,6 @@ class Context:
         for item in self.guild.channels:
             if item.id == id:
                 return item
-
 
     async def send(self, text: str):
         await self.__session.post(
@@ -145,7 +143,7 @@ class Guild:
     @property
     def owner(self):
         id = self._data.get("owner_id")
-        return Member(Id=id, payload =self._members)
+        return Member(payload =self._members[str(id)])
 
     @property
     def language(self):
@@ -173,7 +171,7 @@ class Guild:
 
     @property
     def roles(self):
-        return [_CachedRole(data) for data in self._data.get('roles')]
+        return [Role(data) for data in self._data.get('roles')]
 
     @property
     def channels(self):
@@ -181,8 +179,7 @@ class Guild:
         ids = [item['id'] for item in raw]
         return [
             Channel(
-                Id=id,
-                payload=raw
+                payload=raw[str(id)]
             ) for id in ids
         ]
 
@@ -191,8 +188,7 @@ class Guild:
         member_ids = list(self._members)
         return [
             Member(
-                Id=id,
-                payload=self._members
+                payload=self._members[str(id)]
             ) for id in member_ids]
 
     @property
@@ -200,16 +196,16 @@ class Guild:
         id = self._data.get("rules_channel_id")
         payload = self._data["channels"]
         for item in payload:
-            if item['id'] == id:
-                return Channel(Id=id,payload=payload)
+            if str(item['id']) == str(id):
+                return Channel(payload=item)
 
     @property
     def sys_channel(self):
         id = self._data.get("system_channel_id")
         payload = self._data["channels"]
         for item in payload:
-            if item['id'] == id:
-                return Channel(Id=id, payload=payload)
+            if str(item['id']) == str(id):
+                return Channel(payload=item)
 
     @property
     def vanity_code(self):
@@ -233,7 +229,7 @@ class Guild:
 
     @property
     def flags(self):
-        return _GuildFlags(self._data.get("features"))
+        return GuildFlags(self._data.get("features"))
 
     @property
     def slash_count(self):
@@ -265,27 +261,26 @@ class Guild:
     def pull_channel(self, id:int):
         payload = self._data["channels"]
         for item in payload:
-            if item['id'] == id:
-                return Channel(Id=id, payload=payload)
+            if str(item['id']) == str(id):
+                return Channel(payload=item)
 
 
     def pull_role(self, id: int):
         ls = self._data["roles"]
         for item in ls:
-            if item['id'] == str(id):
-                return _CachedRole(item)
+            if str(item['id']) == str(id):
+                return Role(item)
 
 
     def pull_member(self, id:int):
-        return _CachedMember(self.__m_payload[str(id)])
+        return Member(
+            payload=self._members[str(id)]
+        )
 
-    @property
-    def _external(self):
-        return self.__external
 
 
 # HELPER SUB MAPS
-class _GuildFlags:
+class GuildFlags:
 
     def __init__(self, flags: list):
         self.__features = flags
@@ -389,9 +384,9 @@ class _GuildFlags:
 
 
 
-class _CachedRole:
+class Role:
     def __init__(self, payload: dict):
-        self.__data = payload
+        self._data = payload
 
 
     def __repr__(self):
@@ -400,68 +395,68 @@ class _CachedRole:
 
     @property
     def name(self):
-        return self.__data.get('name')
+        return self._data.get('name')
 
     @property
     def id(self):
-        return self.__data.get('id')
+        return self._data.get('id')
 
     @property
     def color(self):
-        return self.__data.get('color')
+        return self._data.get('color')
 
     @property
     def hoisted(self):
-        return self.__data.get('hoist')
+        return self._data.get('hoist')
 
     @property
     def managed(self):
-        return self.__data.get('managed')
+        return self._data.get('managed')
 
     @property
     def mentionable(self):
-        return self.__data.get('mentionable')
+        return self._data.get('mentionable')
 
     @property
     def permissions(self):
-        return self.__data.get("permissions")
+        return self._data.get("permissions")
 
     @property
     def position(self):
-        return self.__data.get('position')
+        return self._data.get('position')
 
     @property
     def bot_id(self):
-        tags = self.__data.get('tags')
+        tags = self._data.get('tags')
         if tags:
             return tags.get('bot_id')
 
     @property
     def integration_id(self):
-        tags = self.__data.get('tags')
+        tags = self._data.get('tags')
         if tags:
             return tags.get('integration_id')
 
     @property
     def booster(self):
-        tags = self.__data.get('tags')
+        tags = self._data.get('tags')
         if tags:
             return tags.get('premium_subscriber')
 
     @property
     def emoji(self):
-        return self.__data.get('unicode_emoji')
+        return self._data.get('unicode_emoji')
 
     @property
     def icon(self): #convert asset
-        return self.__data.get('icon')
+        return self._data.get('icon')
 
 
 
 class Channel:
 
-    def __init__(self, Id:int, payload: dict):
-        self._data = payload['channels'][str(Id)]
+    def __init__(self, payload: dict):
+        self._data = payload
         self._types = {
             0: 'text',
             2: 'voice',
@@ -536,8 +531,8 @@ class Channel:
 # CORE MEMBER MAP
 class Member:
 
-    def __init__(self, Id:int, payload: dict):
-        self._data: dict = payload[str(Id)]
+    def __init__(self, payload: dict):
+        self._data: dict = payload
 
 
     def __repr__(self):

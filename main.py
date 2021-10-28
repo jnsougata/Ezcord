@@ -8,7 +8,7 @@ TOK = os.getenv('DISCORD_TOKEN')
 
 bot = Bot(
     token = TOK,
-    prefix = 'e!',
+    prefix = '!!',
     app_id = APP,
     guild_id = TEST,
     intents = Intents.members,
@@ -68,9 +68,7 @@ async def slash_two():
     return slash.json
 
 
-@bot.command
-async def region(ctx:Context):
-    await ctx.send(text=f'**{ctx.guild.region}**')
+
 
 @bot.command
 async def ping(ctx:Context):
@@ -80,8 +78,8 @@ async def ping(ctx:Context):
 @bot.command
 async def info(ctx:Context):
     guild = ctx.guild
-    text = f"**author:** `{ctx.author}`" \
-           f"\n**server**: {guild.name}" \
+    text = f"**author:** `{ctx.author}` {ctx.author.mention}" \
+           f"\n\n**server:** `{guild.name}`" \
            f"\n**id**: {guild.id}" \
            f"\n**member count**: {guild.member_count}" \
            f"\n**slash commands**: {guild.slash_count}" \

@@ -146,6 +146,7 @@ class Websocket:
                     )
                     await parse.process_message
 
+
     async def connect(self):
         async with aiohttp.ClientSession() as session:
             self.__session = session
