@@ -72,11 +72,16 @@ async def slash_two():
 async def region(ctx:Context):
     await ctx.send(text=f'**{ctx.guild.region}**')
 
+@bot.command
+async def ping(ctx:Context):
+    await ctx.send(text='pong')
+
 
 @bot.command
 async def info(ctx:Context):
     guild = ctx.guild
-    text = f"**name**: {guild.name}" \
+    text = f"**author:** `{ctx.author}`" \
+           f"\n**server**: {guild.name}" \
            f"\n**id**: {guild.id}" \
            f"\n**member count**: {guild.member_count}" \
            f"\n**slash commands**: {guild.slash_count}" \

@@ -8,68 +8,74 @@ class Context:
             self,
             secret: str,
             payload: dict,
+            guildcache: dict,
             session: ClientSession
     ):
-        self.__session = session
-        self.__secret = secret
         self.__resp = payload
-        self.__nonce = payload.get('nonce')
+        self.__secret = secret
+        self.__session = session
         self.__id = payload.get('id')
+        self.__nonce = payload.get('nonce')
         self.__flags = payload.get('flags')
         self.__user_id = payload['author']['id']
         self.__guild_id = payload.get('guild_id')
         self.__channel_id = payload.get('channel_id')
+        self.__guild_data = guildcache
 
 
     @property
     def type(self):
-        return self.__resp.get('type', None)
+        return self.__resp.get('type')
 
     @property
     def tts(self):
-        return self.__resp.get('tts', None)
+        return self.__resp.get('tts')
 
     @property
     def timestamp(self):
-        return self.__resp.get('timestamp', None)
+        return self.__resp.get('timestamp')
 
     @property
     def referenced(self):
-        return self.__resp.get('referenced_message', None)
+        return self.__resp.get('referenced_message')
 
     @property
     def pinned(self):
-        return self.__resp.get('pinned', None)
+        return self.__resp.get('pinned')
 
     @property
     def mentions(self): # to object
-        return self.__resp.get('mentions', None)
+        return self.__resp.get('mentions')
 
     @property
     def role_mentions(self): #to object
-        return self.__resp.get('mention_roles', None)
+        return self.__resp.get('mention_roles')
 
     @property
     def everyone_mentioned(self):
-        return self.__resp.get('mention_everyone', None)
+        return self.__resp.get('mention_everyone')
 
     @property
     def author(self):
-        return _CachedMember(
-            _CachedGuild(int(self.__guild_id))._external['m'][str(self.__user_id)]
+        return Member(
+            Id=self.__user_id,
+            payload=self.__guild_data[str(self.__guild_id)]['members']
         )
 
     @property
     def embeds(self):
-        return self.__resp.get('embeds', None)
+        return self.__resp.get('embeds')
 
     @property
     def components(self):
-        return self.__resp.get('components', None)
+        return self.__resp.get('components')
 
     @property
     def guild(self):
-        return _CachedGuild(self.__guild_id)
+        return Guild(
+            Id=self.__guild_id,
+            payload=self.__guild_data
+        )
 
     @property
     def content(self):
@@ -101,158 +107,170 @@ class Context:
 
 
 # CORE GUILD MAP
-class _CachedGuild:
+class Guild:
 
-    def __init__(self, Id: int):
-        cached = json.load(
-            open('src/stack/guild_stack.json', 'r')
-        )
-        self.__id = Id
-        self.__external: dict = cached[str(Id)]
-        self.__d_payload: dict = cached[str(Id)]['d']
-        self.__m_payload: dict = cached[str(Id)]['m']
-
+    def __init__(
+            self,
+            Id: int,
+            payload: dict
+    ):
+        self._id = Id
+        self._data: dict = payload[str(Id)]
+        self._members: dict = payload[str(Id)]['members']
 
 
 
 
     @property
     def id(self):
-        return self.__id
+        return self._id
 
     @property
     def name(self):
-        return self.__d_payload.get("name")
+        return self._data.get("name")
 
     @property
     def mfa_level(self):
-        return self.__d_payload.get("mfa_level")
+        return self._data.get("mfa_level")
 
     @property
     def large(self):
-        return self.__d_payload.get("large")
+        return self._data.get("large")
 
 
     @property
     def nfsw(self):
-        return self.__d_payload.get("nfsw")
+        return self._data.get("nfsw")
 
     @property
     def owner(self):
-        id = self.__d_payload.get("owner_id")
-        return _CachedMember(self.__m_payload[str(id)])
+        id = self._data.get("owner_id")
+        return Member(Id=id, payload =self._members)
 
     @property
     def language(self):
-        return self.__d_payload.get("preferred_locale")
+        return self._data.get("preferred_locale")
 
     @property
     def boosts(self):
-        return self.__d_payload.get("premium_subscription_count")
+        return self._data.get("premium_subscription_count")
 
     @property
     def boost_level(self):
-        return self.__d_payload.get("premium_tier")
+        return self._data.get("premium_tier")
 
     @property
     def member_count(self):
-        return self.__d_payload.get("member_count")
+        return self._data.get("member_count")
 
     @property
     def max_allowed_members(self):
-        return self.__d_payload.get("max_members")
+        return self._data.get("max_members")
 
     @property
     def region(self):
-        return self.__d_payload.get("region")
+        return self._data.get("region")
 
     @property
     def roles(self):
-        return [_CachedRole(data) for data in self.__d_payload.get('roles')]
+        return [_CachedRole(data) for data in self._data.get('roles')]
 
     @property
     def channels(self):
-        return [Channel(data) for data in self.__d_payload.get('channels')]
+        raw = self._data.get('channels')
+        ids = [item['id'] for item in raw]
+        return [
+            Channel(
+                Id=id,
+                payload=raw
+            ) for id in ids
+        ]
 
     @property
     def members(self):
-        member_ids = list(self.__m_payload)
-        return [_CachedMember(self.__m_payload[str(Id)]) for Id in member_ids]
+        member_ids = list(self._members)
+        return [
+            Member(
+                Id=id,
+                payload=self._members
+            ) for id in member_ids]
 
     @property
     def rules_channel(self):
-        id = self.__d_payload.get("rules_channel_id")
-        for item in self.__d_payload["channels"]:
+        id = self._data.get("rules_channel_id")
+        payload = self._data["channels"]
+        for item in payload:
             if item['id'] == id:
-                return Channel(item)
+                return Channel(Id=id,payload=payload)
 
     @property
     def sys_channel(self):
-        id = self.__d_payload.get("system_channel_id")
-        for item in self.__d_payload["channels"]:
+        id = self._data.get("system_channel_id")
+        payload = self._data["channels"]
+        for item in payload:
             if item['id'] == id:
-                return Channel(item)
+                return Channel(Id=id, payload=payload)
 
     @property
     def vanity_code(self):
-        return self.__d_payload.get("vanity_url_code")
+        return self._data.get("vanity_url_code")
 
     @property
     def verification_level(self):
-        return self.__d_payload.get("verification_level")
+        return self._data.get("verification_level")
 
     @property
     def nsfw_level(self):
-        return self.__d_payload.get("nsfw_level")
+        return self._data.get("nsfw_level")
 
     @property
     def icon(self): # convert to asset
-        return self.__d_payload.get("icon")
+        return self._data.get("icon")
 
     @property
     def banner(self): # convert to asset
-        return self.__d_payload.get("banner")
+        return self._data.get("banner")
 
     @property
     def flags(self):
-        return _GuildFlags(self.__d_payload.get("features"))
+        return _GuildFlags(self._data.get("features"))
 
     @property
     def slash_count(self):
-        return self.__d_payload.get(
+        return self._data.get(
             "application_command_count"
         )
 
     @property
     def emojis(self): # convert to asset
-        return self.__d_payload.get("emojis")
+        return self._data.get("emojis")
 
     @property
     def content_filter(self): # convert object
-        return self.__d_payload.get(
+        return self._data.get(
             "explicit_content_filter"
         )
 
     @property
     def alert_level(self):
-        return self.__d_payload.get(
+        return self._data.get(
             "default_message_notifications"
         )
 
     @property
     def description(self):
-        return self.__d_payload.get("description")
+        return self._data.get("description")
 
 
     def pull_channel(self, id:int):
-        ls = self.__d_payload["channels"]
-        for item in ls:
-            if item['id'] == str(id):
-                return Channel(item)
+        payload = self._data["channels"]
+        for item in payload:
+            if item['id'] == id:
+                return Channel(Id=id, payload=payload)
 
 
     def pull_role(self, id: int):
-        ls = self.__d_payload["roles"]
+        ls = self._data["roles"]
         for item in ls:
             if item['id'] == str(id):
                 return _CachedRole(item)
@@ -442,9 +460,9 @@ class _CachedRole:
 
 class Channel:
 
-    def __init__(self, cached: dict):
-        self.__data = cached
-        self.__types = {
+    def __init__(self, Id:int, payload: dict):
+        self._data = payload['channels'][str(Id)]
+        self._types = {
             0: 'text',
             2: 'voice',
             4: 'category',
@@ -454,89 +472,89 @@ class Channel:
             13: 'stage'
         }
 
+
     @property
     def mention(self):
         return f'<#{self.id}>'
 
     @property
     def type(self):
-        key = self.__data.get('type')
-        return self.__types.get(key)
+        key = self._data.get('type')
+        return self._types.get(key)
 
     @property
     def id(self):
-        return int(self.__data.get('id'))
+        return int(self._data.get('id'))
 
     @property
     def name(self):
-        return self.__data.get('name')
+        return self._data.get('name')
 
     @property
     def nfsw(self):
-        return self.__data.get('nfsw')
+        return self._data.get('nfsw')
 
     @property #to object
     def category(self):
-        return self.__data.get('parent_id')
+        return self._data.get('parent_id')
 
     @property
     def position(self):
-        return self.__data.get('position')
+        return self._data.get('position')
 
     @property
     def overwrites(self): #to object
-        return self.__data.get('permission_overwrites')
+        return self._data.get('permission_overwrites')
 
     @property
     def bitrate(self):
-        return self.__data.get('bitrate')
+        return self._data.get('bitrate')
 
     @property
     def rtc_region(self):
-        return self.__data.get('rtc_region')
+        return self._data.get('rtc_region')
 
     @property
     def user_limit(self):
-        return self.__data.get('user_limit')
+        return self._data.get('user_limit')
 
     @property
     def latest_message(self): #to object
-        return self.__data.get('last_message_id')
+        return self._data.get('last_message_id')
 
     @property
     def slowmode_span(self):
-        return self.__data.get('rate_limit_per_user')
+        return self._data.get('rate_limit_per_user')
 
     @property
     def topic(self):
-        return self.__data.get('topic')
+        return self._data.get('topic')
 
     # threads pending
 
 
 # CORE MEMBER MAP
-class _CachedMember:
+class Member:
 
-    def __init__(self, payload: dict):
-        self.__data: dict = payload
+    def __init__(self, Id:int, payload: dict):
+        self._data: dict = payload[str(Id)]
 
 
     def __repr__(self):
         return f'{self.name}#{self.discriminator}'
 
 
-
     @property
     def id(self):
-        return int(self.__data['user']['id'])
+        return int(self._data['user']['id'])
 
     @property
     def name(self):
-        return self.__data['user']['username']
+        return self._data['user']['username']
 
     @property
     def nickname(self):
-        return self.__data.get('nick', None)
+        return self._data.get('nick')
 
     @property
     def any_name(self):
@@ -544,10 +562,9 @@ class _CachedMember:
             return self.nickname
         return self.name
 
-
     @property
     def discriminator(self):
-        return int(self.__data["user"]['discriminator'])
+        return int(self._data["user"]['discriminator'])
 
     @property
     def mention(self):

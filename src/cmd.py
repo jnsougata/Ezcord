@@ -1,5 +1,5 @@
 import inspect
-from src.context import Context, _CachedGuild
+from src.context import Context
 
 
 
@@ -28,7 +28,7 @@ class Executor:
                 args = [i for i in args if i != '']
                 for item in self.bucket:
                     if item.__name__ == cmd:
-                        classes = [int, str, float, _CachedGuild, Context]
+                        classes = [int, str, float]
                         i = inspect.signature(item)
                         params = i.parameters
                         types = [str(params.get(key).annotation) for key in params]

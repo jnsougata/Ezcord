@@ -8,107 +8,6 @@ from src.context import Context
 from src.slash_ import _ParseSlash
 
 
-class EventManager:
-
-    BASE = base = 'https://discord.com/api/v9'
-
-    def __init__(
-            self,
-            secret: str,
-            prefix: str,
-            intents: int,
-            add_id: int,
-            c_bucket: list,
-            raw_response: dict,
-            session: aiohttp.ClientSession,
-            socket: aiohttp.ClientWebSocketResponse,
-    ):
-        self.ws = socket
-        self.ack_time = 0
-        self.start_time = 0
-        self.secret = secret
-        self.cmds = c_bucket
-        self.app_id = add_id
-        self.prefix = prefix
-        self.session = session
-        self.intents = intents
-        self.data = raw_response
-        self.auth_header = {
-            "Authorization": f"Bot {secret}"
-        }
-
-
-
-    @property
-    async def op(self):
-        return int(self.data['op'])
-
-
-    async def send(self, content:str, channel_id: int):
-        await self.session.post(
-            f'{self.BASE}/channels/{channel_id}/messages',
-            data = {"content": content},
-            headers = self.auth_header
-        )
-
-    async def run(self):
-
-        CODE = await self.op
-        DATA = self.data
-
-        # RECEIVED DISPATCH
-        if CODE == 0:
-            EVENT = DATA['t']
-            RAW = DATA['d']
-            cache = Stack(DATA)
-            print(f'[ {EVENT} ] [ SEQ {DATA["s"]} ]')
-
-            # CHECKING EVENT TYPE
-            if EVENT == 'READY':
-                await cache.ready()
-
-            elif EVENT == 'GUILD_CREATE':
-                await cache.guild()
-
-            elif EVENT == 'INTERACTION_CREATE':
-                slash = _ParseSlash(RAW)
-                await slash.callback(self.session)
-
-            elif EVENT == 'MESSAGE_CREATE':
-                ctx = Context(
-                    payload= RAW,
-                    session = self.session,
-                    secret = self.secret
-                )
-
-                parse = Executor(
-                    ctx = ctx,
-                    prefix = self.prefix,
-                    bucket = self.cmds,
-                )
-                await parse.process_message
-
-            elif EVENT == 'GUILD_MEMBERS_CHUNK':
-                await cache.members()
-
-            else:
-                print(DATA)
-
-
-        # RECEIVED HELLO
-        elif CODE == 10:
-
-            #CACHING HELLO
-            await Stack(DATA).hello()
-
-        # HEART BEAT ACK
-        elif CODE == 11:
-            pass
-
-        else:
-            print(DATA)
-
-
 
 class Websocket:
 
@@ -138,7 +37,7 @@ class Websocket:
 
         # caching
         self.users = {}
-        self.guilds = {}
+        self.__guilds = {}
         self.__hello = None
         self.__ready = None
         self.__slash_data = {}
@@ -184,7 +83,7 @@ class Websocket:
         raw = self.__raw
         if raw['op'] == 0 and raw['t'] == 'READY':
             self.__session_id = raw['d']['session_id']
-            print(f'[ SESSION ID: {self.__session_id} ]')
+            print(f'[ SESSION ID UPDATED]')
 
     async def __identify(self):
         raw = self.__raw
@@ -232,6 +131,21 @@ class Websocket:
                 await self.__heartbeat_ack()
                 await self.__reconnect()
 
+                if raw['t'] == 'MESSAGE_CREATE':
+                    ctx = Context(
+                        payload=raw['d'],
+                        session=self.__session,
+                        secret=self.__secret,
+                        guildcache=self.__guilds
+                    )
+
+                    parse = Executor(
+                        ctx=ctx,
+                        prefix=self.prefix,
+                        bucket=self.commands,
+                    )
+                    await parse.process_message
+
     async def connect(self):
         async with aiohttp.ClientSession() as session:
             self.__session = session
@@ -264,7 +178,7 @@ class Websocket:
                 js = await resp.json()
                 CMD_ID = js['id']
                 self.__slash_data[str(CMD_ID)] = js
-            print("[ CACHING SLASH COMMANDS ]")
+            print("[ SLASH REGD ]")
 
         else:
             raise ValueError(
@@ -299,7 +213,7 @@ class Websocket:
         data = self.__raw
         if data['t'] == 'GUILD_CREATE':
             guild_id = data['d']['id']
-            self.guilds[str(guild_id)] = data['d']
+            self.__guilds[str(guild_id)] = data['d']
             print(f'[ CACHING GUILD {guild_id} ]')
 
     async def __cache_members(self):
@@ -310,22 +224,6 @@ class Websocket:
             for member in data['d']['members']:
                 user_id = member['user']['id']
                 temp[str(user_id)] = member
-            self.guilds[str(guild_id)]['m'] = temp
+            self.__guilds[str(guild_id)]['members'] = temp
             print(f'[ CACHING MEMBER FOR GUILD {guild_id} ]')
 
-    # message command handler
-
-    async def __message_command(self):
-        if self.__raw['t'] == 'MESSAGE_CREATE':
-            ctx = Context(
-                payload=self.__raw['d'],
-                session=self.session,
-                secret=self.secret
-            )
-
-            parse = Executor(
-                ctx=ctx,
-                prefix=self.prefix,
-                bucket=self.cmds,
-            )
-            await parse.process_message
