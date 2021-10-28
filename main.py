@@ -15,59 +15,64 @@ bot = Bot(
 
 )
 
+class SlashContext:
+    """
+    TO DO
+    """
+    pass
 
-# incomplete hard coded
-@bot.slash_command
-async def slash_one():
 
-    slash = Slash(
-        name='rate',
-        description='please rate me out of 5',
+rate = Slash(
+    name='rate',
+    description='please rate me out of 5',
+)
+rate.add_options([
+    rate.set_int_option(
+        name='ratings',
+        description='choose ratings',
+        choices=[
+            rate.set_choice(name='★', value=1),
+            rate.set_choice(name='★★', value=2),
+            rate.set_choice(name='★★★', value=3),
+            rate.set_choice(name='★★★★', value=4),
+            rate.set_choice(name='★★★★★', value=5)
+        ],
+        required=True
+    ),
+    rate.set_str_option(
+        name='feedback',
+        description='choose ratings',
+        choices=[],
+        required=False
     )
-    slash.add_options([
-        slash.set_int_option(
-            name='ratings',
-            description='choose ratings',
-            choices=[
-                slash.set_choice(name='★', value=1),
-                slash.set_choice(name='★★', value=2),
-                slash.set_choice(name='★★★', value=3),
-                slash.set_choice(name='★★★★', value=4),
-                slash.set_choice(name='★★★★★', value=5)
-            ],
-            required=True
-        ),
-        slash.set_str_option(
-            name='feedback',
-            description='choose ratings',
-            choices=[],
-            required=False
-        )
-    ])
-    return slash.json
+])
+@bot.slash_command(command=rate)
+async def rate(ctx:SlashContext):
+    return ctx
 
 
 
-@bot.slash_command
-async def slash_two():
-    slash = Slash(
+ban = Slash(
         name='ban',
         description='bans a member'
     )
-    slash.add_options([
-        slash.set_user_option(
-            name='user',
-            description='this user will be banned!',
-            required=True,
-        ),
-        slash.set_str_option(
-            name='reason',
-            description='reason why the user get banned',
-            required=True
+ban.add_options([
+    ban.set_user_option(
+        name='user',
+        description='this user will be banned!',
+        required=True,
+    ),
+    ban.set_str_option(
+        name='reason',
+        description='reason why the user get banned',
+        required=True
 
-        )
-    ])
-    return slash.json
+    )
+])
+
+@bot.slash_command(command=ban)
+async def slash_two(ctx:SlashContext):
+    return ctx
 
 
 

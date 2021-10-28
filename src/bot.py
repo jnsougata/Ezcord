@@ -34,9 +34,16 @@ class Bot(Websocket):
             commands=self.__normal_commands
         )
 
+    def slash_command(self, command: Slash):
+        self.__slash_cmds.append(command.json)
+        def decorator(func):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                self.__normal_commands.append(func)
+            return wrapper
+        return decorator
 
-    def slash_command(self, fn):
-        self.__slash_cmds.append(fn)
+
 
     def command(self, fn):
         self.__normal_commands.append(fn)

@@ -1,22 +1,24 @@
-import asyncio
 from functools import wraps
 
-def slash_command(fn):
-    if asyncio.iscoroutinefunction(fn):
-        @wraps(fn)
-        async def wrapper(*args):
-            return await fn(*args)
+l = []
+m = []
+
+def pre_dec(rn:str):
+    m.append(rn)
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            l.append(func.__name__)
         return wrapper
+    return decorator
 
 
 
+@pre_dec('XYZ')
+def hello_func(param):
+    print(param)
 
-async def main(ctx:str,*, arg:list):
-    return {ctx: arg}
 
-
-ls = 'a'
-kw = {'arg':[]}
-a = asyncio.run(main.__call__(*ls,**kw))
-
-print(a)
+hello_func('hello')
+print(l)
+print(m)

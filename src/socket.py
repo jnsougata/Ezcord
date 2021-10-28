@@ -129,6 +129,7 @@ class Websocket:
                 await self.__heartbeat_ack()
                 await self.__reconnect()
 
+                # checking dispatches
                 if raw['t'] == 'MESSAGE_CREATE':
                     ctx = Context(
                         payload=raw['d'],
@@ -171,14 +172,13 @@ class Websocket:
                 resp = await self.__session.post(
                     f'{self.__BASE}/applications/{self.app_id}'
                     f'/guilds/{self.guild_id}/commands',
-                    json = await item.__call__(),
+                    json = item,
                     headers = {"Authorization": f"Bot {self.__secret}"}
                 )
                 js = await resp.json()
                 CMD_ID = js['id']
                 self.__slash_data[str(CMD_ID)] = js
             print("[ SLASH REGD ]")
-
         else:
             raise ValueError(
                 "Application Id and Test Guild Id is mandatory to register slash command"
