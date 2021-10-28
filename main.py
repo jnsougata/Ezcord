@@ -15,17 +15,7 @@ bot = Bot(
 
 )
 
-class SlashContext:
-    """
-    TO DO
-    """
-    pass
-
-
-rate = Slash(
-    name='rate',
-    description='please rate me out of 5',
-)
+rate = Slash(name='rate', description='rate me out of 5')
 rate.add_options([
     rate.set_int_option(
         name='ratings',
@@ -48,14 +38,11 @@ rate.add_options([
 ])
 @bot.slash_command(command=rate)
 async def rate(ctx:SlashContext):
-    return ctx
+    await ctx.send(text='This is working dude!')
 
 
 
-ban = Slash(
-        name='ban',
-        description='bans a member'
-    )
+ban = Slash(name='ban', description='bans a member')
 ban.add_options([
     ban.set_user_option(
         name='user',
@@ -71,8 +58,8 @@ ban.add_options([
 ])
 
 @bot.slash_command(command=ban)
-async def slash_two(ctx:SlashContext):
-    return ctx
+async def ban(ctx:SlashContext):
+    await ctx.send(text='This is also working dude!')
 
 
 

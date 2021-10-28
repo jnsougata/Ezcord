@@ -1,5 +1,5 @@
 import json
-import asynctube
+import aiohttp
 from src.interaction import Interaction
 
 
@@ -207,18 +207,6 @@ class Slash:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 class _ParseSlash(Interaction):
 
     def __init__(self, response: dict):
@@ -226,8 +214,9 @@ class _ParseSlash(Interaction):
 
 
     async def callback(self, session):
+        head = 'https://discord.com/api/v9'
         if self.slash:
-            url = f'https://discord.com/api/v9/interactions/{self.id}/{self.token}/callback'
+            url = f'{head}/interactions/{self.id}/{self.token}/callback'
             body = await self._parse()
             await session.post(url=url, json=body)
 
@@ -312,3 +301,33 @@ class _ParseSlash(Interaction):
                     }
                 }
                 return body
+
+
+
+class SlashContext(Interaction):
+
+    def __init__(
+            self,
+            response: dict,
+            session: aiohttp.ClientSession
+    ):
+        super().__init__(response)
+        self.__sess = session
+
+
+    async def send(self, text: str):
+        head = 'https://discord.com/api/v9'
+        if self.slash:
+            url = f'{head}/interactions/{self.id}/{self.token}/callback'
+            body = {
+                'type': 4,
+                'data': {
+                    "content": text
+                }
+            }
+            await self.__sess.post(url=url, json=body)
+
+
+
+
+

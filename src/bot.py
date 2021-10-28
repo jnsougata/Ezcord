@@ -1,7 +1,7 @@
 import asyncio
 import aiohttp
 from functools import wraps
-from src.slash_ import Slash
+from src.slash import Slash
 from src.socket import Websocket
 
 
@@ -39,8 +39,8 @@ class Bot(Websocket):
         def decorator(func):
             @wraps(func)
             def wrapper(*args, **kwargs):
-                self.__normal_commands.append(func)
-            return wrapper
+                return func
+            self.__normal_commands.append(wrapper())
         return decorator
 
 

@@ -1,9 +1,9 @@
 import inspect
 from src.context import Context
+from src.slash import SlashContext
 
 
-
-class Executor:
+class MsgExec:
 
     def __init__(
             self,
@@ -16,7 +16,7 @@ class Executor:
         self.bucket = bucket
 
 
-    @property
+
     async def process_message(self):
         message = self.ctx.content
         if message:
@@ -41,7 +41,24 @@ class Executor:
                                         final.append(x(args[i]))
                                     except IndexError:
                                         return "Params missing"
-                        val = await item.__call__(self.ctx, *final)
-                        return val
+                        await item.__call__(self.ctx, *final)
                 else:
                     pass
+
+
+class SlasExec:
+
+    def __init__(
+            self,
+            bucket: list,
+            ctx: SlashContext,
+    ):
+        self.ctx = ctx
+        self.bucket = bucket
+
+
+    async def process_slash(self):
+        cmd_name = self.ctx.data['name']
+        for item in self.bucket:
+            if item.__name__ == cmd_name:
+                await item(self.ctx)

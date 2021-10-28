@@ -2,9 +2,9 @@ import json
 import time
 import asyncio
 import aiohttp
-from src.cmd import Executor
+from src.cmd_exec import MsgExec, SlasExec
 from src.context import Context
-from src.slash_ import _ParseSlash
+from src.slash import _ParseSlash, SlashContext
 
 
 
@@ -138,12 +138,26 @@ class Websocket:
                         guildcache=self.__guilds
                     )
 
-                    parse = Executor(
+                    parse = MsgExec(
                         ctx=ctx,
                         prefix=self.prefix,
                         bucket=self.commands,
                     )
-                    await parse.process_message
+                    await parse.process_message()
+
+                # checking slash commands
+                if raw['t'] == 'INTERACTION_CREATE':
+                    print(raw['d'])
+                    slash_ctx = SlashContext(
+                        response=raw['d'],
+                        session=self.__session,
+                    )
+                    sparese = SlasExec(
+                        ctx=slash_ctx,
+                        bucket=self.commands
+                    )
+                    await sparese.process_slash()
+
 
 
     async def connect(self):
@@ -225,4 +239,3 @@ class Websocket:
                 temp[str(user_id)] = member
             self.__guilds[str(guild_id)]['members'] = temp
             print(f'[ CACHING MEMBER FOR GUILD {guild_id} ]')
-

@@ -8,13 +8,13 @@ class Interaction:
             self,
             response: dict
     ):
-        self.version = response.get('version')
+        self.id = response.get('id')
+        self.data = response.get('data')
         self.type = response.get('type')
         self.token = response.get('token')
         self.member = response.get('member')
-        self.id = response.get('id')
+        self.version = response.get('version')
         self.guild_id = response.get('guild_id')
-        self.data = response.get('data')
         self.channel_id = response.get('channel_id')
         self.application_id = response.get('application_id')
 
@@ -29,8 +29,9 @@ class Interaction:
             auth: dict,
             session: aiohttp.ClientSession
     ):
+        head = 'https://discord.com/api/v9'
         await session.post(
-            f'https://discord.com/api/v9/channels/{self.channel_id}/messages',
+            f'{head}/channels/{self.channel_id}/messages',
             data = body,
             headers = auth
         )
@@ -38,4 +39,5 @@ class Interaction:
 
     @property
     def slash(self):
-        return int(self.data['type']) == 1
+        print('GOT A SLASH')
+        return int(self.data.get('type')) == 1
