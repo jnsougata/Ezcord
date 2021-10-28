@@ -3,7 +3,6 @@ import time
 import asyncio
 import aiohttp
 from src.cmd import Executor
-from src.stacking import Stack
 from src.context import Context
 from src.slash_ import _ParseSlash
 
@@ -33,7 +32,6 @@ class Websocket:
         self.__start_time = 0
         self.__session = None
         self.__session_id = None
-        self.raw_received = None
 
         # caching
         self.users = {}
@@ -49,7 +47,7 @@ class Websocket:
         self.intents = intents
         self.commands = commands
         self.guild_id = guild_id
-        self.slash_cmds = slash_cmds
+        self.__slash_cmds = slash_cmds
 
 
     async def __get_gateway(self):
@@ -169,7 +167,7 @@ class Websocket:
 
     async def __slash_register(self):
         if self.guild_id and self.app_id:
-            for item in self.slash_cmds:
+            for item in self.__slash_cmds:
                 resp = await self.__session.post(
                     f'{self.__BASE}/applications/{self.app_id}'
                     f'/guilds/{self.guild_id}/commands',

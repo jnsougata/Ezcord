@@ -2,7 +2,6 @@ import asyncio
 import aiohttp
 from functools import wraps
 from src.slash_ import Slash
-from src.stacking import Stack
 from src.socket import Websocket
 
 

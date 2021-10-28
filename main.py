@@ -15,6 +15,8 @@ bot = Bot(
 
 )
 
+
+# incomplete hard coded
 @bot.slash_command
 async def slash_one():
 
