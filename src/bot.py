@@ -1,8 +1,8 @@
 import asyncio
 import aiohttp
+from .slash import Slash
 from functools import wraps
-from src.slash import Slash
-from src.socket import Websocket
+from .socket import Websocket
 
 
 class Bot(Websocket):

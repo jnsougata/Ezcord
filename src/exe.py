@@ -1,6 +1,6 @@
 import inspect
-from src.context import Context
-from src.slash import SlashContext
+from .ctxt import Context
+from .slash import SlashContext
 
 
 class MsgExec:

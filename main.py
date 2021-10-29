@@ -37,7 +37,7 @@ rate.add_options([
     )
 ])
 @bot.slash_command(command=rate)
-async def rate(ctx:SlashContext):
+async def rate(ctx: SlashContext):
     await ctx.send(text='This is working dude!')
 
 
@@ -64,14 +64,6 @@ async def ban(ctx:SlashContext):
     user = ctx.guild.pull_member(user_id)
     await ctx.reply(text=f'{user.mention} got banned!\n**Reason: {reason}**')
     await ctx.send(ctx.channel.mention)
-
-
-
-@bot.command
-async def test(ctx:Context):
-    await ctx.send(text='test')
-
-
 
 
 

@@ -21,8 +21,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from src.bot import Bot
-from src.context import Context
-from src.intents import Intents
-from src.slash import Slash, SlashContext
+from .bot import Bot
+from .ctxt import Context
+from .intents import Intents
+from .slash import Slash, SlashContext
 

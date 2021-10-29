@@ -1,5 +1,7 @@
 import aiohttp
-from src.context import Member, Guild
+from .guild import Guild
+from .member import Member
+from .channel import Channel
 
 
 
@@ -16,11 +18,6 @@ class Interaction:
         self._raw = response
         self.__guild_cache = guild_cache
         self.application_id = response.get('application_id')
-
-
-
-
-
 
 
     @property

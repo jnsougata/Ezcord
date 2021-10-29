@@ -1,7 +1,7 @@
 import json
 import aiohttp
-from src.context import Guild
-from src.interaction import Interaction
+from .ctxt import Guild
+from .interact import Interaction
 
 
 class Slash:

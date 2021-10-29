@@ -2,9 +2,9 @@ import json
 import time
 import asyncio
 import aiohttp
-from src.context import Context
-from src.slash import SlashContext
-from src.executor import MsgExec, SlasExec
+from .ctxt import Context
+from .slash import SlashContext
+from .exe import MsgExec, SlasExec
 
 
 
@@ -139,25 +139,24 @@ class Websocket:
                     )
 
                     await MsgExec(
-                        ctx=ctx,
-                        prefix=self.prefix,
-                        bucket=self.commands,
+                        ctx = ctx,
+                        prefix = self.prefix,
+                        bucket = self.commands,
                     ).process_message()
 
                 # checking slash commands
                 if raw['t'] == 'INTERACTION_CREATE':
-                    print(raw['d'])
-
                     slash_ctx = SlashContext(
                         response=raw['d'],
                         session=self.__session,
                         bot_token = self.__secret,
-                        guild_cache = self.__guilds,
+                        guild_cache = self.__guilds
                     )
                     await SlasExec(
-                        ctx=slash_ctx,
-                        bucket=self.commands
+                        ctx = slash_ctx,
+                        bucket = self.commands
                     ).process_slash()
+
 
     async def connect(self):
         async with aiohttp.ClientSession() as session:
