@@ -59,7 +59,7 @@ class SlasExec:
 
 
     async def process_slash(self):
-        cmd_name = self.ctx.data['name']
+        cmd = self.ctx.data['name']
         for item in self.bucket:
-            if item.__name__ == cmd_name:
+            if item.__name__ == cmd:
                 await item(self.ctx)

@@ -1,1 +1,2 @@
 # ezcord
+# Docs coming soon

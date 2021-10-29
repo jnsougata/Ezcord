@@ -4,7 +4,7 @@ import asyncio
 import aiohttp
 from src.context import Context
 from src.slash import SlashContext
-from src.cmd_exec import MsgExec, SlasExec
+from src.executor import MsgExec, SlasExec
 
 
 
