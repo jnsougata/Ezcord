@@ -1,7 +1,7 @@
 import json
 import aiohttp
+from src.context import Guild
 from src.interaction import Interaction
-
 
 
 class Slash:
@@ -207,101 +207,58 @@ class Slash:
 
 
 
-class _ParseSlash(Interaction):
+class Options:
 
-    def __init__(self, response: dict):
-        super().__init__(response)
-
-
-    async def callback(self, session):
-        head = 'https://discord.com/api/v9'
-        if self.slash:
-            url = f'{head}/interactions/{self.id}/{self.token}/callback'
-            body = await self._parse()
-            await session.post(url=url, json=body)
+    def __init__(self, option: dict):
+        self.option = option
 
 
-    async def _parse(self):
+    def __repr__(self):
+        return f'<Option {self.type} {self.value} >'
 
-        if self.slash:
-            data = self.data
-            cmd = data['name']
 
-            if cmd == 'embed':
-                _one = data['options'][0]
-                _two = data['options'][1]
-                title = _one['value']
-                description = _two['value']
-                body = {
-                    'type': 4,
-                    'data': {
-                        "embeds": [
-                            {
-                                'title': title,
-                                'description': description
-                            }
-                        ]
-                    }
-                }
-                return body
+    @property
+    def type(self):
 
-            elif cmd == 'echo':
-                option = data['options'][0]
-                phrase = option['value']
-                body = {
-                    'type': 4,
-                    'data': {
-                        "content": f'**{phrase}**'
-                    }
-                }
-                return body
+        if self.option['type'] == 1:
+            return 'SUB_COMMAND'
 
-            elif cmd == 'video':
-                option = data['options'][0]
-                phrase = option['value']
-                video = await asynctube.Search.video(phrase)
-                body = {
-                    'type': 4,
-                    'data': {
-                        "content": video.url
-                    }
-                }
-                return body
+        elif self.option['type'] == 2:
+            return 'SUB_COMMAND_GROUP'
 
-            elif cmd == 'latency':
-                hello = json.load(open("src/stack/hello_stack.json"))
-                body = {
-                    'type': 4,
-                    'data': {
-                        "content": f'**{round(hello.get("l"))} ms**'
-                    }
-                }
-                return body
+        elif self.option['type'] == 3:
+            return 'STRING'
 
-            else:
-                emo = '<:warn:891339009765302302>'
-                body = {
-                    'type': 4,
-                    'data': {
-                        "embeds": [
-                            {
-                                'title': f'{emo} In Progress {emo}',
-                                'description':
-                                    f'**GitHub** [Link]'
-                                    f'(https://github.com/jnsougata/ezcord)'
-                                    f'\n**Dev**: Zen#8080'
-                                    f'\n-----------'
-                                    f'\n**Slash Info:**'
-                                    f'\n**Name:** {self.data["name"]}'
-                                    f'\n**Type:** {self.type}'
-                                    f'\n**Version:** {self.version}'
-                                    f'\n**Id:** `{self.data["id"]}`'
-                            }
-                        ]
-                    }
-                }
-                return body
+        elif self.option['type'] == 4:
+            return 'INTEGER'
 
+        elif self.option['type'] == 5:
+            return 'BOOLEAN'
+
+        elif self.option['type'] == 6:
+            return 'USER'
+
+        elif self.option['type'] == 7:
+            return 'CHANNEL'
+
+        elif self.option['type'] == 8:
+            return 'ROLE'
+
+        elif self.option['type'] == 9:
+            return 'MENTIONABLE'
+
+        elif self.option['type'] == 10:
+            return 'NUMBER'
+
+
+    @property
+    def value(self):
+        return self.option['value']
+
+
+    @property
+    def name(self):
+        return self.option['name']
 
 
 class SlashContext(Interaction):
@@ -309,20 +266,50 @@ class SlashContext(Interaction):
     def __init__(
             self,
             response: dict,
+            bot_token: str,
+            guild_cache: dict,
             session: aiohttp.ClientSession
     ):
-        super().__init__(response)
+        super().__init__(
+            response = response,
+            guild_cache = guild_cache,
+            session = session
+        )
         self.__sess = session
+        self.__guild_cache = guild_cache
+        self.__secret = bot_token
 
 
-    async def send(self, text: str):
+    @property
+    def options(self):
+        return [Options(option) for option in self.data['options']]
+
+
+
+    async def send(self, text: str = None, embeds:list = None):
         head = 'https://discord.com/api/v9'
-        if self.slash:
-            url = f'{head}/interactions/{self.id}/{self.token}/callback'
+        if self.slash_command:
+            url = f'{head}/channels/{self.channel.id}/messages'
+            body = {
+                "content": text if text else '*empty',
+                "embeds":embeds if embeds else [],
+            }
+            auth = {"Authorization": f"Bot {self.__secret}"}
+
+            await self.__sess.post(url=url, data=body, headers=auth)
+
+
+
+    async def reply(self, text: str = None, embeds:list = None, ephemeral: bool = False):
+        head = 'https://discord.com/api/v9'
+        if self.slash_command:
+            url = f'{head}/interactions/{self.id}/{self._token}/callback'
             body = {
                 'type': 4,
                 'data': {
-                    "content": text
+                    "content": text if text else '*empty',
+                    "embeds":embeds if embeds else [],
+                    "flags": 64 if ephemeral else None,
                 }
             }
             await self.__sess.post(url=url, json=body)

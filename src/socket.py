@@ -2,9 +2,10 @@ import json
 import time
 import asyncio
 import aiohttp
-from src.cmd_exec import MsgExec, SlasExec
 from src.context import Context
-from src.slash import _ParseSlash, SlashContext
+from src.slash import SlashContext
+from src.cmd_exec import MsgExec, SlasExec
+
 
 
 
@@ -38,7 +39,6 @@ class Websocket:
         self.__guilds = {}
         self.__hello = None
         self.__ready = None
-        self.__slash_data = {}
 
         # starters
         self.prefix = prefix
@@ -71,9 +71,9 @@ class Websocket:
             ping_time = self.__ack_time - self.__start_time
             print(f'[ PING {round(ping_time)}MS ]')
 
-    async def __heartbeat_send(self, interval):
+    async def __heartbeat_send(self, dur):
         while True:
-            await asyncio.sleep(interval)
+            await asyncio.sleep(dur)
             self.__start_time = time.time() * 1000
             await self.__ws.send_json({"op": 1, "d": None})
 
@@ -138,27 +138,26 @@ class Websocket:
                         guildcache=self.__guilds
                     )
 
-                    parse = MsgExec(
+                    await MsgExec(
                         ctx=ctx,
                         prefix=self.prefix,
                         bucket=self.commands,
-                    )
-                    await parse.process_message()
+                    ).process_message()
 
                 # checking slash commands
                 if raw['t'] == 'INTERACTION_CREATE':
                     print(raw['d'])
+
                     slash_ctx = SlashContext(
                         response=raw['d'],
                         session=self.__session,
+                        bot_token = self.__secret,
+                        guild_cache = self.__guilds,
                     )
-                    sparese = SlasExec(
+                    await SlasExec(
                         ctx=slash_ctx,
                         bucket=self.commands
-                    )
-                    await sparese.process_slash()
-
-
+                    ).process_slash()
 
     async def connect(self):
         async with aiohttp.ClientSession() as session:
@@ -183,15 +182,12 @@ class Websocket:
     async def __slash_register(self):
         if self.guild_id and self.app_id:
             for item in self.__slash_cmds:
-                resp = await self.__session.post(
+                await self.__session.post(
                     f'{self.__BASE}/applications/{self.app_id}'
                     f'/guilds/{self.guild_id}/commands',
                     json = item,
                     headers = {"Authorization": f"Bot {self.__secret}"}
                 )
-                js = await resp.json()
-                CMD_ID = js['id']
-                self.__slash_data[str(CMD_ID)] = js
             print("[ SLASH REGD ]")
         else:
             raise ValueError(
@@ -239,3 +235,5 @@ class Websocket:
                 temp[str(user_id)] = member
             self.__guilds[str(guild_id)]['members'] = temp
             print(f'[ CACHING MEMBER FOR GUILD {guild_id} ]')
+
+

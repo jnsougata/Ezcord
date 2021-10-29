@@ -59,7 +59,18 @@ ban.add_options([
 
 @bot.slash_command(command=ban)
 async def ban(ctx:SlashContext):
-    await ctx.send(text='This is also working dude!')
+    user_id = ctx.options[0].value
+    reason = ctx.options[1].value
+    user = ctx.guild.pull_member(user_id)
+    await ctx.reply(text=f'{user.mention} got banned!\n**Reason: {reason}**')
+    await ctx.send(ctx.channel.mention)
+
+
+
+@bot.command
+async def test(ctx:Context):
+    await ctx.send(text='test')
+
 
 
 

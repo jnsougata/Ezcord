@@ -1,4 +1,6 @@
 import aiohttp
+from src.context import Member, Guild
+
 
 
 
@@ -6,38 +8,70 @@ class Interaction:
 
     def __init__(
             self,
-            response: dict
+            response: dict,
+            guild_cache: dict,
+            session: aiohttp.ClientSession,
     ):
-        self.id = response.get('id')
-        self.data = response.get('data')
-        self.type = response.get('type')
-        self.token = response.get('token')
-        self.member = response.get('member')
-        self.version = response.get('version')
-        self.guild_id = response.get('guild_id')
-        self.channel_id = response.get('channel_id')
+        self.session = session,
+        self._raw = response
+        self.__guild_cache = guild_cache
         self.application_id = response.get('application_id')
 
 
-    def __repr__(self):
-        return f'{self.__dict__}'
 
 
-    async def post(
-            self,
-            body: dict,
-            auth: dict,
-            session: aiohttp.ClientSession
-    ):
-        head = 'https://discord.com/api/v9'
-        await session.post(
-            f'{head}/channels/{self.channel_id}/messages',
-            data = body,
-            headers = auth
-        )
+
 
 
     @property
-    def slash(self):
-        print('GOT A SLASH')
-        return int(self.data.get('type')) == 1
+    def id(self):
+        return int(self._raw.get('id'))
+
+    @property
+    def data(self):
+        return self._raw.get('data')
+
+    @property
+    def type(self):
+        return int(self._raw.get('type'))
+
+    @property
+    def _token(self):
+        return self._raw.get('token')
+
+    @property
+    def author(self):
+        id = int(self._raw.get('member')['user']['id'])
+        return Member(payload=self.__guild_cache['members'][str(id)])
+
+    @property
+    def version(self):
+        return int(self._raw.get('version'))
+
+    @property
+    def guild(self):
+        return Guild(
+            Id=int(self._raw.get('guild_id')),
+            payload=self.__guild_cache
+        )
+
+    @property
+    def channel(self):
+        id = int(self._raw.get('channel_id'))
+        for channel in self.guild.channels:
+            if channel.id == id:
+                return channel
+
+
+    @property
+    def slash_command(self):
+        return self._raw.get('data')['type'] == 1
+
+    @property
+    def user_command(self):
+        return self._raw.get('data')['type'] == 2
+
+    @property
+    def message_command(self):
+        return self._raw.get('data')['type'] == 3
+

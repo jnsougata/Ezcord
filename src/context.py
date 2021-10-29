@@ -176,12 +176,7 @@ class Guild:
     @property
     def channels(self):
         raw = self._data.get('channels')
-        ids = [item['id'] for item in raw]
-        return [
-            Channel(
-                payload=raw[str(id)]
-            ) for id in ids
-        ]
+        return [Channel(item) for item in raw]
 
     @property
     def members(self):
