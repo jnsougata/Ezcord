@@ -12,12 +12,15 @@ TOK = os.getenv('DISCORD_TOKEN')
 
 bot = Bot(
     token = TOK,
-    prefix = '!!',
+    prefix = 'e!',
     app_id = APP,
     guild_id = TEST,
     intents = Intents.members,
 
 )
+
+
+
 
 rate = Slash(name='rate', description='rate me out of 5')
 rate.add_options([
@@ -40,7 +43,7 @@ rate.add_options([
         required=False
     )
 ])
-@bot.slash_command(command=rate)
+@bot.slash_cmd(command=rate)
 async def rate(ctx: SlashContext):
     await ctx.send(text='This is working dude!')
 
@@ -62,16 +65,17 @@ ban.add_options([
 ])
 
 
-@bot.slash_command(command=ban)
+@bot.slash_cmd(command=ban)
 async def ban(ctx:SlashContext):
     user_id = ctx.options[0].value
     reason = ctx.options[1].value
     user = ctx.guild.pull_member(user_id)
-    await ctx.reply(text=f'{user.mention} got banned!\n**Reason: {reason}**')
-    await ctx.send(ctx.channel.mention)
+    await ctx.reply(
+        text=f'{user.mention} got banned!\n**Reason: {reason}**'
+    )
 
 
-@bot.command
+@bot.cmd
 async def ping(ctx:Context):
     await ctx.send(text='pong')
 
@@ -82,11 +86,15 @@ async def ready(payload: dict):
 
 @bot.event
 async def message_create(msg: Message):
-    print(msg.content, msg.mentions)
+    if msg.author.id == msg.guild.owner.id:
+        await msg.reply(text=f'{msg.author.mention} hi boss!')
+
 
 @bot.event
 async def message_update(payload: dict):
     print(payload)
+
+
 
 bot.start()
 

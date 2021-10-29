@@ -104,5 +104,4 @@ class Context:
             data = {'content': text},
             headers = {"Authorization": f"Bot {self.__secret}"}
         )
-        return text
 

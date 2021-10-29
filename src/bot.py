@@ -2,10 +2,10 @@ import asyncio
 import aiohttp
 from .slash import Slash
 from functools import wraps
-from .socket import Websocket
+from .socket import WebSocket
 
 
-class Bot(Websocket):
+class Bot(WebSocket):
     def __init__(
             self,
             token: str,
@@ -14,15 +14,15 @@ class Bot(Websocket):
             app_id: int = None,
             guild_id: int = None,
     ):
-
-        self.app_id = app_id
+        self._events = []
+        self._cmd_pool = []
+        self._slash_queue = []
+        self._app_id = app_id
         self.prefix = prefix
-        self.__secret = token
+        self._secret = token
         self.intents = intents
         self.guild_id = guild_id
-        self.__events = []
-        self.__cmd_funcs = []
-        self.__slash_reg = []
+
 
 
 
@@ -32,34 +32,34 @@ class Bot(Websocket):
             prefix=prefix,
             intents=intents,
             guild_id=guild_id,
-            events = self.__events,
-            commands = self.__cmd_funcs,
-            slash_cmds = self.__slash_reg,
+            events = self._events,
+            commands = self._cmd_pool,
+            slash_queue= self._slash_queue,
         )
 
-    def slash_command(self, command: Slash):
-        self.__slash_reg.append(command.json)
+    def slash_cmd(self, command: Slash):
+        self._slash_queue.append(command.json)
         def decorator(func):
             @wraps(func)
             def wrapper(*args, **kwargs):
                 return func
-            self.__cmd_funcs.append(wrapper())
+            self._cmd_pool.append(wrapper())
         return decorator
 
 
 
-    def command(self, fn):
-        self.__cmd_funcs.append(fn)
+    def cmd(self, fn):
+        self._cmd_pool.append(fn)
 
 
 
     def event(self, fn):
-        self.__events.append(fn)
+        self._events.append(fn)
 
 
     def start(self):
         loop = asyncio.new_event_loop()
-        loop.run_until_complete(self.connect())
+        loop.run_until_complete(self._connect())
 
 
 

@@ -10,7 +10,7 @@ from .exe import MsgExec, SlasExec
 
 
 
-class Websocket:
+class WebSocket:
 
     __BASE  = 'https://discord.com/api/v9'
 
@@ -23,76 +23,75 @@ class Websocket:
             guild_id: int,
             events: list,
             commands: list,
-            slash_cmds: list,
+            slash_queue: list,
     ):
         # runtime
-        self.__seq = 0
-        self.__ws = None
-        self.__raw = None
-        self.__uri = None
-        self.__ping = 0
-        self.__ack_time = 0
-        self.__start_time = 0
-        self.__session = None
-        self.__session_id = None
+        self._seq = 0
+        self._ack = 0
+        self._sent = 0
+        self._ping = 0
+        self._ws = None
+        self._uri = None
+        self._raw = None
+        self._session = None
+        self._session_id = None
 
         # caching
-        self.users = {}
-        self.__guilds = {}
-        self.__hello = None
-        self.__ready = None
+        self._users = {}
+        self._guilds = {}
+        self._hello = None
+        self._ready = None
 
         # starters
-        self.prefix = prefix
-        self.app_id = app_id
-        self.__secret = secret
-        self.__events = events
-        self.intents = intents
-        self.commands = commands
-        self.guild_id = guild_id
-        self.__slash_reg = slash_cmds
+        self._prefix = prefix
+        self._app_id = app_id
+        self._secret = secret
+        self._events = events
+        self._intents = intents
+        self._commands = commands
+        self._test_guild = guild_id
+        self._reg_queue = slash_queue
 
 
-    async def __get_gateway(self):
+    async def _get_gateway(self):
         URL = "https://discordapp.com/api/gateway"
-        response = await self.__session.get(URL)
+        response = await self._session.get(URL)
         js = await response.json()
         return js['url']
 
-    async def __keep_alive(self):
-        if self.__raw['op'] == 10:
-            data = self.__hello
+    async def _keep_alive(self):
+        if self._raw['op'] == 10:
+            data = self._hello
             sleep = data['heartbeat_interval'] / 1000
             asyncio.ensure_future(
-                self.__heartbeat_send(sleep)
+                self._heartbeat_send(sleep)
             )
 
-    async def __heartbeat_ack(self):
-        data = self.__raw
+    async def _heartbeat_ack(self):
+        data = self._raw
         if data['op'] == 11:
-            self.__ack_time = time.time() * 1000
-            ping_time = self.__ack_time - self.__start_time
+            self._ack = time.time() * 1000
 
-    async def __heartbeat_send(self, dur):
+    async def _heartbeat_send(self, dur):
         while True:
             await asyncio.sleep(dur)
-            self.__start_time = time.time() * 1000
-            await self.__ws.send_json({"op": 1, "d": None})
+            self._sent = time.time() * 1000
+            await self._ws.send_json({"op": 1, "d": None})
 
-    async def __update_ssn(self):
-        raw = self.__raw
+    async def _store_session(self):
+        raw = self._raw
         if raw['op'] == 0 and raw['t'] == 'READY':
-            self.__session_id = raw['d']['session_id']
+            self._session_id = raw['d']['session_id']
 
-    async def __identify(self):
-        raw = self.__raw
+    async def _identify(self):
+        raw = self._raw
         if raw['op'] == 10:
-            await self.__ws.send_json(
+            await self._ws.send_json(
                 {
                     "op": 2,
                     "d": {
-                        "token": self.__secret,
-                        "intents": self.intents,
+                        "token": self._secret,
+                        "intents": self._intents,
                         "properties": {
                             '$os': "ios",
                             '$browser': 'Discord iOS',
@@ -104,106 +103,73 @@ class Websocket:
                 }
             )
 
-    async def __update_seq(self):
-        seq = self.__raw['s']
+    async def _update_seq(self):
+        seq = self._raw['s']
         if seq:
-            self.__seq = seq
+            self._seq = seq
 
     async def __start_listener(self):
-        async with self.__session.ws_connect(
-                f"{self.__uri}?v=9&encoding=json") as ws:
+        async with self._session.ws_connect(
+                f"{self._uri}?v=9&encoding=json") as ws:
 
             async for msg in ws:
-                self.__ws = ws
+                self._ws = ws
                 raw = json.loads(msg.data)
-                self.__raw = raw
+                self._raw = raw
 
-                if raw['t']:
-                    for func in self.__events:
-                        if func.__name__.lower() == raw['t'].lower():
-                            if func.__name__ == 'message_create':
-                                await func.__call__(Message(raw['d'], self.__guilds))
-                            else:
-                                await func.__call__(raw['d'])
-
-
-                await self.__cache_hello()
-                await self.__keep_alive()
-                await self.__cache_ready()
-                await self.__identify()
-                await self.__cache_guild()
-                await self.__req_members()
-                await self.__cache_members()
-                await self.__update_ssn()
-                await self.__update_seq()
-                await self.__heartbeat_ack()
-                await self.__reconnect()
-
+                await self._event_pool(raw)
+                await self._cache_hello()
+                await self._keep_alive()
+                await self._cache_ready()
+                await self._identify()
+                await self._cache_guild()
+                await self._req_members()
+                await self._cache_members()
+                await self._store_session()
+                await self._update_seq()
+                await self._heartbeat_ack()
+                await self._reconnect()
                 # checking dispatches
-                if raw['t'] == 'MESSAGE_CREATE':
-                    ctx = Context(
-                        payload=raw['d'],
-                        session=self.__session,
-                        secret=self.__secret,
-                        guildcache=self.__guilds
-                    )
-
-                    await MsgExec(
-                        ctx = ctx,
-                        prefix = self.prefix,
-                        bucket = self.commands,
-                    ).process_message()
-
-                # checking slash commands
-                if raw['t'] == 'INTERACTION_CREATE':
-                    slash_ctx = SlashContext(
-                        response=raw['d'],
-                        session=self.__session,
-                        bot_token = self.__secret,
-                        guild_cache = self.__guilds
-                    )
-                    await SlasExec(
-                        ctx = slash_ctx,
-                        bucket = self.commands
-                    ).process_slash()
+                await self._cmd_checker(raw)
 
 
-    async def connect(self):
+    async def _connect(self):
         async with aiohttp.ClientSession() as session:
-            self.__session = session
-            self.__uri = await self.__get_gateway()
-            await self.__slash_register()
+            self._session = session
+            self._uri = await self._get_gateway()
+            await self._reg_slash()
             await self.__start_listener()
 
-    async def __reconnect(self):
-        if self.__raw['op'] == 7:
-            await self.__ws.send_json(
+    async def _reconnect(self):
+        if self._raw['op'] == 7:
+            await self._ws.send_json(
                 {
                     "op": 6,
                     "d": {
-                        "token": self.__secret,
-                        "session_id": self.__session_id,
-                        "seq": self.__seq
+                        "token": self._secret,
+                        "session_id": self._session_id,
+                        "seq": self._seq
                     }
                 }
             )
 
-    async def __slash_register(self):
-        if self.guild_id and self.app_id:
-            for item in self.__slash_reg:
-                await self.__session.post(
-                    f'{self.__BASE}/applications/{self.app_id}'
-                    f'/guilds/{self.guild_id}/commands',
+
+    async def _reg_slash(self):
+        if self._test_guild and self._app_id:
+            for item in self._reg_queue:
+                await self._session.post(
+                    f'{self.__BASE}/applications/{self._app_id}'
+                    f'/guilds/{self._test_guild}/commands',
                     json = item,
-                    headers = {"Authorization": f"Bot {self.__secret}"}
+                    headers = {"Authorization": f"Bot {self._secret}"}
                 )
         else:
             raise ValueError(
                 "Application Id and Test Guild Id is mandatory to register slash command"
             )
 
-    async def __req_members(self):
-        raw = self.__raw
+    async def _req_members(self):
+        raw = self._raw
         if raw['t'] == 'GUILD_CREATE':
             payload = {
                 "op": 8,
@@ -213,31 +179,76 @@ class Websocket:
                     "limit": 0
                 }
             }
-            await self.__ws.send_json(payload)
+            await self._ws.send_json(payload)
 
-    # caching functions
-    async def __cache_hello(self):
-        if self.__raw['op'] == 10:
-            self.__hello = self.__raw['d']
 
-    async def __cache_ready(self):
-        if self.__raw['t'] == 'READY':
-            self.__ready = self.__raw['d']
+    async def _event_pool(self, raw: dict):
+        if raw['t']:
+            for func in self._events:
+                if func.__name__.lower() == raw['t'].lower():
+                    if func.__name__ == 'message_create':
+                        await func.__call__(
+                            Message(
+                                payload = raw['d'],
+                                guild_cache = self._guilds,
+                                session = self._session,
+                                secret = self._secret
+                            )
+                        )
+                    else:
+                        await func.__call__(raw['d'])
 
-    async def __cache_guild(self):
-        data = self.__raw
+    async def _cmd_checker(self, raw:dict):
+        if raw['t'] == 'MESSAGE_CREATE':
+            ctx = Context(
+                payload=raw['d'],
+                session=self._session,
+                secret=self._secret,
+                guildcache=self._guilds
+            )
+
+            await MsgExec(
+                ctx=ctx,
+                prefix=self._prefix,
+                bucket=self._commands,
+            ).process_message()
+
+        # checking slash commands
+        if raw['t'] == 'INTERACTION_CREATE':
+            slash_ctx = SlashContext(
+                response=raw['d'],
+                session=self._session,
+                bot_token=self._secret,
+                guild_cache=self._guilds
+            )
+            await SlasExec(
+                ctx=slash_ctx,
+                bucket=self._commands
+            ).process_slash()
+
+
+    async def _cache_hello(self):
+        if self._raw['op'] == 10:
+            self._hello = self._raw['d']
+
+    async def _cache_ready(self):
+        if self._raw['t'] == 'READY':
+            self._ready = self._raw['d']
+
+    async def _cache_guild(self):
+        data = self._raw
         if data['t'] == 'GUILD_CREATE':
             guild_id = data['d']['id']
-            self.__guilds[str(guild_id)] = data['d']
+            self._guilds[str(guild_id)] = data['d']
 
-    async def __cache_members(self):
-        data = self.__raw
+    async def _cache_members(self):
+        data = self._raw
         if data['t'] == 'GUILD_MEMBERS_CHUNK':
             guild_id = data['d']['guild_id']
             temp = dict()
             for member in data['d']['members']:
                 user_id = member['user']['id']
                 temp[str(user_id)] = member
-            self.__guilds[str(guild_id)]['members'] = temp
+            self._guilds[str(guild_id)]['members'] = temp
 
 
