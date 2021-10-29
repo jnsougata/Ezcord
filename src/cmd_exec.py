@@ -40,7 +40,8 @@ class MsgExec:
                                     try:
                                         final.append(x(args[i]))
                                     except IndexError:
-                                        return "Params missing"
+                                        raise "Params missing"
+
                         await item.__call__(self.ctx, *final)
                 else:
                     pass
