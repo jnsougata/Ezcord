@@ -1,5 +1,9 @@
 import os
+
+import src.message
 from src.__init__ import *
+import discord
+
 
 APP = 874663148374880287
 TEST = 877399405056102431
@@ -57,6 +61,7 @@ ban.add_options([
     )
 ])
 
+
 @bot.slash_command(command=ban)
 async def ban(ctx:SlashContext):
     user_id = ctx.options[0].value
@@ -66,30 +71,22 @@ async def ban(ctx:SlashContext):
     await ctx.send(ctx.channel.mention)
 
 
-
 @bot.command
 async def ping(ctx:Context):
     await ctx.send(text='pong')
 
 
-@bot.command
-async def info(ctx:Context):
-    guild = ctx.guild
-    text = f"**author:** `{ctx.author}` {ctx.author.mention}" \
-           f"\n\n**server:** `{guild.name}`" \
-           f"\n**id**: {guild.id}" \
-           f"\n**member count**: {guild.member_count}" \
-           f"\n**slash commands**: {guild.slash_count}" \
-           f"\n**total boosts**: {guild.boost_level}" \
-           f"\n**banner hash**: {guild.banner}" \
-           f"\n**content filter**: {guild.content_filter}" \
-           f"\n**alert level**: {guild.alert_level}" \
-           f"\n**animated**: {guild.flags.ANIMATED}" \
-           f"\n**icon hash**: {guild.icon}"
+@bot.event
+async def ready(payload: dict):
+    print(payload)
 
-    await ctx.send(text = text)
+@bot.event
+async def message_create(msg: Message):
+    print(msg.content, msg.mentions)
 
-
+@bot.event
+async def message_update(payload: dict):
+    print(payload)
 
 bot.start()
 

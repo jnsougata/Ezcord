@@ -24,5 +24,6 @@ SOFTWARE.
 from .bot import Bot
 from .ctxt import Context
 from .intents import Intents
+from .message import Message
 from .slash import Slash, SlashContext
 

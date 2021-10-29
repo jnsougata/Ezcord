@@ -3,6 +3,7 @@ import time
 import asyncio
 import aiohttp
 from .ctxt import Context
+from .message import Message
 from .slash import SlashContext
 from .exe import MsgExec, SlasExec
 
@@ -20,6 +21,7 @@ class Websocket:
             secret: str,
             intents: int,
             guild_id: int,
+            events: list,
             commands: list,
             slash_cmds: list,
     ):
@@ -44,10 +46,11 @@ class Websocket:
         self.prefix = prefix
         self.app_id = app_id
         self.__secret = secret
+        self.__events = events
         self.intents = intents
         self.commands = commands
         self.guild_id = guild_id
-        self.__slash_cmds = slash_cmds
+        self.__slash_reg = slash_cmds
 
 
     async def __get_gateway(self):
@@ -69,7 +72,6 @@ class Websocket:
         if data['op'] == 11:
             self.__ack_time = time.time() * 1000
             ping_time = self.__ack_time - self.__start_time
-            print(f'[ PING {round(ping_time)}MS ]')
 
     async def __heartbeat_send(self, dur):
         while True:
@@ -81,7 +83,6 @@ class Websocket:
         raw = self.__raw
         if raw['op'] == 0 and raw['t'] == 'READY':
             self.__session_id = raw['d']['session_id']
-            print(f'[ SESSION ID UPDATED]')
 
     async def __identify(self):
         raw = self.__raw
@@ -116,6 +117,15 @@ class Websocket:
                 self.__ws = ws
                 raw = json.loads(msg.data)
                 self.__raw = raw
+
+                if raw['t']:
+                    for func in self.__events:
+                        if func.__name__.lower() == raw['t'].lower():
+                            if func.__name__ == 'message_create':
+                                await func.__call__(Message(raw['d'], self.__guilds))
+                            else:
+                                await func.__call__(raw['d'])
+
 
                 await self.__cache_hello()
                 await self.__keep_alive()
@@ -180,14 +190,13 @@ class Websocket:
 
     async def __slash_register(self):
         if self.guild_id and self.app_id:
-            for item in self.__slash_cmds:
+            for item in self.__slash_reg:
                 await self.__session.post(
                     f'{self.__BASE}/applications/{self.app_id}'
                     f'/guilds/{self.guild_id}/commands',
                     json = item,
                     headers = {"Authorization": f"Bot {self.__secret}"}
                 )
-            print("[ SLASH REGD ]")
         else:
             raise ValueError(
                 "Application Id and Test Guild Id is mandatory to register slash command"
@@ -210,19 +219,16 @@ class Websocket:
     async def __cache_hello(self):
         if self.__raw['op'] == 10:
             self.__hello = self.__raw['d']
-            print('[ CACHING HELLO ]')
 
     async def __cache_ready(self):
         if self.__raw['t'] == 'READY':
             self.__ready = self.__raw['d']
-            print('[ CACHING READY ]')
 
     async def __cache_guild(self):
         data = self.__raw
         if data['t'] == 'GUILD_CREATE':
             guild_id = data['d']['id']
             self.__guilds[str(guild_id)] = data['d']
-            print(f'[ CACHING GUILD {guild_id} ]')
 
     async def __cache_members(self):
         data = self.__raw
@@ -233,6 +239,5 @@ class Websocket:
                 user_id = member['user']['id']
                 temp[str(user_id)] = member
             self.__guilds[str(guild_id)]['members'] = temp
-            print(f'[ CACHING MEMBER FOR GUILD {guild_id} ]')
 
 

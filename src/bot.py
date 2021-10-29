@@ -20,8 +20,10 @@ class Bot(Websocket):
         self.__secret = token
         self.intents = intents
         self.guild_id = guild_id
-        self.__slash_cmds = []
-        self.__normal_commands = []
+        self.__events = []
+        self.__cmd_funcs = []
+        self.__slash_reg = []
+
 
 
         super().__init__(
@@ -30,23 +32,29 @@ class Bot(Websocket):
             prefix=prefix,
             intents=intents,
             guild_id=guild_id,
-            slash_cmds=self.__slash_cmds,
-            commands=self.__normal_commands
+            events = self.__events,
+            commands = self.__cmd_funcs,
+            slash_cmds = self.__slash_reg,
         )
 
     def slash_command(self, command: Slash):
-        self.__slash_cmds.append(command.json)
+        self.__slash_reg.append(command.json)
         def decorator(func):
             @wraps(func)
             def wrapper(*args, **kwargs):
                 return func
-            self.__normal_commands.append(wrapper())
+            self.__cmd_funcs.append(wrapper())
         return decorator
 
 
 
     def command(self, fn):
-        self.__normal_commands.append(fn)
+        self.__cmd_funcs.append(fn)
+
+
+
+    def event(self, fn):
+        self.__events.append(fn)
 
 
     def start(self):
