@@ -12,9 +12,11 @@ class Interaction:
             self,
             response: dict,
             guild_cache: dict,
+            secret: str,
             session: aiohttp.ClientSession,
     ):
-        self.session = session,
+        self._session = session
+        self._secret = secret
         self._raw = response
         self.__guild_cache = guild_cache
         self.application_id = response.get('application_id')
@@ -49,7 +51,9 @@ class Interaction:
     def guild(self):
         return Guild(
             Id=int(self._raw.get('guild_id')),
-            payload=self.__guild_cache
+            payload=self.__guild_cache,
+            session=self._session,
+            secret=self._secret,
         )
 
     @property

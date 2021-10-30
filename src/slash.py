@@ -273,7 +273,8 @@ class SlashContext(Interaction):
         super().__init__(
             response = response,
             guild_cache = guild_cache,
-            session = session
+            session = session,
+            secret=bot_token,
         )
         self.__sess = session
         self.__guild_cache = guild_cache
