@@ -252,5 +252,3 @@ class WebSocket:
                 user_id = member['user']['id']
                 temp[str(user_id)] = member
             self._guilds[str(guild_id)]['members'] = temp
-
-
