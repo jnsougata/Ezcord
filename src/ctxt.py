@@ -116,7 +116,6 @@ class Context:
                 return item
 
     async def send(self, text: str):
-
         await self._session.post(
             f'{self._head}/channels/{self._channel_id}/messages',
             json = {
@@ -155,3 +154,4 @@ class Context:
                 "Content-Type": 'application/json'
             }
         )
+
