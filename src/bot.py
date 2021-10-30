@@ -1,6 +1,7 @@
 import asyncio
 import aiohttp
 from .slash import Slash
+from .guild import Guild
 from functools import wraps
 from .socket import WebSocket
 
@@ -36,6 +37,29 @@ class Bot(WebSocket):
             commands = self._cmd_pool,
             slash_queue= self._slash_queue,
         )
+
+    @property
+    def id(self):
+        return self._ready['user']['id']
+
+    @property
+    def avatar(self):  # to object
+        return self._ready['user']['avatar']
+
+    @property
+    def name(self):
+        return self._ready['user']['username']
+
+    @property
+    def discriminator(self):
+        return self._ready['user']['discriminator']
+
+
+    @property
+    def guilds(self):
+        ids = list(self._guilds)
+        return [Guild(Id=id,payload=self._guilds) for id in ids]
+
 
     def slash_cmd(self, command: Slash):
         self._slash_queue.append(command.json)

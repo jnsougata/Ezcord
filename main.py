@@ -1,8 +1,6 @@
 import os
-
-import src.message
 from src.__init__ import *
-import discord
+
 
 
 APP = 874663148374880287
@@ -12,7 +10,7 @@ TOK = os.getenv('DISCORD_TOKEN')
 
 bot = Bot(
     token = TOK,
-    prefix = 'e!',
+    prefix = '-',
     app_id = APP,
     guild_id = TEST,
     intents = Intents.members,
@@ -63,8 +61,6 @@ ban.add_options([
 
     )
 ])
-
-
 @bot.slash_cmd(command=ban)
 async def ban(ctx:SlashContext):
     user_id = ctx.options[0].value
@@ -77,22 +73,12 @@ async def ban(ctx:SlashContext):
 
 @bot.cmd
 async def ping(ctx:Context):
-    await ctx.send(text='pong')
+    await ctx.send(text=f'{bot.latency}ms')
 
 
 @bot.event
-async def ready(payload: dict):
-    print(payload)
-
-@bot.event
-async def message_create(msg: Message):
-    if msg.author.id == msg.guild.owner.id:
-        await msg.reply(text=f'{msg.author.mention} hi boss!')
-
-
-@bot.event
-async def message_update(payload: dict):
-    print(payload)
+async def ready():
+    print('[ READY ]')
 
 
 

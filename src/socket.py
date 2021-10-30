@@ -29,7 +29,7 @@ class WebSocket:
         self._seq = 0
         self._ack = 0
         self._sent = 0
-        self._ping = 0
+        self.latency = 0
         self._ws = None
         self._uri = None
         self._raw = None
@@ -71,12 +71,13 @@ class WebSocket:
         data = self._raw
         if data['op'] == 11:
             self._ack = time.time() * 1000
+            self.latency = round(self._ack - self._sent)
 
     async def _heartbeat_send(self, dur):
         while True:
-            await asyncio.sleep(dur)
             self._sent = time.time() * 1000
             await self._ws.send_json({"op": 1, "d": None})
+            await asyncio.sleep(dur)
 
     async def _store_session(self):
         raw = self._raw
@@ -93,11 +94,9 @@ class WebSocket:
                         "token": self._secret,
                         "intents": self._intents,
                         "properties": {
-                            '$os': "ios",
-                            '$browser': 'Discord iOS',
-                            '$device': 'Easycord',
-                            '$referrer': '',
-                            '$referring_domain': ''
+                            '$os': "linux",
+                            '$browser': 'discord',
+                            '$device': 'discord',
                         }
                     }
                 }
@@ -129,7 +128,6 @@ class WebSocket:
                 await self._update_seq()
                 await self._heartbeat_ack()
                 await self._reconnect()
-                # checking dispatches
                 await self._cmd_checker(raw)
 
 
@@ -195,8 +193,12 @@ class WebSocket:
                                 secret = self._secret
                             )
                         )
+                    elif func.__name__ == 'ready':
+                        await func.__call__()
                     else:
                         await func.__call__(raw['d'])
+
+
 
     async def _cmd_checker(self, raw:dict):
         if raw['t'] == 'MESSAGE_CREATE':
