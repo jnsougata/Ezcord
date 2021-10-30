@@ -108,10 +108,13 @@ class Context:
         return self._raw.get('attachments')
 
     @property
-    def channel(self): #gotta change the structure of the guild payload
+    def channel(self):
         id = self._channel_id
-        channel = [item for item in self.guild.channels if int(item.id) == int(id)]
-        return channel[0] if len(channel) > 0 else None
+        return Channel(
+            secret=self._secret,
+            session=self._session,
+            payload=self._guild_data[str(self._guild_id)]['channels'][str(id)],
+        )
 
     async def send(self, text: str = None, embeds:[Embed]  = None):
         if embeds:

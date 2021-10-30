@@ -276,9 +276,10 @@ class SlashContext(Interaction):
             session = session,
             secret=bot_token,
         )
-        self.__sess = session
-        self.__guild_cache = guild_cache
-        self.__secret = bot_token
+        self._sess = session
+        self._secret = bot_token
+        self._guild_cache = guild_cache
+
 
 
     @property
@@ -295,9 +296,9 @@ class SlashContext(Interaction):
                 "content": text if text else '*empty',
                 "embeds":embeds if embeds else [],
             }
-            auth = {"Authorization": f"Bot {self.__secret}"}
+            auth = {"Authorization": f"Bot {self._secret}"}
 
-            await self.__sess.post(url=url, data=body, headers=auth)
+            await self._sess.post(url=url, data=body, headers=auth)
 
 
 
@@ -313,7 +314,7 @@ class SlashContext(Interaction):
                     "flags": 64 if ephemeral else None,
                 }
             }
-            await self.__sess.post(url=url, json=body)
+            await self._sess.post(url=url, json=body)
 
 
 

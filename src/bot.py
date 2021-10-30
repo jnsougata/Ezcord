@@ -2,6 +2,7 @@ import asyncio
 import aiohttp
 from .slash import Slash
 from .guild import Guild
+from .channel import Channel
 from functools import wraps
 from .socket import WebSocket
 
@@ -54,11 +55,33 @@ class Bot(WebSocket):
     def discriminator(self):
         return self._ready['user']['discriminator']
 
-
     @property
     def guilds(self):
-        ids = list(self._guilds)
-        return [Guild(Id=id,payload=self._guilds) for id in ids]
+        return len(self._guilds)
+
+    @property
+    def channels(self):
+        return len(self._channels)
+
+
+    def pull_guild(self, id: int):
+        return Guild(
+            Id=id,
+            secret=self._secret,
+            payload=self._guilds,
+            session=self._session,
+        )
+
+    def pull_channel(self, id: int):
+        return Channel(
+            secret=self._secret,
+            payload=self._channels[str(id)],
+            session=self._session,
+        )
+
+
+
+
 
 
     def slash_cmd(self, command: Slash):

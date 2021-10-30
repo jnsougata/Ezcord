@@ -18,7 +18,7 @@ class Interaction:
         self._session = session
         self._secret = secret
         self._raw = response
-        self.__guild_cache = guild_cache
+        self._guild_cache = guild_cache
         self.application_id = response.get('application_id')
 
 
@@ -41,7 +41,7 @@ class Interaction:
     @property
     def author(self):
         id = int(self._raw.get('member')['user']['id'])
-        return Member(payload=self.__guild_cache['members'][str(id)])
+        return Member(payload=self._guild_cache['members'][str(id)])
 
     @property
     def version(self):
@@ -51,7 +51,7 @@ class Interaction:
     def guild(self):
         return Guild(
             Id=int(self._raw.get('guild_id')),
-            payload=self.__guild_cache,
+            payload=self._guild_cache,
             session=self._session,
             secret=self._secret,
         )

@@ -79,10 +79,11 @@ async def ping(ctx:Context):
     )
     em_two = Embed(
         title='Embed Two',
-        description=f'Multiple embeds',
+        description=f'**Total Channels: {bot.channels}**',
         color=0xf00534
     )
     await ctx.channel.send(embeds=[em_one, em_two])
+
 
 
 

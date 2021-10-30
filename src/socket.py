@@ -39,6 +39,7 @@ class WebSocket:
         # caching
         self._users = {}
         self._guilds = {}
+        self._channels = {}
         self._hello = None
         self._ready = None
 
@@ -240,6 +241,12 @@ class WebSocket:
         data = self._raw
         if data['t'] == 'GUILD_CREATE':
             guild_id = data['d']['id']
+
+            temp = dict()
+            for channel in data['d']['channels']:
+                temp[str(channel['id'])] = channel
+                self._channels[str(channel['id'])] = channel
+            data['d']['channels'] = temp
             self._guilds[str(guild_id)] = data['d']
 
     async def _cache_members(self):
@@ -250,4 +257,5 @@ class WebSocket:
             for member in data['d']['members']:
                 user_id = member['user']['id']
                 temp[str(user_id)] = member
+                self._users[str(user_id)] = member
             self._guilds[str(guild_id)]['members'] = temp

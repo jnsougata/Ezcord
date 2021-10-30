@@ -79,13 +79,13 @@ class Guild:
 
     @property
     def channels(self):
-        raw = self._data.get('channels')
+        ids = list(self._data.get('channels'))
         return [
             Channel(
-                payload=item,
                 secret=self._secret,
                 session=self._session,
-            ) for item in raw
+                payload=self._data['channels'][str(id)],
+            ) for id in ids
         ]
 
     @property
@@ -100,10 +100,8 @@ class Guild:
     def rules_channel(self):
         id = self._data.get("rules_channel_id")
         payload = self._data["channels"]
-        for item in payload:
-            if str(item['id']) == str(id):
-                return Channel(
-                    payload=item,
+        return Channel(
+                    payload=payload[str(id)],
                     secret=self._secret,
                     session=self._session,
                 )
@@ -112,13 +110,11 @@ class Guild:
     def sys_channel(self):
         id = self._data.get("system_channel_id")
         payload = self._data["channels"]
-        for item in payload:
-            if str(item['id']) == str(id):
-                return Channel(
-                    payload=item,
-                    secret=self._secret,
-                    session=self._session,
-                )
+        return Channel(
+            payload=payload[str(id)],
+            secret=self._secret,
+            session=self._session,
+        )
 
     @property
     def vanity_code(self):
@@ -173,15 +169,13 @@ class Guild:
 
     def pull_channel(self, id:int):
         payload = self._data["channels"]
-        for item in payload:
-            if str(item['id']) == str(id):
-                return Channel(
-                    payload=item,
-                    secret=self._secret,
-                    session=self._session,
-                )
+        return Channel(
+            payload=payload[str(id)],
+            secret=self._secret,
+            session=self._session,
+        )
 
-
+    # gotta change structure of payload
     def pull_role(self, id: int):
         ls = self._data["roles"]
         for item in ls:
