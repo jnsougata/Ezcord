@@ -73,7 +73,7 @@ async def ban(ctx:SlashContext):
 
 @bot.cmd
 async def ping(ctx:Context):
-    await ctx.send(text=f'{bot.latency}ms')
+    await ctx.reply(text=f'{bot.latency}ms ')
 
 
 @bot.event
