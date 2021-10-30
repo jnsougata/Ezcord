@@ -1,4 +1,5 @@
 import aiohttp
+from .embed import Embed
 from .guild import Guild
 from .member import Member
 
@@ -64,7 +65,11 @@ class Message:
     @property
     def guild(self):
         id = self.payload.get('guild_id')
-        return Guild(Id = id, payload=self._guild_data)
+        return Guild(
+            Id = id,
+            secret=self._secret,
+            payload=self._guild_data,
+        )
 
 
     @property
@@ -79,14 +84,18 @@ class Message:
         return self.payload.get('tts')
 
 
-    async def reply(self, text:str):
+    async def reply(self, text:str = None, embeds:[Embed]  = None):
+        if embeds:
+            parsed = [item.payload for item in embeds]
+        else:
+            parsed = []
         head = 'https://discord.com/api/v9'
         await self._session.post(
             f'{head}/channels/{self.channel.id}/messages',
             json = {
                 'content': text,
                 'tts': False,
-                'embeds': [],
+                'embeds': parsed,
                 'components': [],
                 'sticker_ids': [],
                 'attachments': [],

@@ -82,7 +82,7 @@ async def ping(ctx:Context):
         description=f'Multiple embeds',
         color=0xf00534
     )
-    await ctx.send(embeds=[em_one, em_two])
+    await ctx.channel.send(embeds=[em_one, em_two])
 
 
 

@@ -93,12 +93,11 @@ class Context:
     def guild(self):
         return Guild(
             Id=self._guild_id,
-            payload=self._guild_data
-        )
+            secret=self._secret,
+            session=self._session,
+            payload=self._guild_data,
 
-    @property
-    def content(self):
-        return self._raw.get('content')
+        )
 
     @property
     def edited_at(self):
@@ -111,9 +110,8 @@ class Context:
     @property
     def channel(self): #gotta change the structure of the guild payload
         id = self._channel_id
-        for item in self.guild.channels:
-            if item.id == id:
-                return item
+        channel = [item for item in self.guild.channels if int(item.id) == int(id)]
+        return channel[0] if len(channel) > 0 else None
 
     async def send(self, text: str = None, embeds:[Embed]  = None):
         if embeds:
@@ -136,13 +134,17 @@ class Context:
             }
         )
 
-    async def reply(self, text:str):
+    async def reply(self, text:str = None, embeds:[Embed]  = None):
+        if embeds:
+            parsed = [item.payload for item in embeds]
+        else:
+            parsed = []
         await self._session.post(
             f'{self._head}/channels/{self._channel_id}/messages',
             json = {
                 'content': text,
                 'tts': False,
-                'embeds': [],
+                'embeds': parsed,
                 'components': [],
                 'sticker_ids': [],
                 'attachments': [],

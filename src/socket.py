@@ -199,7 +199,6 @@ class WebSocket:
                         await func.__call__(raw['d'])
 
 
-
     async def _cmd_checker(self, raw:dict):
         if raw['t'] == 'MESSAGE_CREATE':
             ctx = Context(

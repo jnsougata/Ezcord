@@ -18,7 +18,7 @@ class MsgExec:
 
 
     async def process_message(self):
-        message = self.ctx.content
+        message = self.ctx.message.content
         if message:
             if message.startswith(self.prefix):
                 string = message

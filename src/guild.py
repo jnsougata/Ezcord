@@ -1,3 +1,4 @@
+import aiohttp
 from .role import Role
 from .member import Member
 from .channel import Channel
@@ -10,9 +11,13 @@ class Guild:
     def __init__(
             self,
             Id: int,
-            payload: dict
+            secret: str,
+            payload: dict,
+            session: aiohttp.ClientSession,
     ):
         self._id = Id
+        self._secret = secret
+        self._session = session
         self._data: dict = payload[str(Id)]
         self._members: dict = payload[str(Id)]['members']
 
@@ -75,7 +80,13 @@ class Guild:
     @property
     def channels(self):
         raw = self._data.get('channels')
-        return [Channel(item) for item in raw]
+        return [
+            Channel(
+                payload=item,
+                secret=self._secret,
+                session=self._session,
+            ) for item in raw
+        ]
 
     @property
     def members(self):
@@ -91,7 +102,11 @@ class Guild:
         payload = self._data["channels"]
         for item in payload:
             if str(item['id']) == str(id):
-                return Channel(payload=item)
+                return Channel(
+                    payload=item,
+                    secret=self._secret,
+                    session=self._session,
+                )
 
     @property
     def sys_channel(self):
@@ -99,7 +114,11 @@ class Guild:
         payload = self._data["channels"]
         for item in payload:
             if str(item['id']) == str(id):
-                return Channel(payload=item)
+                return Channel(
+                    payload=item,
+                    secret=self._secret,
+                    session=self._session,
+                )
 
     @property
     def vanity_code(self):
@@ -156,7 +175,11 @@ class Guild:
         payload = self._data["channels"]
         for item in payload:
             if str(item['id']) == str(id):
-                return Channel(payload=item)
+                return Channel(
+                    payload=item,
+                    secret=self._secret,
+                    session=self._session,
+                )
 
 
     def pull_role(self, id: int):

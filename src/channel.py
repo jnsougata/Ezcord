@@ -1,7 +1,15 @@
+import aiohttp
+
+from .embed import Embed
+
 class Channel:
 
-    def __init__(self, payload: dict):
-        self._data = payload
+    def __init__(
+            self,
+            secret: str,
+            payload: dict,
+            session: aiohttp.ClientSession,
+    ):
         self._types = {
             0: 'text',
             2: 'voice',
@@ -11,6 +19,10 @@ class Channel:
             12: 'private_thread',
             13: 'stage'
         }
+        self._data = payload
+        self._secret = secret
+        self._session = session
+        self._head = 'https://discord.com/api/v9'
 
 
     @property
@@ -70,4 +82,26 @@ class Channel:
     def topic(self):
         return self._data.get('topic')
 
-    # threads pending
+    async def send(self, text: str = None, embeds: [Embed] = None):
+        if self.type in ['text', 'news', 'public_thread', 'private_thread']:
+            if embeds:
+                parsed = [item.payload for item in embeds]
+            else:
+                parsed = []
+            await self._session.post(
+                f'{self._head}/channels/{self.id}/messages',
+                json={
+                    'content': text,
+                    'tts': False,
+                    'embeds': parsed,
+                    'components': [],
+                    'sticker_ids': [],
+                    'attachments': [],
+                },
+                headers={
+                    "Authorization": f"Bot {self._secret}",
+                    "Content-Type": 'application/json'
+                }
+            )
+        else:
+            raise TypeError(f'send works on text channels only')
