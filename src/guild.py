@@ -19,7 +19,6 @@ class Guild:
         self._secret = secret
         self._session = session
         self._data: dict = payload[str(Id)]
-        self._members: dict = payload[str(Id)]['members']
 
 
 
@@ -47,7 +46,7 @@ class Guild:
     @property
     def owner(self):
         id = self._data.get("owner_id")
-        return Member(payload =self._members[str(id)])
+        return Member(Id=int(id),guild_cache=self._data)
 
     @property
     def language(self):
@@ -75,7 +74,8 @@ class Guild:
 
     @property
     def roles(self):
-        return [Role(data) for data in self._data.get('roles')]
+        ids = list(self._data.get('roles'))
+        return [Role(self._data['roles'][str(id)]) for id in ids]
 
     @property
     def channels(self):
@@ -93,7 +93,8 @@ class Guild:
         member_ids = list(self._members)
         return [
             Member(
-                payload=self._members[str(id)]
+                Id=int(id),
+                guild_cache=self._data
             ) for id in member_ids]
 
     @property
@@ -167,6 +168,11 @@ class Guild:
         return self._data.get("description")
 
 
+    @property
+    def default_role(self):
+        return self.roles[0]
+
+
     def pull_channel(self, id:int):
         payload = self._data["channels"]
         return Channel(
@@ -175,20 +181,15 @@ class Guild:
             session=self._session,
         )
 
-    # gotta change structure of payload
     def pull_role(self, id: int):
-        ls = self._data["roles"]
-        for item in ls:
-            if str(item['id']) == str(id):
-                return Role(item)
+        return Role(self._data["roles"][str(id)])
 
 
     def pull_member(self, id:int):
         return Member(
-            payload=self._members[str(id)]
+            Id=int(id),
+            guild_cache=self._data
         )
-
-
 
 
 class GuildFlags:

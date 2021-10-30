@@ -233,29 +233,35 @@ class WebSocket:
         if self._raw['op'] == 10:
             self._hello = self._raw['d']
 
+
     async def _cache_ready(self):
         if self._raw['t'] == 'READY':
             self._ready = self._raw['d']
+
 
     async def _cache_guild(self):
         data = self._raw
         if data['t'] == 'GUILD_CREATE':
             guild_id = data['d']['id']
-
-            temp = dict()
+            blank_ch = dict()
             for channel in data['d']['channels']:
-                temp[str(channel['id'])] = channel
+                blank_ch[str(channel['id'])] = channel
                 self._channels[str(channel['id'])] = channel
-            data['d']['channels'] = temp
+            data['d']['channels'] = blank_ch
+            blank_role = dict()
+            for role in data['d']['roles']:
+                blank_role[str(role['id'])] = role
+            data['d']['roles'] = blank_role
             self._guilds[str(guild_id)] = data['d']
+
 
     async def _cache_members(self):
         data = self._raw
         if data['t'] == 'GUILD_MEMBERS_CHUNK':
             guild_id = data['d']['guild_id']
-            temp = dict()
+            blank = dict()
             for member in data['d']['members']:
                 user_id = member['user']['id']
-                temp[str(user_id)] = member
+                blank[str(user_id)] = member
                 self._users[str(user_id)] = member
-            self._guilds[str(guild_id)]['members'] = temp
+            self._guilds[str(guild_id)]['members'] = blank

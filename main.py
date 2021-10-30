@@ -82,7 +82,8 @@ async def ping(ctx:Context):
         description=f'**Total Channels: {bot.channels}**',
         color=0xf00534
     )
-    await ctx.channel.send(embeds=[em_one, em_two])
+    await ctx.reply(embeds=[em_one, em_two])
+    await ctx.send(text=f'{ctx.guild.owner.roles}')
 
 
 

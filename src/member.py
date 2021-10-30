@@ -1,7 +1,12 @@
+from .role import Role
+
+
+
 class Member:
 
-    def __init__(self, payload: dict):
-        self._data: dict = payload
+    def __init__(self, Id:int, guild_cache: dict):
+        self._roles = guild_cache['roles']
+        self._data: dict = guild_cache['members'][str(Id)]
 
 
     def __repr__(self):
@@ -33,3 +38,8 @@ class Member:
     @property
     def mention(self):
         return f"<@{self.id}>"
+
+    @property
+    def roles(self):
+        ids = self._data['roles']
+        return [Role(self._roles[str(id)]) for id in ids]

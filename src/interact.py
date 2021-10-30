@@ -41,7 +41,7 @@ class Interaction:
     @property
     def author(self):
         id = int(self._raw.get('member')['user']['id'])
-        return Member(payload=self._guild_cache['members'][str(id)])
+        return Member(guild_cache=self._guild_cache['members'][str(id)])
 
     @property
     def version(self):

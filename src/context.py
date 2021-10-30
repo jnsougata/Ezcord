@@ -77,8 +77,8 @@ class Context:
     @property
     def author(self):
         return Member(
-            payload=self._guild_data[str(self._guild_id)]
-            ['members'][str(self._user_id)]
+            Id=int(self._user_id),
+            guild_cache=self._guild_data[str(self._guild_id)]
         )
 
     @property
