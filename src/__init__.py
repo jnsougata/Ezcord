@@ -22,7 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 from .bot import Bot
-from .ctxt import Context
+from .embed import Embed
+from .context import Context
 from .intents import Intents
 from .message import Message
 from .slash import Slash, SlashContext

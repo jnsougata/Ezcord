@@ -2,7 +2,7 @@ import json
 import time
 import asyncio
 import aiohttp
-from .ctxt import Context
+from .context import Context
 from .message import Message
 from .slash import SlashContext
 from .exe import MsgExec, SlasExec

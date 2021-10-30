@@ -1,6 +1,6 @@
 import json
 import aiohttp
-from .ctxt import Guild
+from .context import Guild
 from .interact import Interaction
 
 

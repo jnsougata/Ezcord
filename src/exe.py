@@ -1,5 +1,5 @@
 import inspect
-from .ctxt import Context
+from .context import Context
 from .slash import SlashContext
 
 

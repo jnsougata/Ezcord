@@ -1,5 +1,5 @@
 import json
-
+from .embed import Embed
 from .guild import Guild
 from .member import Member
 from .message import Message
@@ -109,19 +109,23 @@ class Context:
         return self._raw.get('attachments')
 
     @property
-    def channel(self): #gotta change the structure of the payload
+    def channel(self): #gotta change the structure of the guild payload
         id = self._channel_id
         for item in self.guild.channels:
             if item.id == id:
                 return item
 
-    async def send(self, text: str):
+    async def send(self, text: str = None, embeds:[Embed]  = None):
+        if embeds:
+            parsed = [item.payload for item in embeds]
+        else:
+            parsed = []
         await self._session.post(
             f'{self._head}/channels/{self._channel_id}/messages',
             json = {
                 'content': text,
                 'tts': False,
-                'embeds': [],
+                'embeds': parsed,
                 'components': [],
                 'sticker_ids': [],
                 'attachments': [],

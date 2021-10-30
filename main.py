@@ -73,7 +73,17 @@ async def ban(ctx:SlashContext):
 
 @bot.cmd
 async def ping(ctx:Context):
-    await ctx.reply(text=f'{bot.latency}ms ')
+    em_one = Embed(
+        title='Embed One',
+        description=f'**Pong: {bot.latency}ms**'
+    )
+    em_two = Embed(
+        title='Embed Two',
+        description=f'Multiple embeds',
+        color=0xf00534
+    )
+    await ctx.send(embeds=[em_one, em_two])
+
 
 
 @bot.event
