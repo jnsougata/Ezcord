@@ -29,7 +29,9 @@ class Message:
     def author(self):
         id = self.payload['author']['id']
         return Member(
-            self._guild_data[str(self.guild.id)]['members'][str(id)]
+            Id=id,
+            guild_cache=self._guild_data[str(self.guild.id)]
+
         )
 
     @property
@@ -68,6 +70,7 @@ class Message:
         return Guild(
             Id = id,
             secret=self._secret,
+            session=self._session,
             payload=self._guild_data,
         )
 

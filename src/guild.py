@@ -172,6 +172,15 @@ class Guild:
     def default_role(self):
         return self.roles[0]
 
+    @property
+    def top_role(self):
+        ids = list(self._data.get('roles'))
+        max_position = len(ids)
+        roles = [self._data['roles'][str(id)] for id in ids]
+        role_data = [role for role in roles if role['position'] == max_position - 1][0]
+        return Role(role_data)
+
+
 
     def pull_channel(self, id:int):
         payload = self._data["channels"]

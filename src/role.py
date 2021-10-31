@@ -6,6 +6,9 @@ class Role:
     def __repr__(self):
         return f'<Role Object [{self.name}, {self.id}]>'
 
+    @property
+    def mention(self):
+        return f'<@&{self.id}>'
 
     @property
     def name(self):

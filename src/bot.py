@@ -26,8 +26,6 @@ class Bot(WebSocket):
         self.guild_id = guild_id
 
 
-
-
         super().__init__(
             secret=token,
             app_id=app_id,
@@ -100,7 +98,7 @@ class Bot(WebSocket):
 
 
 
-    def event(self, fn):
+    def listen(self, fn):
         self._events.append(fn)
 
 

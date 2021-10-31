@@ -88,10 +88,14 @@ async def ping(ctx:Context):
 
 
 
-@bot.event
+@bot.listen
 async def ready():
     print('[ READY ]')
 
+@bot.listen
+async def message_create(msg:Message):
+    if msg.content == 'check':
+        await msg.channel.send(f'{[role.position for role in msg.author.roles]}')
 
 
 bot.start()
