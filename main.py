@@ -95,7 +95,11 @@ async def ready():
 @bot.listen
 async def message_create(msg:Message):
     if msg.content == 'check':
-        await msg.channel.send(f'{[role.position for role in msg.author.roles]}')
+        em = Embed(title='Avatar', description='Testing avatar of the author!')
+        em.set_author(name='Zen', icon_url=msg.author.avatar_url)
+        em.add_thumbnail(url=msg.author.avatar_url)
+        em.add_image(url=msg.guild.icon_url)
+        await msg.reply(embeds=[em])
 
 
 bot.start()

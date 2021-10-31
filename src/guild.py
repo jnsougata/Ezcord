@@ -130,8 +130,10 @@ class Guild:
         return self._data.get("nsfw_level")
 
     @property
-    def icon(self): # convert to asset
-        return self._data.get("icon")
+    def icon_url(self): # convert to asset
+        base = 'https://cdn.discordapp.com/'
+        url = base + 'icons' + '/' + str(self.id) + '/' + self._data.get("icon") + '.png'
+        return url
 
     @property
     def banner(self): # convert to asset

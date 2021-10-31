@@ -5,6 +5,7 @@ from .role import Role
 class Member:
 
     def __init__(self, Id:int, guild_cache: dict):
+        self.payload = guild_cache['members'][str(Id)]
         self._roles = guild_cache['roles']
         self._data: dict = guild_cache['members'][str(Id)]
 
@@ -43,3 +44,16 @@ class Member:
     def roles(self):
         ids = self._data['roles']
         return [Role(self._roles[str(id)]) for id in ids]
+
+    @property
+    def avatar_url(self):
+        base = 'https://cdn.discordapp.com/'
+        url = base + 'avatars' + '/' + str(self.id) + '/' + self._data['user']['avatar'] + '.png'
+        return url
+
+    @property
+    def guild_avatar_url(self):
+        if self._data['avatar']:
+            base = 'https://cdn.discordapp.com/'
+            url = base + 'avatars' + '/' + str(self.guild_id) + '/' + self._data['avatar'] + '.png'
+            return url
