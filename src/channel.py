@@ -87,7 +87,7 @@ class Channel:
                 parsed = [item.payload for item in embeds]
             else:
                 parsed = []
-            await self._session.post(
+            resp = await self._session.post(
                 f'{self._head}/channels/{self.id}/messages',
                 json={
                     'content': text,
@@ -102,5 +102,6 @@ class Channel:
                     "Content-Type": 'application/json'
                 }
             )
+            return await resp.json() #to object
         else:
             raise TypeError(f'send works on text channels only')

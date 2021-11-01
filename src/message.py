@@ -93,7 +93,7 @@ class Message:
         else:
             parsed = []
         head = 'https://discord.com/api/v9'
-        await self._session.post(
+        resp = await self._session.post(
             f'{head}/channels/{self.channel.id}/messages',
             json = {
                 'content': text,
@@ -114,6 +114,7 @@ class Message:
                 "Content-Type": 'application/json'
             }
         )
+        return await resp.json()
 
 
 

@@ -121,7 +121,7 @@ class Context:
             parsed = [item.payload for item in embeds]
         else:
             parsed = []
-        await self._session.post(
+        resp = await self._session.post(
             f'{self._head}/channels/{self._channel_id}/messages',
             json = {
                 'content': text,
@@ -136,13 +136,14 @@ class Context:
                 "Content-Type": 'application/json'
             }
         )
+        return await resp.json()
 
     async def reply(self, text:str = None, embeds:[Embed]  = None):
         if embeds:
             parsed = [item.payload for item in embeds]
         else:
             parsed = []
-        await self._session.post(
+        resp = await self._session.post(
             f'{self._head}/channels/{self._channel_id}/messages',
             json = {
                 'content': text,
@@ -163,4 +164,5 @@ class Context:
                 "Content-Type": 'application/json'
             }
         )
+        return await resp.json()
 

@@ -1,3 +1,4 @@
+from datetime import datetime
 
 
 class Embed:
@@ -34,7 +35,7 @@ class Embed:
             }
         )
 
-    def add_footer(
+    def set_footer(
             self,
             text:str,
             icon_url:str = None,
@@ -46,7 +47,7 @@ class Embed:
             'proxy_icon_url':proxy_icon_url
         }
 
-    def add_thumbnail(
+    def set_thumbnail(
             self, url:str,
             height:int = None,
             width:int = None,
@@ -86,3 +87,6 @@ class Embed:
             'proxy_icon_url':proxy_icon_url
         }
 
+    def set_timestamp(self):
+        time = datetime.now()
+        self.payload['timestamp'] = time.isoformat()

@@ -97,9 +97,13 @@ async def message_create(msg:Message):
     if msg.content == 'check':
         em = Embed(title='Avatar', description='Testing avatar of the author!')
         em.set_author(name='Zen', icon_url=msg.author.avatar_url)
-        em.add_thumbnail(url=msg.author.avatar_url)
+        em.set_thumbnail(url=msg.author.avatar_url)
         em.add_image(url=msg.guild.icon_url)
-        await msg.reply(embeds=[em])
+        em.set_footer(text='This a footer example')
+        em.set_timestamp()
+        resp = await msg.reply(embeds=[em])
+        print(resp)
+
 
 
 bot.start()
