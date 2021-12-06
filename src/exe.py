@@ -15,36 +15,32 @@ class MsgExec:
         self.prefix = prefix
         self.bucket = bucket
 
-
-
     async def process_message(self):
         message = self.ctx.message.content
-        if message:
-            if message.startswith(self.prefix):
-                string = message
-                args = string.split(' ')
-                cmd = args[0].replace(self.prefix,'')
-                args.remove(args[0])
-                args = [i for i in args if i != '']
-                for item in self.bucket:
-                    if item.__name__ == cmd:
-                        classes = [int, str, float]
-                        i = inspect.signature(item)
-                        params = i.parameters
-                        types = [str(params.get(key).annotation) for key in params]
-                        types.remove(types[0])
-                        final = []
-                        for i in range(len(types)):
-                            for x in classes:
-                                if x.__name__ in types[i]:
-                                    try:
-                                        final.append(x(args[i]))
-                                    except IndexError:
-                                        raise "Params missing"
-
-                        await item.__call__(self.ctx, *final)
-                else:
-                    pass
+        if message and message.startswith(self.prefix):
+            args = message.split(' ')
+            cmd_name = args[0].replace(self.prefix, '')
+            args.remove(args[0])
+            args = [i for i in args if i]
+            for item in self.bucket:
+                if item.__name__ == cmd_name:
+                    classes = [int, str, float]
+                    insp = inspect.signature(item)
+                    types = [str(insp.parameters.get(key).annotation) for key in insp.parameters]
+                    types.remove(types[0])
+                    try:
+                        final = [
+                            cls_(args[i])
+                            for i in range(len(types))
+                            for cls_ in classes
+                            if cls_.__name__ in types[i]
+                        ]
+                        try:
+                            await item.__call__(self.ctx, *final)
+                        except Exception as e:
+                            print(e)
+                    except Exception as e:
+                        print(f'Error occurred in command: "{cmd_name}"\nIssue: "{e}"')
 
 
 class SlasExec:
@@ -56,7 +52,6 @@ class SlasExec:
     ):
         self.ctx = ctx
         self.bucket = bucket
-
 
     async def process_slash(self):
         cmd = self.ctx.data['name']

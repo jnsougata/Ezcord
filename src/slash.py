@@ -14,7 +14,6 @@ class Slash:
             "options": [],
         }
 
-
     def _ismatched(self, index: int, value):
 
         TARGET = self.json["options"][index]['type']
@@ -28,10 +27,8 @@ class Slash:
         else:
             return None
 
-
-    def add_options(self, options:list):
+    def add_options(self, options: list):
         self.json["options"] = options
-
 
     def subcommand(self, name: str, description: str, options: list):
         self.json["options"].append(
@@ -39,7 +36,7 @@ class Slash:
                 "name": name,
                 "description": description,
                 "type": 1,
-                "options":options
+                "options": options
             }
         )
 
@@ -56,10 +53,10 @@ class Slash:
     @staticmethod
     def create_subcommand(name: str, description: str):
         return {
-                "name": name,
-                "description": description,
-                "type": 1,
-            }
+            "name": name,
+            "description": description,
+            "type": 1,
+        }
 
     @staticmethod
     def set_str_option(
@@ -76,7 +73,6 @@ class Slash:
             "required": required,
             "choices": choices if choices else []
         }
-
 
     @staticmethod
     def set_int_option(
@@ -95,12 +91,11 @@ class Slash:
             "choices": choices if choices else []
         }
 
-
     @staticmethod
     def set_bool_option(
             name: str,
             description: str,
-            required:bool = False,
+            required: bool = False,
             choices: list = None
     ):
 
@@ -193,7 +188,6 @@ class Slash:
             "choices": choices if choices else []
         }
 
-
     @staticmethod
     def set_choice(
             name: str,
@@ -206,16 +200,13 @@ class Slash:
         }
 
 
-
 class Options:
 
     def __init__(self, option: dict):
         self.option = option
 
-
     def __repr__(self):
         return f'<Option {self.type} {self.value} >'
-
 
     @property
     def type(self):
@@ -250,11 +241,9 @@ class Options:
         elif self.option['type'] == 10:
             return 'NUMBER'
 
-
     @property
     def value(self):
         return self.option['value']
-
 
     @property
     def name(self):
@@ -271,38 +260,32 @@ class SlashContext(Interaction):
             session: aiohttp.ClientSession
     ):
         super().__init__(
-            response = response,
-            guild_cache = guild_cache,
-            session = session,
+            response=response,
+            guild_cache=guild_cache,
+            session=session,
             secret=bot_token,
         )
         self._sess = session
         self._secret = bot_token
         self._guild_cache = guild_cache
 
-
-
     @property
     def options(self):
         return [Options(option) for option in self.data['options']]
 
-
-
-    async def send(self, text: str = None, embeds:list = None):
+    async def send(self, text: str = None, embeds: list = None):
         head = 'https://discord.com/api/v9'
         if self.slash_command:
             url = f'{head}/channels/{self.channel.id}/messages'
             body = {
                 "content": text if text else '*empty',
-                "embeds":embeds if embeds else [],
+                "embeds": embeds if embeds else [],
             }
             auth = {"Authorization": f"Bot {self._secret}"}
 
             await self._sess.post(url=url, data=body, headers=auth)
 
-
-
-    async def reply(self, text: str = None, embeds:list = None, ephemeral: bool = False):
+    async def reply(self, text: str = None, embeds: list = None, ephemeral: bool = False):
         head = 'https://discord.com/api/v9'
         if self.slash_command:
             url = f'{head}/interactions/{self.id}/{self._token}/callback'
@@ -310,13 +293,8 @@ class SlashContext(Interaction):
                 'type': 4,
                 'data': {
                     "content": text if text else '*empty',
-                    "embeds":embeds if embeds else [],
+                    "embeds": embeds if embeds else [],
                     "flags": 64 if ephemeral else None,
                 }
             }
             await self._sess.post(url=url, json=body)
-
-
-
-
-

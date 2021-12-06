@@ -8,15 +8,12 @@ from .slash import SlashContext
 from .exe import MsgExec, SlasExec
 
 
-
-
 class WebSocket:
-
-    __BASE  = 'https://discord.com/api/v9'
+    __BASE = 'https://discord.com/api/v9'
 
     def __init__(
             self,
-            prefix:str,
+            prefix: str,
             app_id: int,
             secret: str,
             intents: int,
@@ -53,7 +50,6 @@ class WebSocket:
         self._test_guild = guild_id
         self._reg_queue = slash_queue
 
-
     async def _get_gateway(self):
         URL = "https://discordapp.com/api/gateway"
         response = await self._session.get(URL)
@@ -71,12 +67,12 @@ class WebSocket:
     async def _heartbeat_ack(self):
         data = self._raw
         if data['op'] == 11:
-            self._ack = time.time() * 1000
+            self._ack = time.perf_counter() * 1000
             self.latency = round(self._ack - self._sent)
 
     async def _heartbeat_send(self, dur):
         while True:
-            self._sent = time.time() * 1000
+            self._sent = time.perf_counter() * 1000
             await self._ws.send_json({"op": 1, "d": None})
             await asyncio.sleep(dur)
 
@@ -111,7 +107,6 @@ class WebSocket:
     async def __start_listener(self):
         async with self._session.ws_connect(
                 f"{self._uri}?v=9&encoding=json") as ws:
-
             async for msg in ws:
                 self._ws = ws
                 raw = json.loads(msg.data)
@@ -130,7 +125,6 @@ class WebSocket:
                 await self._heartbeat_ack()
                 await self._reconnect()
                 await self._cmd_checker(raw)
-
 
     async def _connect(self):
         async with aiohttp.ClientSession() as session:
@@ -152,15 +146,14 @@ class WebSocket:
                 }
             )
 
-
     async def _reg_slash(self):
         if self._test_guild and self._app_id:
             for item in self._reg_queue:
                 await self._session.post(
                     f'{self.__BASE}/applications/{self._app_id}'
                     f'/guilds/{self._test_guild}/commands',
-                    json = item,
-                    headers = {"Authorization": f"Bot {self._secret}"}
+                    json=item,
+                    headers={"Authorization": f"Bot {self._secret}"}
                 )
         else:
             raise ValueError(
@@ -180,7 +173,6 @@ class WebSocket:
             }
             await self._ws.send_json(payload)
 
-
     async def _event_pool(self, raw: dict):
         if raw['t']:
             for func in self._events:
@@ -188,10 +180,10 @@ class WebSocket:
                     if func.__name__ == 'message_create':
                         await func.__call__(
                             Message(
-                                payload = raw['d'],
-                                guild_cache = self._guilds,
-                                session = self._session,
-                                secret = self._secret
+                                payload=raw['d'],
+                                guild_cache=self._guilds,
+                                session=self._session,
+                                secret=self._secret
                             )
                         )
                     elif func.__name__ == 'ready':
@@ -199,8 +191,7 @@ class WebSocket:
                     else:
                         await func.__call__(raw['d'])
 
-
-    async def _cmd_checker(self, raw:dict):
+    async def _cmd_checker(self, raw: dict):
         if raw['t'] == 'MESSAGE_CREATE':
             ctx = Context(
                 payload=raw['d'],
@@ -228,16 +219,13 @@ class WebSocket:
                 bucket=self._commands
             ).process_slash()
 
-
     async def _cache_hello(self):
         if self._raw['op'] == 10:
             self._hello = self._raw['d']
 
-
     async def _cache_ready(self):
         if self._raw['t'] == 'READY':
             self._ready = self._raw['d']
-
 
     async def _cache_guild(self):
         data = self._raw
@@ -253,7 +241,6 @@ class WebSocket:
                 blank_role[str(role['id'])] = role
             data['d']['roles'] = blank_role
             self._guilds[str(guild_id)] = data['d']
-
 
     async def _cache_members(self):
         data = self._raw

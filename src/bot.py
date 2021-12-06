@@ -10,7 +10,6 @@ from .socket import WebSocket
 class Bot(WebSocket):
     def __init__(
             self,
-            token: str,
             prefix: str,
             intents: int,
             app_id: int = None,
@@ -21,20 +20,18 @@ class Bot(WebSocket):
         self._slash_queue = []
         self._app_id = app_id
         self.prefix = prefix
-        self._secret = token
+        self._secret = None
         self.intents = intents
         self.guild_id = guild_id
-
-
         super().__init__(
-            secret=token,
             app_id=app_id,
             prefix=prefix,
             intents=intents,
             guild_id=guild_id,
-            events = self._events,
-            commands = self._cmd_pool,
-            slash_queue= self._slash_queue,
+            events=self._events,
+            secret=self._secret,
+            commands=self._cmd_pool,
+            slash_queue=self._slash_queue,
         )
 
     @property
@@ -61,7 +58,6 @@ class Bot(WebSocket):
     def channels(self):
         return len(self._channels)
 
-
     def pull_guild(self, id: int):
         return Guild(
             Id=id,
@@ -77,34 +73,25 @@ class Bot(WebSocket):
             session=self._session,
         )
 
-
-
-
-
-
     def slash_cmd(self, command: Slash):
         self._slash_queue.append(command.json)
+
         def decorator(func):
             @wraps(func)
             def wrapper(*args, **kwargs):
                 return func
+
             self._cmd_pool.append(wrapper())
+
         return decorator
-
-
 
     def cmd(self, fn):
         self._cmd_pool.append(fn)
 
-
-
     def listen(self, fn):
         self._events.append(fn)
 
-
-    def start(self):
+    def start(self, token: str):
+        self._secret = token
         loop = asyncio.new_event_loop()
         loop.run_until_complete(self._connect())
-
-
-

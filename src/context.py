@@ -9,7 +9,6 @@ from aiohttp import ClientSession
 
 class Context:
 
-
     def __init__(
             self,
             secret: str,
@@ -29,9 +28,6 @@ class Context:
         self._head = 'https://discord.com/api/v9'
         self._channel_id = payload.get('channel_id')
 
-
-
-
     @property
     def message(self):
         return Message(
@@ -40,7 +36,6 @@ class Context:
             session=self._session,
             guild_cache=self._guild_data,
         )
-
 
     @property
     def type(self):
@@ -63,11 +58,11 @@ class Context:
         return self._raw.get('pinned')
 
     @property
-    def mentions(self): # to object
+    def mentions(self):  # to object
         return self._raw.get('mentions')
 
     @property
-    def role_mentions(self): #to object
+    def role_mentions(self):  # to object
         return self._raw.get('mention_roles')
 
     @property
@@ -116,14 +111,14 @@ class Context:
             payload=self._guild_data[str(self._guild_id)]['channels'][str(id)],
         )
 
-    async def send(self, text: str = None, embeds:[Embed]  = None):
+    async def send(self, text: str = None, embeds: [Embed] = None):
         if embeds:
             parsed = [item.payload for item in embeds]
         else:
             parsed = []
         resp = await self._session.post(
             f'{self._head}/channels/{self._channel_id}/messages',
-            json = {
+            json={
                 'content': text,
                 'tts': False,
                 'embeds': parsed,
@@ -131,21 +126,21 @@ class Context:
                 'sticker_ids': [],
                 'attachments': [],
             },
-            headers = {
+            headers={
                 "Authorization": f"Bot {self._secret}",
                 "Content-Type": 'application/json'
             }
         )
         return await resp.json()
 
-    async def reply(self, text:str = None, embeds:[Embed]  = None):
+    async def reply(self, text: str = None, embeds: [Embed] = None):
         if embeds:
             parsed = [item.payload for item in embeds]
         else:
             parsed = []
         resp = await self._session.post(
             f'{self._head}/channels/{self._channel_id}/messages',
-            json = {
+            json={
                 'content': text,
                 'tts': False,
                 'embeds': parsed,
@@ -165,4 +160,3 @@ class Context:
             }
         )
         return await resp.json()
-
