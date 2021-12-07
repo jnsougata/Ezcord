@@ -5,7 +5,6 @@ from .context import Context
 from .slash import SlashContext
 
 
-# noinspection PyBroadException
 class MsgExec:
 
     def __init__(
@@ -34,6 +33,7 @@ class MsgExec:
                         for key in insp.parameters
                     ]
                     dtypes.remove(dtypes[0])
+                    # noinspection PyBroadException
                     try:
                         final = [
                             cls_(args[i])
