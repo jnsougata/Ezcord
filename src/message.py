@@ -8,8 +8,8 @@ class Message:
     def __init__(
             self,
             secret: str,
-            payload:dict,
-            guild_cache:dict,
+            payload: dict,
+            guild_cache: dict,
             session: aiohttp.ClientSession
     ):
         self._secret = secret
@@ -35,7 +35,7 @@ class Message:
         )
 
     @property
-    def timestamp(self): #to object
+    def timestamp(self):  # to object
         return self.payload.get('timestamp')
 
     @property
@@ -61,19 +61,18 @@ class Message:
         return self.payload.get('mention_everyone')
 
     @property
-    def embeds(self): #to object
+    def embeds(self):  # to object
         return self.payload.get('embeds')
 
     @property
     def guild(self):
         id = self.payload.get('guild_id')
         return Guild(
-            Id = id,
+            Id=id,
             secret=self._secret,
             session=self._session,
             payload=self._guild_data,
         )
-
 
     @property
     def channel(self):
@@ -86,8 +85,7 @@ class Message:
     def tts(self):
         return self.payload.get('tts')
 
-
-    async def reply(self, text:str = None, embeds:[Embed]  = None):
+    async def reply(self, text: str = None, embeds: [Embed] = None):
         if embeds:
             parsed = [item.payload for item in embeds]
         else:
@@ -95,7 +93,7 @@ class Message:
         head = 'https://discord.com/api/v9'
         resp = await self._session.post(
             f'{head}/channels/{self.channel.id}/messages',
-            json = {
+            json={
                 'content': text,
                 'tts': False,
                 'embeds': parsed,
@@ -115,6 +113,3 @@ class Message:
             }
         )
         return await resp.json()
-
-
-

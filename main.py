@@ -80,6 +80,11 @@ async def ready():
 
 
 @bot.listen
+async def any_msg(ws_message: dict):
+    print(ws_message)
+
+
+@bot.listen
 async def message_create(msg: Message):
     if msg.content == 'check':
         em = Embed(title='Avatar', description='Testing avatar of the author!')

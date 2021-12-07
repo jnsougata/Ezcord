@@ -111,7 +111,6 @@ class WebSocket:
                 self._ws = ws
                 raw = json.loads(msg.data)
                 self._raw = raw
-
                 await self._event_pool(raw)
                 await self._cache_hello()
                 await self._keep_alive()

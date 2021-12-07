@@ -20,7 +20,7 @@ class Bot(WebSocket):
         self._slash_queue = []
         self._app_id = app_id
         self.prefix = prefix
-        self._secret = None
+        self._secret = ''
         self.intents = intents
         self.guild_id = guild_id
         super().__init__(
