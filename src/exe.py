@@ -29,14 +29,17 @@ class MsgExec:
                 if cmd.__name__ == cmd_name:
                     classes = [int, str, float]
                     insp = inspect.signature(cmd)
-                    types = [str(insp.parameters.get(key).annotation) for key in insp.parameters]
-                    types.remove(types[0])
+                    dtypes = [
+                        str(insp.parameters.get(key).annotation)
+                        for key in insp.parameters
+                    ]
+                    dtypes.remove(dtypes[0])
                     try:
                         final = [
                             cls_(args[i])
-                            for i in range(len(types))
+                            for i in range(len(dtypes))
                             for cls_ in classes
-                            if cls_.__name__ in types[i]
+                            if cls_.__name__ in dtypes[i]
                         ]
                         await cmd.__call__(self.ctx, *final)
                     except Exception:

@@ -88,7 +88,7 @@ async def message_create(msg: Message):
         em.add_image(url=msg.guild.icon_url)
         em.set_footer(text='This a footer example')
         em.set_timestamp()
-        resp = await msg.reply(embeds=[em])
-        print(resp)
+        await msg.channel.send(embeds=[Embed(description=str(await msg.reply(embeds=[em])))])
+
 
 bot.start(os.getenv('DISCORD_TOKEN'))
