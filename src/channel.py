@@ -1,6 +1,7 @@
 import aiohttp
 from .embed import Embed
 
+
 class Channel:
 
     def __init__(
@@ -23,7 +24,6 @@ class Channel:
         self._session = session
         self._head = 'https://discord.com/api/v9'
 
-
     @property
     def mention(self):
         return f'<#{self.id}>'
@@ -45,7 +45,7 @@ class Channel:
     def nfsw(self):
         return self._data.get('nfsw')
 
-    @property #to object
+    @property  # to object
     def category(self):
         return self._data.get('parent_id')
 
@@ -54,7 +54,7 @@ class Channel:
         return self._data.get('position')
 
     @property
-    def overwrites(self): #to object
+    def overwrites(self):  # to object
         return self._data.get('permission_overwrites')
 
     @property
@@ -70,7 +70,7 @@ class Channel:
         return self._data.get('user_limit')
 
     @property
-    def latest_message(self): #to object
+    def latest_message(self):  # to object
         return self._data.get('last_message_id')
 
     @property
@@ -102,6 +102,6 @@ class Channel:
                     "Content-Type": 'application/json'
                 }
             )
-            return await resp.json() #to object
+            return await resp.json()  # to object
         else:
             raise TypeError(f'send works on text channels only')
