@@ -33,7 +33,6 @@ class MsgExec:
                         for key in insp.parameters
                     ]
                     dtypes.remove(dtypes[0])
-                    # noinspection PyBroadException
                     try:
                         final = [
                             cls_(args[i])
