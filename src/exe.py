@@ -1,8 +1,11 @@
+import sys
 import inspect
+import traceback
 from .context import Context
 from .slash import SlashContext
 
 
+# noinspection PyBroadException
 class MsgExec:
 
     def __init__(
@@ -22,10 +25,10 @@ class MsgExec:
             cmd_name = args[0].replace(self.prefix, '')
             args.remove(args[0])
             args = [i for i in args if i]
-            for item in self.bucket:
-                if item.__name__ == cmd_name:
+            for cmd in self.bucket:
+                if cmd.__name__ == cmd_name:
                     classes = [int, str, float]
-                    insp = inspect.signature(item)
+                    insp = inspect.signature(cmd)
                     types = [str(insp.parameters.get(key).annotation) for key in insp.parameters]
                     types.remove(types[0])
                     try:
@@ -35,12 +38,9 @@ class MsgExec:
                             for cls_ in classes
                             if cls_.__name__ in types[i]
                         ]
-                        try:
-                            await item.__call__(self.ctx, *final)
-                        except Exception as e:
-                            print(e)
-                    except Exception as e:
-                        print(f'Error occurred in command: "{cmd_name}"\nIssue: "{e}"')
+                        await cmd.__call__(self.ctx, *final)
+                    except Exception:
+                        traceback.print_exception(*sys.exc_info())
 
 
 class SlasExec:
@@ -54,7 +54,7 @@ class SlasExec:
         self.bucket = bucket
 
     async def process_slash(self):
-        cmd = self.ctx.data['name']
-        for item in self.bucket:
-            if item.__name__ == cmd:
-                await item(self.ctx)
+        cmd_name = self.ctx.data['name']
+        for cmd in self.bucket:
+            if cmd.__name__ == cmd_name:
+                await cmd(self.ctx)
