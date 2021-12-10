@@ -172,23 +172,23 @@ class WebSocket:
             }
             await self._ws.send_json(payload)
 
-    async def _event_pool(self, raw: dict):
-        if raw['t']:
-            for func in self._events:
-                if func.__name__.lower() == raw['t'].lower():
-                    if func.__name__ == 'message_create':
-                        await func.__call__(
-                            Message(
-                                payload=raw['d'],
-                                guild_cache=self._guilds,
-                                session=self._session,
-                                secret=self._secret
-                            )
-                        )
-                    elif func.__name__ == 'ready':
-                        await func.__call__()
-                    else:
-                        await func.__call__(raw['d'])
+    async def _event_pool(self, RAW: dict):
+        EVENTS = {
+            'READY': ('on_ready', None),
+            'MESSAGE_CREATE': (
+                'on_message',
+                Message(
+                    payload=RAW['d'],
+                    guild_cache=self._guilds,
+                    session=self._session,
+                    secret=self._secret)
+            ),
+        }
+        if RAW['t']:
+            for FUNC in self._events:
+                VALUE = EVENTS.get(RAW['t'])
+                if VALUE and FUNC.__name__ == VALUE[0]:
+                    await FUNC(EVENTS[RAW['t']][1])
 
     async def _cmd_checker(self, raw: dict):
         if raw['t'] == 'MESSAGE_CREATE':

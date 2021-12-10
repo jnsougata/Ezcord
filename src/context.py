@@ -111,17 +111,19 @@ class Context:
             payload=self._guild_data[str(self._guild_id)]['channels'][str(id)],
         )
 
-    async def send(self, text: str = None, embeds: [Embed] = None):
+    async def send(self, text: str = None, embed: Embed = None, embeds: [Embed] = None):
         if embeds:
-            parsed = [item.payload for item in embeds]
+            payload = [embed.payload for embed in embeds]
+        elif embed:
+            payload = [embed.payload]
         else:
-            parsed = []
+            payload = []
         resp = await self._session.post(
             f'{self._head}/channels/{self._channel_id}/messages',
             json={
                 'content': text,
                 'tts': False,
-                'embeds': parsed,
+                'embeds': payload,
                 'components': [],
                 'sticker_ids': [],
                 'attachments': [],
@@ -133,17 +135,19 @@ class Context:
         )
         return await resp.json()
 
-    async def reply(self, text: str = None, embeds: [Embed] = None):
+    async def reply(self, text: str = None, embed: Embed = None, embeds: [Embed] = None):
         if embeds:
-            parsed = [item.payload for item in embeds]
+            payload = [embed.payload for embed in embeds]
+        elif embed:
+            payload = [embed.payload]
         else:
-            parsed = []
+            payload = []
         resp = await self._session.post(
             f'{self._head}/channels/{self._channel_id}/messages',
             json={
                 'content': text,
                 'tts': False,
-                'embeds': parsed,
+                'embeds': payload,
                 'components': [],
                 'sticker_ids': [],
                 'attachments': [],

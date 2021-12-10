@@ -81,27 +81,26 @@ class Channel:
     def topic(self):
         return self._data.get('topic')
 
-    async def send(self, text: str = None, embeds: [Embed] = None):
-        if self.type in ['text', 'news', 'public_thread', 'private_thread']:
-            if embeds:
-                parsed = [item.payload for item in embeds]
-            else:
-                parsed = []
-            resp = await self._session.post(
-                f'{self._head}/channels/{self.id}/messages',
-                json={
-                    'content': text,
-                    'tts': False,
-                    'embeds': parsed,
-                    'components': [],
-                    'sticker_ids': [],
-                    'attachments': [],
-                },
-                headers={
-                    "Authorization": f"Bot {self._secret}",
-                    "Content-Type": 'application/json'
-                }
-            )
-            return await resp.json()  # to object
+    async def send(self, text: str = None, embed: Embed = None, embeds: [Embed] = None):
+        if embeds:
+            payload = [embed.payload for embed in embeds]
+        elif embed:
+            payload = [embed.payload]
         else:
-            raise TypeError(f'send works on text channels only')
+            payload = []
+        resp = await self._session.post(
+            f'{self._head}/channels/{self.id}/messages',
+            json={
+                'content': text,
+                'tts': False,
+                'embeds': payload,
+                'components': [],
+                'sticker_ids': [],
+                'attachments': [],
+            },
+            headers={
+                "Authorization": f"Bot {self._secret}",
+                "Content-Type": 'application/json'
+            }
+        )
+        return await resp.json()  # to object

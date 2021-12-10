@@ -4,8 +4,6 @@ from .member import Member
 from .channel import Channel
 
 
-
-
 class Guild:
 
     def __init__(
@@ -19,8 +17,6 @@ class Guild:
         self._secret = secret
         self._session = session
         self._data: dict = payload[str(Id)]
-
-
 
     @property
     def id(self):
@@ -38,7 +34,6 @@ class Guild:
     def large(self):
         return self._data.get("large")
 
-
     @property
     def nfsw(self):
         return self._data.get("nfsw")
@@ -46,7 +41,7 @@ class Guild:
     @property
     def owner(self):
         id = self._data.get("owner_id")
-        return Member(Id=int(id),guild_cache=self._data)
+        return Member(Id=int(id), guild_cache=self._data)
 
     @property
     def language(self):
@@ -102,10 +97,10 @@ class Guild:
         id = self._data.get("rules_channel_id")
         payload = self._data["channels"]
         return Channel(
-                    payload=payload[str(id)],
-                    secret=self._secret,
-                    session=self._session,
-                )
+            payload=payload[str(id)],
+            secret=self._secret,
+            session=self._session,
+        )
 
     @property
     def sys_channel(self):
@@ -130,13 +125,13 @@ class Guild:
         return self._data.get("nsfw_level")
 
     @property
-    def icon_url(self): # convert to asset
+    def icon_url(self):  # convert to asset
         base = 'https://cdn.discordapp.com/'
         url = base + 'icons' + '/' + str(self.id) + '/' + self._data.get("icon") + '.png'
         return url
 
     @property
-    def banner(self): # convert to asset
+    def banner(self):  # convert to asset
         return self._data.get("banner")
 
     @property
@@ -150,11 +145,11 @@ class Guild:
         )
 
     @property
-    def emojis(self): # convert to asset
+    def emojis(self):  # convert to asset
         return self._data.get("emojis")
 
     @property
-    def content_filter(self): # convert object
+    def content_filter(self):  # convert object
         return self._data.get(
             "explicit_content_filter"
         )
@@ -169,7 +164,6 @@ class Guild:
     def description(self):
         return self._data.get("description")
 
-
     @property
     def default_role(self):
         return self.roles[0]
@@ -182,9 +176,7 @@ class Guild:
         role_data = [role for role in roles if role['position'] == max_position - 1][0]
         return Role(role_data)
 
-
-
-    def pull_channel(self, id:int):
+    def pull_channel(self, id: int):
         payload = self._data["channels"]
         return Channel(
             payload=payload[str(id)],
@@ -195,8 +187,7 @@ class Guild:
     def pull_role(self, id: int):
         return Role(self._data["roles"][str(id)])
 
-
-    def pull_member(self, id:int):
+    def pull_member(self, id: int):
         return Member(
             Id=int(id),
             guild_cache=self._data
@@ -208,10 +199,8 @@ class GuildFlags:
     def __init__(self, flags: list):
         self.__features = flags
 
-
     def __repr__(self):
         return f'<_GuildFlags {self.ALL}>'
-
 
     @property
     def ALL(self):

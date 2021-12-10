@@ -1,5 +1,5 @@
 import os
-from src.__init__ import *
+from src import *
 
 
 APP = 874663148374880287
@@ -70,12 +70,12 @@ async def ban(ctx: SlashContext):
 
 @bot.cmd
 async def ping(ctx: Context):
-    em_ = Embed(description=f'**Pong: {bot.latency}ms**')
-    await ctx.reply(embeds=[em_])
+    embed = Embed(description=f'**Pong: {bot.latency}ms**')
+    await ctx.send(embed=embed)
 
 
 @bot.listen
-async def ready():
+async def on_ready(x):
     print('[ ----- READY TO RUN ----- ]')
 
 
@@ -85,7 +85,7 @@ async def any_msg(ws_message: dict):
 
 
 @bot.listen
-async def message_create(msg: Message):
+async def on_message(msg: Message):
     if msg.content == 'check':
         em = Embed(title='Avatar', description='Testing avatar of the author!')
         em.set_author(name='Zen', icon_url=msg.author.avatar_url)
@@ -93,7 +93,7 @@ async def message_create(msg: Message):
         em.add_image(url=msg.guild.icon_url)
         em.set_footer(text='This a footer example')
         em.set_timestamp()
-        await msg.channel.send(embeds=[Embed(description=str(await msg.reply(embeds=[em])))])
+        await msg.channel.send(embed=Embed(description=str(await msg.reply(embeds=[em]))))
 
 
 bot.start(os.getenv('DISCORD_TOKEN'))
