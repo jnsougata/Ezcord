@@ -136,6 +136,7 @@ class WebSocket:
 | |___   / /_  |_____| | |___  | |_| | |  _ <  | |_| |
 |_____| /____|          \____|  \___/  |_| \_\ |____/
     ''')
+        Log.green(f'[🔌] 🖿 ━━━━━━━━━ ✓ ━━━━━━━━━ 🌐')
         async with aiohttp.ClientSession() as session:
             self._session = session
             self._uri = await self._get_gateway()
@@ -202,7 +203,7 @@ class WebSocket:
                     secret=self._secret)
         }
         if raw['t'] == 'READY':
-            Log.blurple('[▶] Internal Cache Ready')
+            Log.blurple('[▶] Done! Caching Internal Data')
             ready_event = self._events.get('on_ready')
             if ready_event:
                 try:
