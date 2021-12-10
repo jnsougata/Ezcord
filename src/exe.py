@@ -43,6 +43,8 @@ class MsgExec:
                     await cmd.__call__(self.ctx, *final)
                 except Exception:
                     traceback.print_exception(*sys.exc_info())
+            else:
+                print(f"[Invoked] >> {cmd_name}: command not found inside script!")
 
 
 class SlasExec:
@@ -59,3 +61,5 @@ class SlasExec:
         cmd = self.bucket.get(self.ctx.data['name'])
         if cmd:
             await cmd(self.ctx)
+        else:
+            print(f"[Invoked] >> {self.ctx.data['name']}: command not found inside script!")

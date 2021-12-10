@@ -1,7 +1,10 @@
+import sys
 import json
 import time
 import asyncio
 import aiohttp
+import traceback
+from .cprint import CPrint
 from .context import Context
 from .message import Message
 from .slash import SlashContext
@@ -9,7 +12,7 @@ from .exe import MsgExec, SlasExec
 
 
 class WebSocket:
-    __BASE = 'https://discord.com/api/v9'
+    __head = 'https://discord.com/api/v9'
 
     def __init__(
             self,
@@ -18,7 +21,7 @@ class WebSocket:
             secret: str,
             intents: int,
             guild_id: int,
-            events: list,
+            events: dict,
             commands: dict,
             slash_queue: list,
     ):
@@ -126,6 +129,13 @@ class WebSocket:
                 await self._cmd_checker(raw)
 
     async def _connect(self):
+        CPrint.purple('''
+     _____ _____           ____ ___  ____  ____  
+    | ____|__  /          / ___/ _ \|  _ \|  _ \ 
+    |  _|   / /   _____  | |  | | | | |_) | | | |
+    | |___ / /_  |_____| | |__| |_| |  _ <| |_| |
+    |_____/____|          \____\___/|_| \_\____/ 
+    ''')
         async with aiohttp.ClientSession() as session:
             self._session = session
             self._uri = await self._get_gateway()
@@ -146,18 +156,19 @@ class WebSocket:
             )
 
     async def _reg_slash(self):
-        if self._test_guild and self._app_id:
+        if self._reg_queue:
+            CPrint.purple('[🗗] Registering Slash Commands')
             for item in self._reg_queue:
-                await self._session.post(
-                    f'{self.__BASE}/applications/{self._app_id}'
+                resp = await self._session.post(
+                    f'{self.__head}/applications/{self._app_id}'
                     f'/guilds/{self._test_guild}/commands',
                     json=item,
                     headers={"Authorization": f"Bot {self._secret}"}
                 )
-        else:
-            raise ValueError(
-                "Application Id and Test Guild Id is mandatory to register slash command"
-            )
+                if resp.status == 200:
+                    CPrint.green(f"[✓] CMD: {item['name']}")
+                else:
+                    CPrint.red(f"[x] CMD: {item['name']}")
 
     async def _req_members(self):
         raw = self._raw
@@ -172,23 +183,38 @@ class WebSocket:
             }
             await self._ws.send_json(payload)
 
-    async def _event_pool(self, RAW: dict):
-        EVENTS = {
-            'READY': ('on_ready', None),
-            'MESSAGE_CREATE': (
-                'on_message',
+    async def _event_pool(self, raw: dict):
+
+        async def event_tracker(key: str, alias: str):
+            func = self._events.get(alias)
+            if func:
+                try:
+                    await func(params[key])
+                except Exception:
+                    traceback.print_exception(*sys.exc_info())
+
+        params = {
+            'MESSAGE_CREATE':
                 Message(
-                    payload=RAW['d'],
+                    payload=raw['d'],
                     guild_cache=self._guilds,
                     session=self._session,
                     secret=self._secret)
-            ),
         }
-        if RAW['t']:
-            for FUNC in self._events:
-                VALUE = EVENTS.get(RAW['t'])
-                if VALUE and FUNC.__name__ == VALUE[0]:
-                    await FUNC(EVENTS[RAW['t']][1])
+        if raw['t'] == 'READY':
+            CPrint.blurple('[▶] Internal Cache Ready')
+            ready_event = self._events.get('on_ready')
+            if ready_event:
+                try:
+                    await ready_event()
+                except Exception:
+                    traceback.print_exception(*sys.exc_info())
+        elif raw['t'] == 'MESSAGE_CREATE':
+            await event_tracker('MESSAGE_CREATE', 'on_message')
+        else:
+            if raw['t'] and raw['t'] != 'PRESENCE_UPDATE':
+                pass
+                #CPrint.red(f"[x] Unhandled: {raw}")
 
     async def _cmd_checker(self, raw: dict):
         if raw['t'] == 'MESSAGE_CREATE':
@@ -198,7 +224,6 @@ class WebSocket:
                 secret=self._secret,
                 guildcache=self._guilds
             )
-
             await MsgExec(
                 ctx=ctx,
                 prefix=self._prefix,

@@ -10,7 +10,7 @@ bot = Bot(
     prefix='-',
     app_id=APP,
     guild_id=TEST,
-    intents=Intents.members,
+    intents=Intents.all,
 
 )
 
@@ -75,25 +75,13 @@ async def ping(ctx: Context):
 
 
 @bot.listen
-async def on_ready(x):
-    print('[ ----- READY TO RUN ----- ]')
-
-
-@bot.listen
-async def any_msg(ws_message: dict):
-    print(ws_message)
+async def on_ready():
+    pass
 
 
 @bot.listen
 async def on_message(msg: Message):
-    if msg.content == 'check':
-        em = Embed(title='Avatar', description='Testing avatar of the author!')
-        em.set_author(name='Zen', icon_url=msg.author.avatar_url)
-        em.set_thumbnail(url=msg.author.avatar_url)
-        em.add_image(url=msg.guild.icon_url)
-        em.set_footer(text='This a footer example')
-        em.set_timestamp()
-        await msg.channel.send(embed=Embed(description=str(await msg.reply(embeds=[em]))))
+    pass
 
 
 bot.start(os.getenv('DISCORD_TOKEN'))

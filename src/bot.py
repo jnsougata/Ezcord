@@ -15,7 +15,7 @@ class Bot(WebSocket):
             app_id: int = None,
             guild_id: int = None,
     ):
-        self._events = []
+        self._events = {}
         self._cmd_pool = {}
         self._slash_queue = []
         self._app_id = app_id
@@ -92,7 +92,7 @@ class Bot(WebSocket):
         return decorator
 
     def listen(self, fn):
-        self._events.append(fn)
+        self._events[fn.__name__] = fn
 
     def start(self, token: str):
         self._secret = token
