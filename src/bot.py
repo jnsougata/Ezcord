@@ -16,7 +16,7 @@ class Bot(WebSocket):
             guild_id: int = None,
     ):
         self._events = []
-        self._cmd_pool = []
+        self._cmd_pool = {}
         self._slash_queue = []
         self._app_id = app_id
         self.prefix = prefix
@@ -80,13 +80,16 @@ class Bot(WebSocket):
             @wraps(func)
             def wrapper(*args, **kwargs):
                 return func
-
-            self._cmd_pool.append(wrapper())
-
+            self._cmd_pool[command.json["name"]] = wrapper()
         return decorator
 
-    def cmd(self, fn):
-        self._cmd_pool.append(fn)
+    def cmd(self, name: str):
+        def decorator(func):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                return func
+            self._cmd_pool[name] = wrapper()
+        return decorator
 
     def listen(self, fn):
         self._events.append(fn)

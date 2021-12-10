@@ -19,7 +19,7 @@ class WebSocket:
             intents: int,
             guild_id: int,
             events: list,
-            commands: list,
+            commands: dict,
             slash_queue: list,
     ):
         # runtime

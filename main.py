@@ -68,7 +68,7 @@ async def ban(ctx: SlashContext):
     )
 
 
-@bot.cmd
+@bot.cmd(name='ping')
 async def ping(ctx: Context):
     embed = Embed(description=f'**Pong: {bot.latency}ms**')
     await ctx.send(embed=embed)

@@ -11,7 +11,7 @@ class MsgExec:
             self,
             ctx: Context,
             prefix: str,
-            bucket: list,
+            bucket: {},
     ):
         self.ctx = ctx
         self.prefix = prefix
@@ -24,39 +24,38 @@ class MsgExec:
             cmd_name = args[0].replace(self.prefix, '')
             args.remove(args[0])
             args = [i for i in args if i]
-            for cmd in self.bucket:
-                if cmd.__name__ == cmd_name:
-                    classes = [int, str, float]
-                    insp = inspect.signature(cmd)
-                    dtypes = [
-                        str(insp.parameters.get(key).annotation)
-                        for key in insp.parameters
+            cmd = self.bucket.get(cmd_name)
+            if cmd:
+                classes = [int, str, float]
+                insp = inspect.signature(cmd)
+                dtypes = [
+                    str(insp.parameters.get(key).annotation)
+                    for key in insp.parameters
+                ]
+                dtypes.remove(dtypes[0])
+                try:
+                    final = [
+                        cls_(args[i])
+                        for i in range(len(dtypes))
+                        for cls_ in classes
+                        if cls_.__name__ in dtypes[i]
                     ]
-                    dtypes.remove(dtypes[0])
-                    try:
-                        final = [
-                            cls_(args[i])
-                            for i in range(len(dtypes))
-                            for cls_ in classes
-                            if cls_.__name__ in dtypes[i]
-                        ]
-                        await cmd.__call__(self.ctx, *final)
-                    except Exception:
-                        traceback.print_exception(*sys.exc_info())
+                    await cmd.__call__(self.ctx, *final)
+                except Exception:
+                    traceback.print_exception(*sys.exc_info())
 
 
 class SlasExec:
 
     def __init__(
             self,
-            bucket: list,
+            bucket: dict,
             ctx: SlashContext,
     ):
         self.ctx = ctx
         self.bucket = bucket
 
     async def process_slash(self):
-        cmd_name = self.ctx.data['name']
-        for cmd in self.bucket:
-            if cmd.__name__ == cmd_name:
-                await cmd(self.ctx)
+        cmd = self.bucket.get(self.ctx.data['name'])
+        if cmd:
+            await cmd(self.ctx)
