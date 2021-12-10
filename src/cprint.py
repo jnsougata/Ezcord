@@ -1,4 +1,4 @@
-class CPrint:
+class Log:
 
     @staticmethod
     def red(text: str):

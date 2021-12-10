@@ -4,7 +4,7 @@ import time
 import asyncio
 import aiohttp
 import traceback
-from .cprint import CPrint
+from .cprint import Log
 from .context import Context
 from .message import Message
 from .slash import SlashContext
@@ -129,12 +129,12 @@ class WebSocket:
                 await self._cmd_checker(raw)
 
     async def _connect(self):
-        CPrint.purple('''
-     _____ _____           ____ ___  ____  ____  
-    | ____|__  /          / ___/ _ \|  _ \|  _ \ 
-    |  _|   / /   _____  | |  | | | | |_) | | | |
-    | |___ / /_  |_____| | |__| |_| |  _ <| |_| |
-    |_____/____|          \____\___/|_| \_\____/ 
+        Log.purple('''
+ _____   _____           ____    ___    ____    ____  
+| ____| |__  /          / ___|  / _ \  |  _ \  |  _ \ 
+|  _|     / /   _____  | |     | | | | | |_) | | | | |
+| |___   / /_  |_____| | |___  | |_| | |  _ <  | |_| |
+|_____| /____|          \____|  \___/  |_| \_\ |____/
     ''')
         async with aiohttp.ClientSession() as session:
             self._session = session
@@ -157,7 +157,7 @@ class WebSocket:
 
     async def _reg_slash(self):
         if self._reg_queue:
-            CPrint.purple('[🗗] Registering Slash Commands')
+            Log.purple('[🗗] Registering Slash Commands')
             for item in self._reg_queue:
                 resp = await self._session.post(
                     f'{self.__head}/applications/{self._app_id}'
@@ -166,9 +166,9 @@ class WebSocket:
                     headers={"Authorization": f"Bot {self._secret}"}
                 )
                 if resp.status == 200:
-                    CPrint.green(f"[✓] CMD: {item['name']}")
+                    Log.green(f"[✓] CMD: {item['name']}")
                 else:
-                    CPrint.red(f"[x] CMD: {item['name']}")
+                    Log.red(f"[x] CMD: {item['name']}")
 
     async def _req_members(self):
         raw = self._raw
@@ -202,7 +202,7 @@ class WebSocket:
                     secret=self._secret)
         }
         if raw['t'] == 'READY':
-            CPrint.blurple('[▶] Internal Cache Ready')
+            Log.blurple('[▶] Internal Cache Ready')
             ready_event = self._events.get('on_ready')
             if ready_event:
                 try:
@@ -213,8 +213,7 @@ class WebSocket:
             await event_tracker('MESSAGE_CREATE', 'on_message')
         else:
             if raw['t'] and raw['t'] != 'PRESENCE_UPDATE':
-                pass
-                #CPrint.red(f"[x] Unhandled: {raw}")
+                Log.red(f"[x] Unhandled: {raw}")
 
     async def _cmd_checker(self, raw: dict):
         if raw['t'] == 'MESSAGE_CREATE':
