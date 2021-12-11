@@ -1,5 +1,7 @@
+import os
 import asyncio
 import aiohttp
+from .cprint import Log
 from .slash import Slash
 from .guild import Guild
 from .channel import Channel
@@ -97,4 +99,9 @@ class Bot(WebSocket):
     def start(self, token: str):
         self._secret = token
         loop = asyncio.new_event_loop()
-        loop.run_until_complete(self._connect())
+        try:
+            loop.run_until_complete(self._connect())
+        except KeyboardInterrupt:
+            Log.purple('[!] --------------------------')
+            Log.red(f'[🔌] 🖿 ━━━━━━━━━ x ━━━━━━━━━ 🌐')
+            os._exit(0)

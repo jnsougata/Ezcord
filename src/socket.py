@@ -1,3 +1,4 @@
+import os
 import sys
 import json
 import time
@@ -203,7 +204,7 @@ class WebSocket:
                     secret=self._secret)
         }
         if raw['t'] == 'READY':
-            Log.blurple('[▶] Done! Caching Internal Data')
+            Log.blurple('[▶] Done With Internal Caching')
             ready_event = self._events.get('on_ready')
             if ready_event:
                 try:
