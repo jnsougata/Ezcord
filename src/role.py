@@ -2,9 +2,8 @@ class Role:
     def __init__(self, payload: dict):
         self._data = payload
 
-
     def __repr__(self):
-        return f'<Role Object [{self.name}, {self.id}]>'
+        return f'<Role ({self.name} | {self.id})>'
 
     @property
     def mention(self):

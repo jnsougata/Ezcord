@@ -1,59 +1,55 @@
+import aiohttp
 from .role import Role
+from .user import User
+from .guild import Guild
 
 
+class Member(User):
 
-class Member:
-
-    def __init__(self, Id:int, guild_cache: dict):
-        self.payload = guild_cache['members'][str(Id)]
-        self._roles = guild_cache['roles']
-        self._data: dict = guild_cache['members'][str(Id)]
-
-
-    def __repr__(self):
-        return f'{self.name}#{self.discriminator}'
-
-
-    @property
-    def id(self):
-        return int(self._data['user']['id'])
-
-    @property
-    def name(self):
-        return self._data['user']['username']
+    def __init__(
+            self,
+            secret: str,
+            user_id: int,
+            guild_id: int,
+            guild_cache: dict,
+            session: aiohttp.ClientSession,
+    ):
+        super().__init__(
+            user_id=user_id,
+            user_cache=guild_cache[str(guild_id)]['members'],
+        )
+        self._secret = secret
+        self._session = session
+        self._guild_id = guild_id
+        self._guild_cache = guild_cache
+        self._member: dict = guild_cache[str(guild_id)]['members'][str(user_id)]
 
     @property
     def nickname(self):
-        return self._data.get('nick')
+        return self._member.get('nick')
 
     @property
     def any_name(self):
-        if self.nickname:
-            return self.nickname
-        return self.name
-
-    @property
-    def discriminator(self):
-        return int(self._data["user"]['discriminator'])
-
-    @property
-    def mention(self):
-        return f"<@{self.id}>"
+        nick = self.nickname
+        return nick if nick else self.name
 
     @property
     def roles(self):
-        ids = self._data['roles']
-        return [Role(self._roles[str(id)]) for id in ids]
+        ids = self._member.get('roles')
+        if ids:
+            return [Role(self._guild_cache['roles'][str(id)]) for id in ids]
 
     @property
-    def avatar_url(self):
-        base = 'https://cdn.discordapp.com/'
-        url = base + 'avatars' + '/' + str(self.id) + '/' + self._data['user']['avatar'] + '.png'
-        return url
-
-    @property
-    def guild_avatar_url(self):
-        if self._data['avatar']:
+    def guild_avatar(self):
+        if self._member.get('avatar'):
             base = 'https://cdn.discordapp.com/'
-            url = base + 'avatars' + '/' + str(self.guild_id) + '/' + self._data['avatar'] + '.png'
-            return url
+            return base + 'avatars' + '/' + str(self._guild_id) + '/' + self._member['avatar'] + '.png'
+
+    @property
+    def guild(self):
+        return Guild(
+            id=self._guild_id,
+            secret=self._secret,
+            payload=self._guild_cache,
+            session=self._session,
+        )

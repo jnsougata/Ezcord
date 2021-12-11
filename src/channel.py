@@ -91,7 +91,7 @@ class Channel:
         resp = await self._session.post(
             f'{self._head}/channels/{self.id}/messages',
             json={
-                'content': text,
+                'content': str(text),
                 'tts': False,
                 'embeds': payload,
                 'components': [],

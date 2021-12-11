@@ -50,7 +50,7 @@ class Interaction:
     @property
     def guild(self):
         return Guild(
-            Id=int(self._raw.get('guild_id')),
+            id=int(self._raw.get('guild_id')),
             payload=self._guild_cache,
             session=self._session,
             secret=self._secret,

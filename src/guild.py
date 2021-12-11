@@ -1,6 +1,6 @@
 import aiohttp
 from .role import Role
-from .member import Member
+from .user import User
 from .channel import Channel
 
 
@@ -8,19 +8,20 @@ class Guild:
 
     def __init__(
             self,
-            Id: int,
+            id: int,
             secret: str,
             payload: dict,
             session: aiohttp.ClientSession,
     ):
-        self._id = Id
+        self._id = id
         self._secret = secret
         self._session = session
-        self._data: dict = payload[str(Id)]
+        self._cached_data: dict = payload
+        self._data: dict = payload[str(id)]
 
     @property
     def id(self):
-        return self._id
+        return int(self._id)
 
     @property
     def name(self):
@@ -41,7 +42,15 @@ class Guild:
     @property
     def owner(self):
         id = self._data.get("owner_id")
-        return Member(Id=int(id), guild_cache=self._data)
+        if id:
+            return GuildMember(
+                user_id=int(id),
+                guild_id=self._id,
+                secret=self._secret,
+                session=self._session,
+                guild_cache=self._cached_data,
+
+            )
 
     @property
     def language(self):
@@ -87,10 +96,14 @@ class Guild:
     def members(self):
         member_ids = list(self._members)
         return [
-            Member(
-                Id=int(id),
-                guild_cache=self._data
-            ) for id in member_ids]
+            GuildMember(
+                user_id=int(id),
+                guild_id=self._id,
+                secret=self._secret,
+                session=self._session,
+                guild_cache=self._cached_data,
+            ) for id in member_ids
+        ]
 
     @property
     def rules_channel(self):
@@ -176,7 +189,7 @@ class Guild:
         role_data = [role for role in roles if role['position'] == max_position - 1][0]
         return Role(role_data)
 
-    def pull_channel(self, id: int):
+    def yield_channel(self, id: int):
         payload = self._data["channels"]
         return Channel(
             payload=payload[str(id)],
@@ -184,13 +197,16 @@ class Guild:
             session=self._session,
         )
 
-    def pull_role(self, id: int):
+    def yield_role(self, id: int):
         return Role(self._data["roles"][str(id)])
 
-    def pull_member(self, id: int):
-        return Member(
-            Id=int(id),
-            guild_cache=self._data
+    def yield_member(self, id: int):
+        return GuildMember(
+            user_id=int(id),
+            guild_id=self._id,
+            guild_cache=self._data,
+            secret=self._secret,
+            session=self._session,
         )
 
 
@@ -200,7 +216,7 @@ class GuildFlags:
         self.__features = flags
 
     def __repr__(self):
-        return f'<_GuildFlags {self.ALL}>'
+        return f'<GuildFlags | {self.ALL}>'
 
     @property
     def ALL(self):
@@ -293,3 +309,54 @@ class GuildFlags:
     @property
     def SCREENING_ENABLED(self):
         return "MEMBER_VERIFICATION_GATE_ENABLED" in self.__features
+
+
+class GuildMember(User):
+
+    def __init__(
+            self,
+            secret: str,
+            user_id: int,
+            guild_id: int,
+            guild_cache: dict,
+            session: aiohttp.ClientSession,
+    ):
+        super().__init__(
+            user_id=user_id,
+            user_cache=guild_cache[str(guild_id)]['members'],
+        )
+        self._secret = secret
+        self._session = session
+        self._guild_id = guild_id
+        self._guild_cache = guild_cache
+        self._member: dict = guild_cache[str(guild_id)]['members'][str(user_id)]
+
+    @property
+    def nickname(self):
+        return self._member.get('nick')
+
+    @property
+    def any_name(self):
+        nick = self.nickname
+        return nick if nick else self.name
+
+    @property
+    def roles(self):
+        ids = self._member.get('roles')
+        if ids:
+            return [Role(self._guild_cache['roles'][str(id)]) for id in ids]
+
+    @property
+    def guild_avatar(self):
+        if self._member.get('avatar'):
+            base = 'https://cdn.discordapp.com/'
+            return base + 'avatars' + '/' + str(self._guild_id) + '/' + self._member['avatar'] + '.png'
+
+    @property
+    def guild(self):
+        return Guild(
+            id=self._guild_id,
+            secret=self._secret,
+            payload=self._guild_cache,
+            session=self._session,
+        )

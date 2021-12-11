@@ -62,7 +62,7 @@ class Bot(WebSocket):
 
     def pull_guild(self, id: int):
         return Guild(
-            Id=id,
+            id=id,
             secret=self._secret,
             payload=self._guilds,
             session=self._session,

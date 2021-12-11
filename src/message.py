@@ -29,9 +29,11 @@ class Message:
     def author(self):
         id = self.payload['author']['id']
         return Member(
-            Id=id,
-            guild_cache=self._guild_data[str(self.guild.id)]
-
+            user_id=id,
+            secret=self._secret,
+            session=self._session,
+            guild_id=self.guild.id,
+            guild_cache=self._guild_data
         )
 
     @property
@@ -68,7 +70,7 @@ class Message:
     def guild(self):
         id = self.payload.get('guild_id')
         return Guild(
-            Id=id,
+            id=id,
             secret=self._secret,
             session=self._session,
             payload=self._guild_data,
@@ -94,7 +96,7 @@ class Message:
         resp = await self._session.post(
             f'{head}/channels/{self.channel.id}/messages',
             json={
-                'content': text,
+                'content': str(text),
                 'tts': False,
                 'embeds': parsed,
                 'components': [],

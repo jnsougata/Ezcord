@@ -1,6 +1,7 @@
 import sys
 import inspect
 import traceback
+from .cprint import Log
 from .context import Context
 from .slash import SlashContext
 
@@ -40,11 +41,11 @@ class MsgExec:
                         for cls_ in classes
                         if cls_.__name__ in dtypes[i]
                     ]
-                    await cmd.__call__(self.ctx, *final)
+                    await cmd(self.ctx, *final)
                 except Exception:
                     traceback.print_exception(*sys.exc_info())
             else:
-                print(f"[Invoked] >> {cmd_name}: command not found inside script!")
+                Log.red(f"[Invoked] >> {cmd_name}: command not implemented...")
 
 
 class SlasExec:
@@ -62,4 +63,4 @@ class SlasExec:
         if cmd:
             await cmd(self.ctx)
         else:
-            print(f"[Invoked] >> {self.ctx.data['name']}: command not found inside script!")
+            Log.red(f"[Invoked] >> {self.ctx.data['name']}: command not implemented...")

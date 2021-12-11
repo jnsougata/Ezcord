@@ -62,7 +62,7 @@ ban.add_options([
 async def ban(ctx: SlashContext):
     user_id = ctx.options[0].value
     reason = ctx.options[1].value
-    user = ctx.guild.pull_member(user_id)
+    user = ctx.guild.yield_member(user_id)
     await ctx.reply(
         text=f'{user.mention} got banned!\n**Reason: {reason}**'
     )
@@ -71,7 +71,7 @@ async def ban(ctx: SlashContext):
 @bot.cmd(name='ping')
 async def ping(ctx: Context):
     embed = Embed(description=f'**Pong: {bot.latency}ms**')
-    await ctx.send(embed=embed)
+    await ctx.send(text=f'`{ctx.guild.owner.any_name}`', embed=embed)
 
 
 @bot.listen
@@ -81,7 +81,10 @@ async def on_ready():
 
 @bot.listen
 async def on_message(msg: Message):
-    pass
+    if msg.author.id == bot.id:
+        return
+    if msg.content.startswith('check'):
+        await msg.reply(text='**`Done!`**')
 
 
 bot.start(os.getenv('DISCORD_TOKEN'))

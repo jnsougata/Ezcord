@@ -31,8 +31,8 @@ class Context:
     @property
     def message(self):
         return Message(
-            secret=self._secret,
             payload=self._raw,
+            secret=self._secret,
             session=self._session,
             guild_cache=self._guild_data,
         )
@@ -72,8 +72,11 @@ class Context:
     @property
     def author(self):
         return Member(
-            Id=int(self._user_id),
-            guild_cache=self._guild_data[str(self._guild_id)]
+            guild_cache=self._guild_data,
+            guild_id=int(self._guild_id),
+            user_id=int(self._user_id),
+            session=self._session,
+            secret=self._secret,
         )
 
     @property
@@ -87,7 +90,7 @@ class Context:
     @property
     def guild(self):
         return Guild(
-            Id=self._guild_id,
+            id=self._guild_id,
             secret=self._secret,
             session=self._session,
             payload=self._guild_data,
@@ -121,7 +124,7 @@ class Context:
         resp = await self._session.post(
             f'{self._head}/channels/{self._channel_id}/messages',
             json={
-                'content': text,
+                'content': str(text),
                 'tts': False,
                 'embeds': payload,
                 'components': [],
@@ -145,7 +148,7 @@ class Context:
         resp = await self._session.post(
             f'{self._head}/channels/{self._channel_id}/messages',
             json={
-                'content': text,
+                'content': str(text),
                 'tts': False,
                 'embeds': payload,
                 'components': [],

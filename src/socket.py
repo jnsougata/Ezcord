@@ -231,7 +231,6 @@ class WebSocket:
                 bucket=self._commands,
             ).process_message()
 
-        # checking slash commands
         if raw['t'] == 'INTERACTION_CREATE':
             slash_ctx = SlashContext(
                 response=raw['d'],
@@ -256,24 +255,24 @@ class WebSocket:
         data = self._raw
         if data['t'] == 'GUILD_CREATE':
             guild_id = data['d']['id']
-            blank_ch = dict()
+            ch_cache = dict()
             for channel in data['d']['channels']:
-                blank_ch[str(channel['id'])] = channel
+                ch_cache[str(channel['id'])] = channel
                 self._channels[str(channel['id'])] = channel
-            data['d']['channels'] = blank_ch
-            blank_role = dict()
+            data['d']['channels'] = ch_cache
+            role_cache = dict()
             for role in data['d']['roles']:
-                blank_role[str(role['id'])] = role
-            data['d']['roles'] = blank_role
+                role_cache[str(role['id'])] = role
+            data['d']['roles'] = role_cache
             self._guilds[str(guild_id)] = data['d']
 
     async def _cache_members(self):
         data = self._raw
         if data['t'] == 'GUILD_MEMBERS_CHUNK':
             guild_id = data['d']['guild_id']
-            blank = dict()
-            for member in data['d']['members']:
-                user_id = member['user']['id']
-                blank[str(user_id)] = member
-                self._users[str(user_id)] = member
-            self._guilds[str(guild_id)]['members'] = blank
+            cache = dict()
+            for user in data['d']['members']:
+                user_id = user['user']['id']
+                cache[str(user_id)] = user
+                self._users[str(user_id)] = user
+            self._guilds[str(guild_id)]['members'] = cache
