@@ -249,7 +249,12 @@ class WebSocket:
 
     async def _cache_ready(self):
         if self._raw['t'] == 'READY':
-            self._ready = self._raw['d']
+            data = self._raw['d']
+            temp = dict()
+            temp[data['user']['id']] = {'user': data['user']}
+            data['user'] = temp
+            self._ready = data
+            print(self._ready)
 
     async def _cache_guild(self):
         data = self._raw

@@ -204,10 +204,13 @@ class Guild:
         return GuildMember(
             user_id=int(id),
             guild_id=self._id,
-            guild_cache=self._data,
             secret=self._secret,
             session=self._session,
+            guild_cache=self._cached_data,
         )
+
+    async def send(self, text: str = None, embeds: list = None):
+        pass
 
 
 class GuildFlags:

@@ -5,6 +5,10 @@ class User:
     def __repr__(self):
         return f'{self.name}#{self.discriminator}'
 
+    def __eq__(self, other):
+        if isinstance(other, User):
+            return self.id == other.id
+
     @property
     def id(self):
         return int(self._user.get('id'))

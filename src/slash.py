@@ -1,5 +1,6 @@
 import json
 import aiohttp
+from .embed import Embed
 from .context import Guild
 from .interact import Interaction
 
@@ -265,7 +266,7 @@ class SlashContext(Interaction):
             session=session,
             secret=bot_token,
         )
-        self._sess = session
+        self._session = session
         self._secret = bot_token
         self._guild_cache = guild_cache
 
@@ -273,17 +274,24 @@ class SlashContext(Interaction):
     def options(self):
         return [Options(option) for option in self.data['options']]
 
-    async def send(self, text: str = None, embeds: list = None):
+    async def send(self, text: str = None, embed: Embed = None, embeds: [Embed] = None, ephemeral: bool = False):
         head = 'https://discord.com/api/v9'
+        if embed:
+            payload = [embed.payload]
+        elif embeds:
+            payload = [embed.payload for embed in embeds]
+        else:
+            payload = []
         if self.slash_command:
             url = f'{head}/channels/{self.channel.id}/messages'
             body = {
-                "content": text if text else '*empty',
-                "embeds": embeds if embeds else [],
+                "content": str(text) if text else '*empty',
+                "embeds": payload,
+                "flags": 64 if ephemeral else None
             }
             auth = {"Authorization": f"Bot {self._secret}"}
 
-            await self._sess.post(url=url, data=body, headers=auth)
+            await self._session.post(url=url, data=body, headers=auth)
 
     async def reply(self, text: str = None, embeds: list = None, ephemeral: bool = False):
         head = 'https://discord.com/api/v9'
@@ -297,4 +305,4 @@ class SlashContext(Interaction):
                     "flags": 64 if ephemeral else None,
                 }
             }
-            await self._sess.post(url=url, json=body)
+            await self._session.post(url=url, json=body)

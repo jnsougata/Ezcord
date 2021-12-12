@@ -39,7 +39,7 @@ rate.add_options([
 
 @bot.slash_cmd(command=rate)
 async def rate(ctx: SlashContext):
-    await ctx.send(text='This is working dude!')
+    await ctx.send(text='This is working dude!', ephemeral=True)
 
 
 ban = Slash(name='ban', description='bans a member')
@@ -64,7 +64,8 @@ async def ban(ctx: SlashContext):
     reason = ctx.options[1].value
     user = ctx.guild.yield_member(user_id)
     await ctx.reply(
-        text=f'{user.mention} got banned!\n**Reason: {reason}**'
+        text=f'{user.mention} got banned!\n**Reason: {reason}**',
+        ephemeral=True
     )
 
 
@@ -81,10 +82,10 @@ async def on_ready():
 
 @bot.listen
 async def on_message(msg: Message):
-    if msg.author.id == bot.id:
+    if msg.author == bot.user:
         return
     if msg.content.startswith('check'):
         await msg.reply(text='**`Done!`**')
 
 
-bot.start(os.getenv('DISCORD_TOKEN'))
+bot.launch(os.getenv('DISCORD_TOKEN'))

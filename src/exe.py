@@ -61,6 +61,9 @@ class SlasExec:
     async def process_slash(self):
         cmd = self.bucket.get(self.ctx.data['name'])
         if cmd:
-            await cmd(self.ctx)
+            try:
+                await cmd(self.ctx)
+            except Exception:
+                traceback.print_exception(*sys.exc_info())
         else:
             Log.red(f"[Invoked] >> {self.ctx.data['name']}: command not implemented...")
