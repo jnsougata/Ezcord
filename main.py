@@ -90,7 +90,7 @@ async def on_message(msg: Message):
 
 @bot.listen
 async def on_member_update(old, new):
-    print('cmd:', old.roles, '|', new.roles)
+    print('Old Nick: ', old.nick, '<|>', 'New Nick: ', new.nick)
 
 
 bot.launch(os.getenv('DISCORD_TOKEN'))

@@ -25,7 +25,7 @@ class Member(User):
         self._member: dict = guild_cache[str(guild_id)]['members'][str(user_id)]
 
     @property
-    def nickname(self):
+    def nick(self):
         return self._member.get('nick')
 
     @property
