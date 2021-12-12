@@ -88,4 +88,9 @@ async def on_message(msg: Message):
         await msg.reply(text='**`Done!`**')
 
 
+@bot.listen
+async def on_member_update(old, new):
+    print('cmd:', old.roles, '|', new.roles)
+
+
 bot.launch(os.getenv('DISCORD_TOKEN'))

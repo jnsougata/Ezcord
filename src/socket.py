@@ -6,6 +6,7 @@ import asyncio
 import aiohttp
 import traceback
 from .cprint import Log
+from .member import Member
 from .context import Context
 from .message import Message
 from .slash import SlashContext
@@ -36,15 +37,11 @@ class WebSocket:
         self._raw = None
         self._session = None
         self._session_id = None
-
-        # caching
         self._users = {}
         self._guilds = {}
         self._channels = {}
         self._hello = None
         self._ready = None
-
-        # starters
         self._prefix = prefix
         self._app_id = app_id
         self._secret = secret
@@ -57,8 +54,8 @@ class WebSocket:
     async def _get_gateway(self):
         URL = "https://discordapp.com/api/gateway"
         response = await self._session.get(URL)
-        js = await response.json()
-        return js['url']
+        _json = await response.json()
+        return _json['url']
 
     async def _keep_alive(self):
         if self._raw['op'] == 10:
@@ -115,7 +112,7 @@ class WebSocket:
                 self._ws = ws
                 raw = json.loads(msg.data)
                 self._raw = raw
-                await self._event_pool(raw)
+                await self._event_pool()
                 await self._cache_hello()
                 await self._keep_alive()
                 await self._cache_ready()
@@ -185,37 +182,71 @@ class WebSocket:
             }
             await self._ws.send_json(payload)
 
-    async def _event_pool(self, raw: dict):
-
-        async def event_tracker(key: str, alias: str):
-            func = self._events.get(alias)
-            if func:
-                try:
-                    await func(params[key])
-                except Exception:
-                    traceback.print_exception(*sys.exc_info())
-
-        params = {
-            'MESSAGE_CREATE':
-                Message(
-                    payload=raw['d'],
-                    guild_cache=self._guilds,
-                    session=self._session,
-                    secret=self._secret)
-        }
+    async def _on_ready(self):
+        raw = self._raw
         if raw['t'] == 'READY':
-            Log.blurple('[▶] Done With Internal Caching')
+            Log.blurple('[▶] Processing Internal Cache')
             ready_event = self._events.get('on_ready')
             if ready_event:
                 try:
                     await ready_event()
                 except Exception:
                     traceback.print_exception(*sys.exc_info())
-        elif raw['t'] == 'MESSAGE_CREATE':
-            await event_tracker('MESSAGE_CREATE', 'on_message')
-        else:
-            if raw['t'] and raw['t'] != 'PRESENCE_UPDATE':
-                Log.red(f"[x] Unhandled: {raw}")
+
+    async def _on_message(self):
+        raw = self._raw
+        if raw['t'] == 'MESSAGE_CREATE':
+            msg_event = self._events.get('on_message')
+            if msg_event:
+                try:
+                    await msg_event(
+                        Message(
+                            payload=raw['d'],
+                            guild_cache=self._guilds,
+                            session=self._session,
+                            secret=self._secret
+                        )
+                    )
+                except Exception:
+                    traceback.print_exception(*sys.exc_info())
+
+    async def _on_member_update(self):
+        raw = self._raw
+        if raw['t'] == 'GUILD_MEMBER_UPDATE':
+            try:
+                with open('src/cache.json', 'w') as f:
+                    json.dump(self._guilds, f)
+                guild_id = raw['d']['guild_id']
+                user_id = raw['d']['user']['id']
+                old_guilds = self._guilds
+                members = old_guilds[str(guild_id)]['members']
+                for key, value in raw['d'].items():
+                    members[str(user_id)][key] = value
+                self._guilds[str(guild_id)]['members'] = members
+                old = Member(
+                    secret=self._secret,
+                    user_id=int(user_id),
+                    session=self._session,
+                    guild_id=int(guild_id),
+                    guild_cache=json.load(open('src/cache.json')),
+                )
+                new = Member(
+                    secret=self._secret,
+                    user_id=int(user_id),
+                    session=self._session,
+                    guild_id=int(guild_id),
+                    guild_cache=self._guilds,
+                )
+                func = self._events.get('on_member_update')
+                if func:
+                    await func(old, new)
+            except Exception:
+                traceback.print_exception(*sys.exc_info())
+
+    async def _event_pool(self):
+        await self._on_ready()
+        await self._on_message()
+        await self._on_member_update()
 
     async def _cmd_checker(self, raw: dict):
         if raw['t'] == 'MESSAGE_CREATE':

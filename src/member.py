@@ -37,7 +37,7 @@ class Member(User):
     def roles(self):
         ids = self._member.get('roles')
         if ids:
-            return [Role(self._guild_cache['roles'][str(id)]) for id in ids]
+            return [Role(self._guild_cache[str(self._guild_id)]['roles'][str(id)]) for id in ids]
 
     @property
     def guild_avatar(self):
@@ -50,6 +50,6 @@ class Member(User):
         return Guild(
             id=self._guild_id,
             secret=self._secret,
-            payload=self._guild_cache,
             session=self._session,
+            payload=self._guild_cache,
         )
