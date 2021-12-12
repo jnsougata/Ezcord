@@ -254,7 +254,6 @@ class WebSocket:
             temp[data['user']['id']] = {'user': data['user']}
             data['user'] = temp
             self._ready = data
-            print(self._ready)
 
     async def _cache_guild(self):
         data = self._raw
