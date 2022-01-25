@@ -1,44 +1,42 @@
-import aiohttp
 from .embed import Embed
 from .guild import Guild
 from .member import Member
-from pydantic import BaseModel
+from aiohttp import ClientSession
 from typing import List, Optional
 
 
-class Message(BaseModel):
-    id: int
-    channel_id: int
-    guild_id: int
-    author: object
-    member: object
-    content: str
-    timestamp: str
-    edited_timestamp: Optional[str]
-    tts: bool
-    mention_everyone: bool
-    mentions: list
-    mention_roles: list
-    attachments: list
-    embeds: list
-    reactions: Optional[list]
-    nonce: int
-    pinned: bool
-    webhook_id: Optional[int]
-    type: int
-    activity: object
-    application: object
-    application_id: Optional[int]
-    message_reference: object
-    flags: int
-    referenced_message: object
-    interaction: object
-    thread: object
-    components: object
-    sticker_items: object
-    stickers: object
-    _token: str
-    _session: aiohttp.ClientSession
+class Message:
+    def __init__(self, kwargs: dict):
+        self.id = kwargs.get('id')
+        self.channel_id = kwargs.get('channel_id')
+        self.guild_id = kwargs.get('guild_id')
+        self.author = kwargs.get('author')
+        self.content = kwargs.get('content')
+        self.timestamp = kwargs.get('timestamp')
+        self.edited_timestamp = kwargs.get('edited_timestamp')
+        self.tts = kwargs.get('tts')
+        self.mention_everyone = kwargs.get('mention_everyone')
+        self.mentions = kwargs.get('mentions')
+        self.role_mentions = kwargs.get('mention_roles')
+        self.mention_channels = kwargs.get('mention_channels')
+        self.attachments = kwargs.get('attachments')
+        self.embeds = kwargs.get('embeds')
+        self.reactions = kwargs.get('reactions')
+        self.nonce = kwargs.get('nonce')
+        self.pinned = kwargs.get('pinned')
+        self.webhook_id = kwargs.get('webhook_id')
+        self.type = kwargs.get('type')
+        self.activity = kwargs.get('activity')
+        self.application = kwargs.get('application')
+        self.message_reference = kwargs.get('message_reference')
+        self.referenced_message = kwargs.get('referenced_message')
+        self.flags = kwargs.get('flags')
+        self.thread = kwargs.get('thread')
+        self.components = kwargs.get('components')
+        self.sticker_items = kwargs.get('sticker_items')
+        self.stickers = kwargs.get('stickers')
+        self._token = kwargs.get('token')
+        self.client_session = kwargs.get('session')
 
     def __str__(self):
         return f"(ezcord.Message ID: {self.id})"
@@ -51,7 +49,7 @@ class Message(BaseModel):
         else:
             parsed = []
         head = 'https://discord.com/api/v9'
-        resp = await self._session.post(
+        resp = await self.client_session.post(
             f'{head}/channels/{self.channel.id}/messages',
             json={
                 'content': str(content),
