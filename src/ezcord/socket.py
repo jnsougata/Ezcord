@@ -204,7 +204,11 @@ class WebSocket:
 
     async def _command_executor(self, raw: dict):
         if self._raw['t'] == 'MESSAGE_CREATE':
-            pass
+            payload = self._raw['d']
+            payload['_token'] = self._secret
+            payload['session'] = self._session
+            cmd_ctx = Context(payload, self.__cached)
+            await CommandExecutor(cmd_ctx, self._prefix, self._commands).process()
         if self._raw['t'] == 'INTERACTION_CREATE':
             pass
 
@@ -247,9 +251,9 @@ class WebSocket:
             bulk_member_data = {}
             # hashing users for faster lookup
             for member in data['d']['members']:
+                member['guild_id'] = guild_id
                 member_data = member
                 user_data = member['user']
-                print(member_data)
                 user_id = str(member['user']['id'])
                 self.__cached['users'][user_id] = user_data
                 bulk_member_data[user_id] = member_data
@@ -258,3 +262,12 @@ class WebSocket:
 
     def own(self):
         return self.__cached['ready']['user']
+
+    def get_user(self, user_id: int):
+        return self.__cached['users'][str(user_id)]
+
+    def get_guild(self, guild_id: int):
+        return self.__cached['guilds'][str(guild_id)]
+
+    def get_channel(self, channel_id: int):
+        return self.__cached['channels'][str(channel_id)]

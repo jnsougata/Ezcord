@@ -1,8 +1,8 @@
 class User:
-    def __init__(self, user_id: int, user_cache: dict):
-        self._user = user_cache[str(user_id)]['user']
+    def __init__(self, _object: dict):
+        self.__object = _object
 
-    def __repr__(self):
+    def __str__(self):
         return f'{self.name}#{self.discriminator}'
 
     def __eq__(self, other):
@@ -11,19 +11,33 @@ class User:
 
     @property
     def id(self):
-        return int(self._user.get('id'))
+        snowflake = self.__object.get('id')
+        if snowflake:
+            return int(snowflake)
 
     @property
     def name(self):
-        return self._user.get('username')
+        return self.__object.get('username')
 
     @property
     def discriminator(self):
-        return self._user.get('discriminator')
+        return self.__object.get('discriminator')
+
+    @property
+    def verified(self):
+        return self.__object.get('verified')
+
+    @property
+    def email(self):
+        return self.__object.get('email')
+
+    @property
+    def banner(self):
+        return self.__object.get('banner')
 
     @property
     def flags(self):
-        return self._user.get('public_flags')
+        return self.__object.get('public_flags')
 
     @property
     def mention(self):
@@ -31,5 +45,20 @@ class User:
 
     @property
     def avatar(self):
-        base = 'https://cdn.discordapp.com/'
-        return base + 'avatars' + '/' + str(self.id) + '/' + self._user.get('avatar') + '.png'
+        return self.__object.get('avatar')
+
+    @property
+    def color(self):
+        return self.__object.get('accent_color')
+
+    @property
+    def bot(self):
+        return self.__object.get('bot')
+
+    @property
+    def premium_type(self):
+        return self.__object.get('premium_type')
+
+    @property
+    def public_flags(self):
+        return self.__object.get('public_flags')

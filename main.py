@@ -15,8 +15,8 @@ async def ping(ctx: Context):
     await ctx.send(embed=emd)
 
 
-@bot.event
-async def on_ready():
-    pass
+@bot.command(name='guild')
+async def _guild(ctx: Context):
+    await ctx.send(f'{ctx.guild.name}')
 
 bot.run(os.getenv('DISCORD_TOKEN'))

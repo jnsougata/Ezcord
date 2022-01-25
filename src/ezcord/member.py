@@ -1,32 +1,20 @@
 import aiohttp
 from .role import Role
 from .user import User
-from .guild import Guild
 
 
 class Member(User):
 
-    def __init__(
-            self,
-            secret: str,
-            user_id: int,
-            guild_id: int,
-            guild_cache: dict,
-            session: aiohttp.ClientSession,
-    ):
-        super().__init__(
-            user_id=user_id,
-            user_cache=guild_cache[str(guild_id)]['members'],
-        )
-        self._secret = secret
-        self._session = session
-        self._guild_id = guild_id
-        self._guild_cache = guild_cache
-        self._member: dict = guild_cache[str(guild_id)]['members'][str(user_id)]
+    def __init__(self, _object: dict):
+        super().__init__(_object)
+        self.__object = _object
+        self._secret = _object.get('_token')
+        self._session = _object.get('session')
+        self._guild_id = _object.get('guild_id')
 
     @property
     def nick(self):
-        return self._member.get('nick')
+        return self.__object.get('nick')
 
     @property
     def any_name(self):
@@ -35,21 +23,46 @@ class Member(User):
 
     @property
     def roles(self):
-        ids = self._member.get('roles')
+        ids = self.__object.get('roles')
         if ids:
-            return [Role(self._guild_cache[str(self._guild_id)]['roles'][str(id)]) for id in ids]
+            return ids
 
     @property
     def guild_avatar(self):
-        if self._member.get('avatar'):
-            base = 'https://cdn.discordapp.com/'
-            return base + 'avatars' + '/' + str(self._guild_id) + '/' + self._member['avatar'] + '.png'
+        hash_ = self.__object.get('avatar')
+        if hash_:
+            return f'https://cdn.discordapp.com/avatars/{str(self.guild_id)}/{hash_}.png'
 
     @property
-    def guild(self):
-        return Guild(
-            id=self._guild_id,
-            secret=self._secret,
-            session=self._session,
-            payload=self._guild_cache,
-        )
+    def joined_at(self):
+        return self.__object.get('joined_at')
+
+    @property
+    def boosting_from(self):
+        return self.__object.get('premium_since')
+
+    @property
+    def deafened(self):
+        return self.__object.get('deaf')
+
+    @property
+    def muted(self):
+        return self.__object.get('mute')
+
+    @property
+    def pending(self):
+        return self.__object.get('pending')
+
+    @property
+    def permissions(self):
+        return self.__object.get('permissions')
+
+    @property
+    def timed_out(self):
+        if self.__object.get('communication_disabled_until'):
+            return True
+
+    @property
+    def timeout_until(self):
+        if self.__object.get('communication_disabled_until'):
+            return self.__object.get('communication_disabled_until')

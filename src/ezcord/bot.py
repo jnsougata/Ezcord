@@ -38,34 +38,12 @@ class Bot(WebSocket):
         )
 
     @property
-    def own(self):
-        return User(
-            user_cache=self._ready['user'],
-            user_id=int(list(self._ready['user'])[0]),
-        )
-
-    @property
     def guilds(self):
         return len(self._guilds)
 
     @property
     def channels(self):
         return len(self._channels)
-
-    def get_guild(self, id: int):
-        return Guild(
-            id=id,
-            secret=self._secret,
-            payload=self._guilds,
-            session=self.client_session,
-        )
-
-    def get_channel(self, id: int):
-        return Channel(
-            secret=self._secret,
-            payload=self._channels[str(id)],
-            session=self.client_session,
-        )
 
     def slash_command(self, command: Slash):
         self._slash_queue.append(command.json)
