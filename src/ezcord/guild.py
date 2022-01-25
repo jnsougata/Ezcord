@@ -63,7 +63,7 @@ class Guild:
         return self.__all.get("roles").get(str(id))
 
 
-class _Flags(BaseModel):
+'''class _Flags:
     ALL: list
     ANIMATED_ICON: bool
     BANNER: bool
@@ -86,4 +86,4 @@ class _Flags(BaseModel):
     SEVEN_DAY_THREAD_ARCHIVE: bool
     THREE_DAY_THREAD_ARCHIVE: bool
     TICKETED_EVENTS_ENABLED: bool
-    SCREENING_ENABLED: bool
+    SCREENING_ENABLED: bool'''

@@ -103,7 +103,6 @@ class WebSocket:
             async for msg in ws:
                 self._ws = ws
                 raw = json.loads(msg.data)
-                print(raw)
                 self._raw = raw
                 await self._event_listener_pool()
                 await self._cache_hello()
@@ -190,16 +189,12 @@ class WebSocket:
         raw = self._raw
         if raw['t'] == 'MESSAGE_CREATE':
             msg_event = self._events.get('on_message')
+            data = raw['d']
+            data['_token'] = self._secret
+            data['session'] = self._session
             if msg_event:
                 try:
-                    await msg_event(
-                        Message(
-                            payload=raw['d'],
-                            guild_cache=self._guilds,
-                            session=self._session,
-                            secret=self._secret
-                        )
-                    )
+                    await msg_event(Message(data))
                 except Exception:
                     traceback.print_exception(*sys.exc_info())
 
@@ -252,12 +247,14 @@ class WebSocket:
             bulk_member_data = {}
             # hashing users for faster lookup
             for member in data['d']['members']:
+                member_data = member
                 user_data = member['user']
+                print(member_data)
                 user_id = str(member['user']['id'])
                 self.__cached['users'][user_id] = user_data
+                bulk_member_data[user_id] = member_data
             # hashing members for faster lookup
             self.__cached[guild_id]['members'] = bulk_member_data
 
     def own(self):
         return self.__cached['ready']['user']
-
