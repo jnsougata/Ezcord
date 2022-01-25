@@ -200,7 +200,7 @@ class Guild:
     def yield_role(self, id: int):
         return Role(self._data["roles"][str(id)])
 
-    def yield_member(self, id: int):
+    def get_member(self, id: int):
         return GuildMember(
             user_id=int(id),
             guild_id=self._id,

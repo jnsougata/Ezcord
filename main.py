@@ -1,5 +1,5 @@
 import os
-from src import *
+from src.ezcord import *
 
 
 APP = 874663148374880287
@@ -37,7 +37,7 @@ rate.add_options([
 ])
 
 
-@bot.slash_cmd(command=rate)
+@bot.slash_command(command=rate)
 async def rate(ctx: SlashContext):
     await ctx.send(text='This is working dude!', ephemeral=True)
 
@@ -58,39 +58,33 @@ ban.add_options([
 ])
 
 
-@bot.slash_cmd(command=ban)
+@bot.slash_command(command=ban)
 async def ban(ctx: SlashContext):
     user_id = ctx.options[0].value
     reason = ctx.options[1].value
-    user = ctx.guild.yield_member(user_id)
+    user = ctx.guild.get_member(user_id)
     await ctx.reply(
         text=f'{user.mention} got banned!\n**Reason: {reason}**',
         ephemeral=True
     )
 
 
-@bot.cmd(name='ping')
+@bot.command(name='ping')
 async def ping(ctx: Context):
-    embed = Embed(description=f'**Pong: {bot.latency}ms**')
-    await ctx.send(text=f'`{ctx.guild.owner.any_name}`', embed=embed)
+    emd = Embed(description=f'**Pong: {bot.latency}ms**')
+    await ctx.send(text=f'`{ctx.guild.owner.any_name}`', embed=emd)
 
 
-@bot.listen
+@bot.event
 async def on_ready():
     pass
 
 
-@bot.listen
+@bot.event
 async def on_message(msg: Message):
-    if msg.author == bot.user:
+    if msg.author == bot.own:
         return
     if msg.content.startswith('check'):
         await msg.reply(text='**`Done!`**')
 
-
-@bot.listen
-async def on_member_update(old, new):
-    print('Old Nick: ', old.nick, '<|>', 'New Nick: ', new.nick)
-
-
-bot.launch(os.getenv('DISCORD_TOKEN'))
+bot.run(os.getenv('DISCORD_TOKEN'))

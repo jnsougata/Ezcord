@@ -38,7 +38,7 @@ class Bot(WebSocket):
         )
 
     @property
-    def user(self):
+    def own(self):
         return User(
             user_cache=self._ready['user'],
             user_id=int(list(self._ready['user'])[0]),
@@ -52,7 +52,7 @@ class Bot(WebSocket):
     def channels(self):
         return len(self._channels)
 
-    def yield_guild(self, id: int):
+    def get_guild(self, id: int):
         return Guild(
             id=id,
             secret=self._secret,
@@ -60,14 +60,14 @@ class Bot(WebSocket):
             session=self._session,
         )
 
-    def yield_channel(self, id: int):
+    def get_channel(self, id: int):
         return Channel(
             secret=self._secret,
             payload=self._channels[str(id)],
             session=self._session,
         )
 
-    def slash_cmd(self, command: Slash):
+    def slash_command(self, command: Slash):
         self._slash_queue.append(command.json)
 
         def decorator(func):
@@ -79,7 +79,7 @@ class Bot(WebSocket):
 
         return decorator
 
-    def cmd(self, name: str):
+    def command(self, name: str):
         def decorator(func):
             @wraps(func)
             def wrapper(*args, **kwargs):
@@ -89,10 +89,10 @@ class Bot(WebSocket):
 
         return decorator
 
-    def listen(self, fn):
+    def event(self, fn):
         self._events[fn.__name__] = fn
 
-    def launch(self, token: str):
+    def run(self, token: str):
         self._secret = token
         loop = asyncio.new_event_loop()
         try:
