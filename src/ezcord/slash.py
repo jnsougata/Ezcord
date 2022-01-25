@@ -277,9 +277,9 @@ class SlashContext(Interaction):
     async def send(self, text: str = None, embed: Embed = None, embeds: [Embed] = None, ephemeral: bool = False):
         head = 'https://discord.com/api/v9'
         if embed:
-            payload = [embed.payload]
+            payload = [embed._init]
         elif embeds:
-            payload = [embed.payload for embed in embeds]
+            payload = [embed._init for embed in embeds]
         else:
             payload = []
         if self.slash_command:

@@ -32,7 +32,7 @@ class Bot(WebSocket):
             intents=intents,
             guild_id=guild_id,
             events=self._events,
-            secret=self._secret,
+            token=self._secret,
             commands=self._cmd_pool,
             slash_queue=self._slash_queue,
         )
@@ -57,14 +57,14 @@ class Bot(WebSocket):
             id=id,
             secret=self._secret,
             payload=self._guilds,
-            session=self._session,
+            session=self.client_session,
         )
 
     def get_channel(self, id: int):
         return Channel(
             secret=self._secret,
             payload=self._channels[str(id)],
-            session=self._session,
+            session=self.client_session,
         )
 
     def slash_command(self, command: Slash):

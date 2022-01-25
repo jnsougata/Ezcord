@@ -116,9 +116,9 @@ class Context:
 
     async def send(self, text: str = None, embed: Embed = None, embeds: [Embed] = None):
         if embeds:
-            payload = [embed.payload for embed in embeds]
+            payload = [embed._init for embed in embeds]
         elif embed:
-            payload = [embed.payload]
+            payload = [embed._init]
         else:
             payload = []
         resp = await self._session.post(
@@ -140,9 +140,9 @@ class Context:
 
     async def reply(self, text: str = None, embed: Embed = None, embeds: [Embed] = None):
         if embeds:
-            payload = [embed.payload for embed in embeds]
+            payload = [embed._init for embed in embeds]
         elif embed:
-            payload = [embed.payload]
+            payload = [embed._init]
         else:
             payload = []
         resp = await self._session.post(

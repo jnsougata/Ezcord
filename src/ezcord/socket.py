@@ -10,7 +10,7 @@ from .member import Member
 from .context import Context
 from .message import Message
 from .slash import SlashContext
-from .exe import MsgExec, SlasExec
+from .executor import CommandExecutor, SlashExecutor
 
 
 class WebSocket:
@@ -20,7 +20,7 @@ class WebSocket:
             self,
             prefix: str,
             app_id: int,
-            secret: str,
+            token: str,
             intents: int,
             guild_id: int,
             events: dict,
@@ -35,47 +35,40 @@ class WebSocket:
         self._ws = None
         self._uri = None
         self._raw = None
+        self.http = None
+        self._interval = None
         self._session = None
-        self._session_id = None
-        self._users = {}
-        self._guilds = {}
-        self._channels = {}
-        self._hello = None
-        self._ready = None
         self._prefix = prefix
         self._app_id = app_id
-        self._secret = secret
+        self._secret = token
         self._events = events
         self._intents = intents
         self._commands = commands
         self._test_guild = guild_id
         self._reg_queue = slash_queue
 
+        # main cache
+        self.__cached = {'ready': None, 'hello': None, 'users': {}, 'guilds': {}, 'channels': {}}
+
     async def _get_gateway(self):
-        URL = "https://discordapp.com/api/gateway"
-        response = await self._session.get(URL)
-        _json = await response.json()
-        return _json['url']
+        url = "https://discordapp.com/api/gateway"
+        resp = await self._session.get(url)
+        gateway = await resp.json()
+        return gateway.get('url')
 
     async def _keep_alive(self):
         if self._raw['op'] == 10:
-            data = self._hello
-            sleep = data['heartbeat_interval'] / 1000
-            asyncio.ensure_future(
-                self._heartbeat_send(sleep)
-            )
+            asyncio.ensure_future(self._heartbeat_send(self._interval / 1000))
 
-    async def _heartbeat_ack(self):
-        data = self._raw
-        if data['op'] == 11:
+        if self._raw['op'] == 11:
             self._ack = time.perf_counter() * 1000
             self.latency = round(self._ack - self._sent)
 
-    async def _heartbeat_send(self, dur):
+    async def _heartbeat_send(self, duration: float):
         while True:
             self._sent = time.perf_counter() * 1000
             await self._ws.send_json({"op": 1, "d": None})
-            await asyncio.sleep(dur)
+            await asyncio.sleep(duration)
 
     async def _store_session(self):
         raw = self._raw
@@ -100,19 +93,19 @@ class WebSocket:
                 }
             )
 
-    async def _update_seq(self):
+    async def _update_sequence(self):
         seq = self._raw['s']
         if seq:
             self._seq = seq
 
     async def __start_listener(self):
-        async with self._session.ws_connect(
-                f"{self._uri}?v=9&encoding=json") as ws:
+        async with self._session.ws_connect(f"{self._uri}?v=9&encoding=json") as ws:
             async for msg in ws:
                 self._ws = ws
                 raw = json.loads(msg.data)
+                print(raw)
                 self._raw = raw
-                await self._event_pool()
+                await self._event_listener_pool()
                 await self._cache_hello()
                 await self._keep_alive()
                 await self._cache_ready()
@@ -121,10 +114,9 @@ class WebSocket:
                 await self._req_members()
                 await self._cache_members()
                 await self._store_session()
-                await self._update_seq()
-                await self._heartbeat_ack()
+                await self._update_sequence()
                 await self._reconnect()
-                await self._cmd_checker(raw)
+                await self._command_executor(raw)
 
     async def _connect(self):
         Log.purple('''
@@ -137,6 +129,7 @@ class WebSocket:
         Log.green(f'[🔌] 🖿 ━━━━━━━━━ ✓ ━━━━━━━━━ 🌐')
         async with aiohttp.ClientSession() as session:
             self._session = session
+            self.http = session
             self._uri = await self._get_gateway()
             await self._reg_slash()
             await self.__start_listener()
@@ -182,10 +175,10 @@ class WebSocket:
             }
             await self._ws.send_json(payload)
 
-    async def _on_ready(self):
-        raw = self._raw
-        if raw['t'] == 'READY':
-            Log.blurple('[▶] Processing Internal Cache')
+    async def _ready_listener(self):
+        if self._raw['t'] == 'READY':
+            Log.blurple('[⤓] Caching Data Into Memory')
+            Log.red('----------------')
             ready_event = self._events.get('on_ready')
             if ready_event:
                 try:
@@ -193,7 +186,7 @@ class WebSocket:
                 except Exception:
                     traceback.print_exception(*sys.exc_info())
 
-    async def _on_message(self):
+    async def _message_create_listener(self):
         raw = self._raw
         if raw['t'] == 'MESSAGE_CREATE':
             msg_event = self._events.get('on_message')
@@ -210,104 +203,61 @@ class WebSocket:
                 except Exception:
                     traceback.print_exception(*sys.exc_info())
 
-    async def _on_member_update(self):
-        raw = self._raw
-        if raw['t'] == 'GUILD_MEMBER_UPDATE':
-            try:
-                with open('src/cache.json', 'w') as f:
-                    json.dump(self._guilds, f)
-                guild_id = raw['d']['guild_id']
-                user_id = raw['d']['user']['id']
-                old_guilds = self._guilds
-                members = old_guilds[str(guild_id)]['members']
-                for key, value in raw['d'].items():
-                    members[str(user_id)][key] = value
-                self._guilds[str(guild_id)]['members'] = members
-                old = Member(
-                    secret=self._secret,
-                    user_id=int(user_id),
-                    session=self._session,
-                    guild_id=int(guild_id),
-                    guild_cache=json.load(open('src/cache.json')),
-                )
-                new = Member(
-                    secret=self._secret,
-                    user_id=int(user_id),
-                    session=self._session,
-                    guild_id=int(guild_id),
-                    guild_cache=self._guilds,
-                )
-                func = self._events.get('on_member_update')
-                if func:
-                    await func(old, new)
-            except Exception:
-                traceback.print_exception(*sys.exc_info())
+    async def _event_listener_pool(self):
+        await self._ready_listener()
+        await self._message_create_listener()
 
-    async def _event_pool(self):
-        await self._on_ready()
-        await self._on_message()
-        await self._on_member_update()
-
-    async def _cmd_checker(self, raw: dict):
-        if raw['t'] == 'MESSAGE_CREATE':
-            ctx = Context(
-                payload=raw['d'],
-                session=self._session,
-                secret=self._secret,
-                guildcache=self._guilds
-            )
-            await MsgExec(
-                ctx=ctx,
-                prefix=self._prefix,
-                bucket=self._commands,
-            ).process_message()
-
-        if raw['t'] == 'INTERACTION_CREATE':
-            slash_ctx = SlashContext(
-                response=raw['d'],
-                session=self._session,
-                bot_token=self._secret,
-                guild_cache=self._guilds
-            )
-            await SlasExec(
-                ctx=slash_ctx,
-                bucket=self._commands
-            ).process_slash()
+    async def _command_executor(self, raw: dict):
+        if self._raw['t'] == 'MESSAGE_CREATE':
+            pass
+        if self._raw['t'] == 'INTERACTION_CREATE':
+            pass
 
     async def _cache_hello(self):
         if self._raw['op'] == 10:
-            self._hello = self._raw['d']
+            self._interval = self._raw['d']['heartbeat_interval']
+            self.__cached['hello'] = self._raw['d']
 
     async def _cache_ready(self):
         if self._raw['t'] == 'READY':
-            data = self._raw['d']
-            temp = dict()
-            temp[data['user']['id']] = {'user': data['user']}
-            data['user'] = temp
-            self._ready = data
+            self.__cached['ready'] = self._raw['d']
 
     async def _cache_guild(self):
         data = self._raw
         if data['t'] == 'GUILD_CREATE':
-            guild_id = data['d']['id']
-            ch_cache = dict()
-            for channel in data['d']['channels']:
-                ch_cache[str(channel['id'])] = channel
-                self._channels[str(channel['id'])] = channel
-            data['d']['channels'] = ch_cache
-            role_cache = dict()
-            for role in data['d']['roles']:
-                role_cache[str(role['id'])] = role
-            data['d']['roles'] = role_cache
-            self._guilds[str(guild_id)] = data['d']
+            guild_data = data['d']
+            guild_id = str(data['d']['id'])
+            bulk_channel_data = {}
+            bulk_role_data = {}
+            # hashing channels for faster lookup
+            for channel in guild_data['channels']:
+                channel_id = str(channel['id'])
+                channel_data = channel
+                bulk_channel_data[channel_id] = channel_data
+                self.__cached['channels'][channel_id] = channel_data
+            data['d']['channels'] = bulk_channel_data
+            # hashing roles for faster lookup
+            for role in guild_data['roles']:
+                role_id = str(role['id'])
+                role_data = role
+                bulk_role_data[role_id] = role_data
+            guild_data['roles'] = bulk_role_data
+            # hashing guilds for faster lookup
+            self.__cached[guild_id] = guild_data
 
     async def _cache_members(self):
         data = self._raw
         if data['t'] == 'GUILD_MEMBERS_CHUNK':
-            guild_id = data['d']['guild_id']
-            cache = dict()
-            for user in data['d']['members']:
-                user_id = user['user']['id']
-                cache[str(user_id)] = user
-                self._users[str(user_id)] = user
-            self._guilds[str(guild_id)]['members'] = cache
+            guild_id = str(data['d']['guild_id'])
+            bulk_member_data = {}
+            # hashing users for faster lookup
+            for member in data['d']['members']:
+                user_data = member['user']
+                user_id = str(member['user']['id'])
+                self.__cached['users'][user_id] = user_data
+            # hashing members for faster lookup
+            self.__cached[guild_id]['members'] = bulk_member_data
+
+    def own(self):
+        return self.__cached['ready']['user']
+

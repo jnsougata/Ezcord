@@ -6,19 +6,14 @@ from .context import Context
 from .slash import SlashContext
 
 
-class MsgExec:
+class CommandExecutor:
 
-    def __init__(
-            self,
-            ctx: Context,
-            prefix: str,
-            bucket: {},
-    ):
+    def __init__(self, ctx: Context, prefix: str, bucket: dict):
         self.ctx = ctx
         self.prefix = prefix
         self.bucket = bucket
 
-    async def process_message(self):
+    async def process(self):
         message = self.ctx.message.content
         if message and message.startswith(self.prefix):
             args = message.split(' ')
@@ -48,7 +43,7 @@ class MsgExec:
                 Log.red(f"[Invoked] >> {cmd_name}: command not implemented...")
 
 
-class SlasExec:
+class SlashExecutor:
 
     def __init__(
             self,
@@ -58,7 +53,7 @@ class SlasExec:
         self.ctx = ctx
         self.bucket = bucket
 
-    async def process_slash(self):
+    async def process(self):
         cmd = self.bucket.get(self.ctx.data['name'])
         if cmd:
             try:

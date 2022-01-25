@@ -1,0 +1,4 @@
+asyncio~=3.4.3
+aiohttp~=3.8.1
+setuptools~=60.5.0
+pydantic~=1.9.0
