@@ -6,7 +6,7 @@ from .user import User
 class Member(User):
 
     def __init__(self, _object: dict):
-        super().__init__(_object)
+        super().__init__(_object['user'])
         self.__object = _object
         self._secret = _object.get('_token')
         self._session = _object.get('session')

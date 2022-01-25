@@ -207,8 +207,8 @@ class WebSocket:
             payload = self._raw['d']
             payload['_token'] = self._secret
             payload['session'] = self._session
-            cmd_ctx = Context(payload, self.__cached)
-            await CommandExecutor(cmd_ctx, self._prefix, self._commands).process()
+            _ctx = Context(payload, self.__cached)
+            await CommandExecutor(_ctx, self._prefix, self._commands).process()
         if self._raw['t'] == 'INTERACTION_CREATE':
             pass
 
@@ -242,7 +242,7 @@ class WebSocket:
                 bulk_role_data[role_id] = role_data
             guild_data['roles'] = bulk_role_data
             # hashing guilds for faster lookup
-            self.__cached[guild_id] = guild_data
+            self.__cached['guilds'][guild_id] = guild_data
 
     async def _cache_members(self):
         data = self._raw
@@ -254,11 +254,11 @@ class WebSocket:
                 member['guild_id'] = guild_id
                 member_data = member
                 user_data = member['user']
-                user_id = str(member['user']['id'])
+                user_id = str(user_data['id'])
                 self.__cached['users'][user_id] = user_data
                 bulk_member_data[user_id] = member_data
             # hashing members for faster lookup
-            self.__cached[guild_id]['members'] = bulk_member_data
+            self.__cached['guilds'][guild_id]['members'] = bulk_member_data
 
     def own(self):
         return self.__cached['ready']['user']

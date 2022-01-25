@@ -14,6 +14,7 @@ class Context:
         self._cached = _cached
         self._secret = _object.get('_token')
         self._session = _object.get('session')
+        self._guild_id = _object.get('guild_id')
         self._channel_id = _object.get('channel_id')
         self._author_id = _object.get('author').get('id')
         self._head = 'https://discord.com/api/v9'
@@ -28,7 +29,7 @@ class Context:
 
     @property
     def guild(self):
-        return Guild(self._cached)
+        return Guild(self._cached['guilds'][self._guild_id])
 
     async def send(self, content: str = None, embed: Embed = None, embeds: [Embed] = None):
         if embeds:

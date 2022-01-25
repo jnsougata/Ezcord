@@ -17,6 +17,6 @@ async def ping(ctx: Context):
 
 @bot.command(name='foo')
 async def _guild(ctx: Context):
-    await ctx.send(f'{ctx.guild.__dict__}')
+    await ctx.send(f'{ctx.author.__dict__}')
 
 bot.run(os.getenv('DISCORD_TOKEN'))
