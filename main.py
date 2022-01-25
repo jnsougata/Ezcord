@@ -12,11 +12,11 @@ bot = Bot(prefix='-', app_id=APP, guild_id=TEST, intents=Intents.members)
 @bot.command(name='ping')
 async def ping(ctx: Context):
     emd = Embed(description=f'**Pong: {bot.latency}ms**')
-    await ctx.send(embed=emd)
+    await ctx.reply(embed=emd)
 
 
-@bot.command(name='guild')
+@bot.command(name='foo')
 async def _guild(ctx: Context):
-    await ctx.send(f'{ctx.guild.name}')
+    await ctx.send(f'{ctx.guild.__dict__}')
 
 bot.run(os.getenv('DISCORD_TOKEN'))

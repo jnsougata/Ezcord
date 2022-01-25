@@ -35,7 +35,7 @@ class Guild:
         self.unavailable = _object.get("unavailable")
         self.member_count = _object.get("member_count")
         self.voice_states = _object.get("voice_states")
-        self.self.members = _object.get("members")
+        self.members = _object.get("members")
         self.channels = _object.get("channels")
         self.presences = _object.get("presences")
         self.max_presences = _object.get("max_presences")

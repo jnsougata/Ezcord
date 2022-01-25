@@ -14,6 +14,7 @@ class Context:
         self._cached = _cached
         self._secret = _object.get('_token')
         self._session = _object.get('session')
+        self._channel_id = _object.get('channel_id')
         self._author_id = _object.get('author').get('id')
         self._head = 'https://discord.com/api/v9'
 
@@ -29,7 +30,7 @@ class Context:
     def guild(self):
         return Guild(self._cached)
 
-    async def send(self, text: str = None, embed: Embed = None, embeds: [Embed] = None):
+    async def send(self, content: str = None, embed: Embed = None, embeds: [Embed] = None):
         if embeds:
             payload = [embed.dict() for embed in embeds]
         elif embed:
@@ -37,9 +38,9 @@ class Context:
         else:
             payload = []
         resp = await self._session.post(
-            f'{self._head}/channels/{self.message.channel_id}/messages',
+            f'{self._head}/channels/{self._channel_id}/messages',
             json={
-                'content': str(text),
+                'content': str(content),
                 'tts': False,
                 'embeds': payload,
                 'components': [],
@@ -53,7 +54,7 @@ class Context:
         )
         return await resp.json()
 
-    async def reply(self, text: str = None, embed: Embed = None, embeds: [Embed] = None):
+    async def reply(self, content: str = None, embed: Embed = None, embeds: [Embed] = None):
         if embeds:
             payload = [embed.dict() for embed in embeds]
         elif embed:
@@ -61,9 +62,9 @@ class Context:
         else:
             payload = []
         resp = await self._session.post(
-            f'{self._head}/channels/{self.message.channel_id}/messages',
+            f'{self._head}/channels/{self._channel_id}/messages',
             json={
-                'content': str(text),
+                'content': str(content),
                 'tts': False,
                 'embeds': payload,
                 'components': [],
