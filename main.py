@@ -16,7 +16,13 @@ async def ping(ctx: Context):
 
 
 @bot.command(name='foo')
-async def _guild(ctx: Context):
-    await ctx.send(f'{ctx.author.__dict__}')
+async def _foo(ctx: Context):
+    await ctx.send(f'{bot.user()}')
+
+
+@bot.event
+async def on_ready():
+    print(f'Logged in as {bot.user} (ID: {bot.user.id})')
+    print(f'------')
 
 bot.run(os.getenv('DISCORD_TOKEN'))
